@@ -262,7 +262,7 @@ struct OperationSignature<Operation, Generics, Args, ReturnType> {
 }
 
 struct OperationBody<ReturnExpr> {
-    statements: Vec<Box<dyn Statement>>,
+    statements: Vec<Statement>,
     return_expr: ReturnExpr,
 }
 
@@ -311,24 +311,29 @@ trait Operation<Generics> {
 //     PtrSpace(usize),
 // }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 struct TypeAtom;
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 struct TypeSpace(usize);
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 struct TypeSpacePtr(usize);
+
+trait TypeTrait: Copy + PartialEq + std::fmt::Debug {}
+impl TypeTrait for TypeAtom {}
+impl TypeTrait for TypeSpace {}
+impl TypeTrait for TypeSpacePtr {}
 
 struct Variable<Type> {
     name: Rc<str>,
     ty: Type,
 }
 
-struct TypedExpr<Type> {
+struct Expression<Type> {
     ty: Type,
-    expression: Box<dyn Expression<Type = Type>>,
+    expression: Box<dyn ExpressionTrait<Type = Type>>,
 }
 
-impl<Type, Expr: Expression<Type = Type> + 'static> From<Expr> for TypedExpr<Type> {
+impl<Type, Expr: ExpressionTrait<Type = Type> + 'static> From<Expr> for Expression<Type> {
     fn from(expr: Expr) -> Self {
         Self {
             ty: expr.ty(),
@@ -337,8 +342,8 @@ impl<Type, Expr: Expression<Type = Type> + 'static> From<Expr> for TypedExpr<Typ
     }
 }
 
-trait Expression {
-    type Type;
+trait ExpressionTrait {
+    type Type: TypeTrait;
 
     fn ty(&self) -> Self::Type;
 }
@@ -347,7 +352,10 @@ struct ExprVariable<Type> {
     variable: Variable<Type>,
 }
 
-impl<Type: Copy> Expression for ExprVariable<Type> {
+impl<Type> ExpressionTrait for ExprVariable<Type>
+where
+    Type: TypeTrait,
+{
     type Type = Type;
 
     fn ty(&self) -> Self::Type {
@@ -356,11 +364,11 @@ impl<Type: Copy> Expression for ExprVariable<Type> {
 }
 
 struct ExprFieldAccess {
-    expr: TypedExpr<TypeSpace>,
+    expr: Expression<TypeSpace>,
     blade_index: usize,
 }
 
-impl Expression for ExprFieldAccess {
+impl ExpressionTrait for ExprFieldAccess {
     type Type = TypeAtom;
 
     fn ty(&self) -> Self::Type {
@@ -369,11 +377,11 @@ impl Expression for ExprFieldAccess {
 }
 
 struct ExprPtrFieldAccess {
-    expr: TypedExpr<TypeSpacePtr>,
+    expr: Expression<TypeSpacePtr>,
     blade_index: usize,
 }
 
-impl Expression for ExprPtrFieldAccess {
+impl ExpressionTrait for ExprPtrFieldAccess {
     type Type = TypeAtom;
 
     fn ty(&self) -> Self::Type {
@@ -385,7 +393,7 @@ struct ExprLiteral {
     value: u8,
 }
 
-impl Expression for ExprLiteral {
+impl ExpressionTrait for ExprLiteral {
     type Type = TypeAtom;
 
     fn ty(&self) -> Self::Type {
@@ -396,10 +404,10 @@ impl Expression for ExprLiteral {
 struct ExprStruct {
     name: Rc<str>,
     space: usize,
-    fields: Vec<(Rc<str>, TypedExpr<TypeAtom>)>,
+    fields: Vec<(Rc<str>, Expression<TypeAtom>)>,
 }
 
-impl Expression for ExprStruct {
+impl ExpressionTrait for ExprStruct {
     type Type = TypeSpace;
 
     fn ty(&self) -> Self::Type {
@@ -408,10 +416,13 @@ impl Expression for ExprStruct {
 }
 
 struct ExprGroup<Type> {
-    expr: TypedExpr<Type>,
+    expr: Expression<Type>,
 }
 
-impl<Type: Copy> Expression for ExprGroup<Type> {
+impl<Type> ExpressionTrait for ExprGroup<Type>
+where
+    Type: TypeTrait,
+{
     type Type = Type;
 
     fn ty(&self) -> Self::Type {
@@ -420,10 +431,10 @@ impl<Type: Copy> Expression for ExprGroup<Type> {
 }
 
 struct ExprNeg {
-    expr: TypedExpr<TypeAtom>,
+    expr: Expression<TypeAtom>,
 }
 
-impl Expression for ExprNeg {
+impl ExpressionTrait for ExprNeg {
     type Type = TypeAtom;
 
     fn ty(&self) -> Self::Type {
@@ -432,11 +443,11 @@ impl Expression for ExprNeg {
 }
 
 struct ExprAdd {
-    lhs: TypedExpr<TypeAtom>,
-    rhs: TypedExpr<TypeAtom>,
+    lhs: Expression<TypeAtom>,
+    rhs: Expression<TypeAtom>,
 }
 
-impl Expression for ExprAdd {
+impl ExpressionTrait for ExprAdd {
     type Type = TypeAtom;
 
     fn ty(&self) -> Self::Type {
@@ -445,11 +456,11 @@ impl Expression for ExprAdd {
 }
 
 struct ExprSub {
-    lhs: TypedExpr<TypeAtom>,
-    rhs: TypedExpr<TypeAtom>,
+    lhs: Expression<TypeAtom>,
+    rhs: Expression<TypeAtom>,
 }
 
-impl Expression for ExprSub {
+impl ExpressionTrait for ExprSub {
     type Type = TypeAtom;
 
     fn ty(&self) -> Self::Type {
@@ -458,11 +469,11 @@ impl Expression for ExprSub {
 }
 
 struct ExprMul {
-    lhs: TypedExpr<TypeAtom>,
-    rhs: TypedExpr<TypeAtom>,
+    lhs: Expression<TypeAtom>,
+    rhs: Expression<TypeAtom>,
 }
 
-impl Expression for ExprMul {
+impl ExpressionTrait for ExprMul {
     type Type = TypeAtom;
 
     fn ty(&self) -> Self::Type {
@@ -471,11 +482,11 @@ impl Expression for ExprMul {
 }
 
 struct ExprDiv {
-    lhs: TypedExpr<TypeAtom>,
-    rhs: TypedExpr<TypeAtom>,
+    lhs: Expression<TypeAtom>,
+    rhs: Expression<TypeAtom>,
 }
 
-impl Expression for ExprDiv {
+impl ExpressionTrait for ExprDiv {
     type Type = TypeAtom;
 
     fn ty(&self) -> Self::Type {
@@ -485,11 +496,14 @@ impl Expression for ExprDiv {
 
 struct ExprCall1<Operation, Generics, Type0, Type> {
     signature: OperationSignature<Operation, Generics, (Variable<Type0>,), Type>,
-    arg_0: TypedExpr<Type0>,
+    arg_0: Expression<Type0>,
 }
 
-impl<Operation, Generics, Type0: PartialEq + std::fmt::Debug, Type: Copy> Expression
+impl<Operation, Generics, Type0, Type> ExpressionTrait
     for ExprCall1<Operation, Generics, Type0, Type>
+where
+    Type0: TypeTrait,
+    Type: TypeTrait,
 {
     type Type = Type;
 
@@ -501,17 +515,16 @@ impl<Operation, Generics, Type0: PartialEq + std::fmt::Debug, Type: Copy> Expres
 
 struct ExprCall2<Operation, Generics, Type0, Type1, Type> {
     signature: OperationSignature<Operation, Generics, (Variable<Type0>, Variable<Type1>), Type>,
-    arg_0: TypedExpr<Type0>,
-    arg_1: TypedExpr<Type1>,
+    arg_0: Expression<Type0>,
+    arg_1: Expression<Type1>,
 }
 
-impl<
-        Operation,
-        Generics,
-        Type0: PartialEq + std::fmt::Debug,
-        Type1: PartialEq + std::fmt::Debug,
-        Type: Copy,
-    > Expression for ExprCall2<Operation, Generics, Type0, Type1, Type>
+impl<Operation, Generics, Type0, Type1, Type> ExpressionTrait
+    for ExprCall2<Operation, Generics, Type0, Type1, Type>
+where
+    Type0: TypeTrait,
+    Type1: TypeTrait,
+    Type: TypeTrait,
 {
     type Type = Type;
 
@@ -566,49 +579,63 @@ impl<
 //     },
 // }
 
-trait Statement {
+struct Statement {
+    statement: Box<dyn StatementTrait>,
+}
+
+impl<Stmt: StatementTrait + 'static> From<Stmt> for Statement {
+    fn from(stmt: Stmt) -> Self {
+        stmt.ty();
+        Self {
+            statement: Box::new(expr),
+        }
+    }
+}
+
+trait StatementTrait {
     fn ty(&self) {}
 }
 
 struct StmtAddAssign {
-    expr: TypedExpr<TypeSpacePtr>,
+    expr: Expression<TypeSpacePtr>,
     blade_index: usize,
-    rhs: TypedExpr<TypeAtom>,
+    rhs: Expression<TypeAtom>,
 }
 
-impl Statement for StmtAddAssign {}
+impl StatementTrait for StmtAddAssign {}
 
 struct StmtSubAssign {
-    expr: TypedExpr<TypeSpacePtr>,
+    expr: Expression<TypeSpacePtr>,
     blade_index: usize,
-    rhs: TypedExpr<TypeAtom>,
+    rhs: Expression<TypeAtom>,
 }
 
-impl Statement for StmtSubAssign {}
+impl StatementTrait for StmtSubAssign {}
 
 struct StmtMulAssign {
-    expr: TypedExpr<TypeSpacePtr>,
+    expr: Expression<TypeSpacePtr>,
     blade_index: usize,
-    rhs: TypedExpr<TypeAtom>,
+    rhs: Expression<TypeAtom>,
 }
 
-impl Statement for StmtMulAssign {}
+impl StatementTrait for StmtMulAssign {}
 
 struct StmtDivAssign {
-    expr: TypedExpr<TypeSpacePtr>,
+    expr: Expression<TypeSpacePtr>,
     blade_index: usize,
-    rhs: TypedExpr<TypeAtom>,
+    rhs: Expression<TypeAtom>,
 }
 
-impl Statement for StmtDivAssign {}
+impl StatementTrait for StmtDivAssign {}
 
 struct StmtCall1<Operation, Generics, Type0> {
     signature: OperationSignature<Operation, Generics, (Variable<Type0>,), ()>,
-    arg_0: TypedExpr<Type0>,
+    arg_0: Expression<Type0>,
 }
 
-impl<Operation, Generics, Type0: PartialEq + std::fmt::Debug> Statement
-    for StmtCall1<Operation, Generics, Type0>
+impl<Operation, Generics, Type0> StatementTrait for StmtCall1<Operation, Generics, Type0>
+where
+    Type0: TypeTrait,
 {
     fn ty(&self) {
         assert_eq!(self.arg_0.ty, self.signature.args.0.ty);
@@ -617,16 +644,15 @@ impl<Operation, Generics, Type0: PartialEq + std::fmt::Debug> Statement
 
 struct StmtCall2<Operation, Generics, Type0, Type1> {
     signature: OperationSignature<Operation, Generics, (Variable<Type0>, Variable<Type1>), ()>,
-    arg_0: TypedExpr<Type0>,
-    arg_1: TypedExpr<Type1>,
+    arg_0: Expression<Type0>,
+    arg_1: Expression<Type1>,
 }
 
-impl<
-        Operation,
-        Generics,
-        Type0: PartialEq + std::fmt::Debug,
-        Type1: PartialEq + std::fmt::Debug,
-    > Statement for StmtCall2<Operation, Generics, Type0, Type1>
+impl<Operation, Generics, Type0, Type1> StatementTrait
+    for StmtCall2<Operation, Generics, Type0, Type1>
+where
+    Type0: TypeTrait,
+    Type1: TypeTrait,
 {
     fn ty(&self) {
         assert_eq!(self.arg_0.ty, self.signature.args.0.ty);
