@@ -2,6 +2,7 @@ use itertools::Itertools;
 
 type Coefficient = i8;
 
+#[derive(Clone, Copy)]
 enum Sign {
     POS,
     NEG,
@@ -118,75 +119,6 @@ impl<const DIM: usize> Blade<DIM> {
             .fold(0, std::ops::BitXor::bitxor);
         Sign::from((gray_inv >> 1 & other.generator_bits).count_ones() as usize)
     }
-
-    // fn involution(self) -> (Self, Sign) {
-    //     (self, Sign::from(self.grade().grade))
-    // }
-
-    // fn reverse(self) -> (Self, Sign) {
-    //     (self, Sign::from(self.grade().grade >> 1))
-    // }
-
-    // fn conjugate(self) -> (Self, Sign) {
-    //     (self, Sign::from((self.grade().grade + 1) >> 1))
-    // }
-
-    // fn dual(self) -> (Self, Sign) {
-    //     (!self, self.parity(!self))
-    // }
-
-    // fn inverse_dual(self) -> (Self, Sign) {
-    //     (!self, (!self).parity(self))
-    // }
-
-    // fn geometric_product(self, other: Self) -> (Self, Option<Sign>) {
-    //     (self ^ other, Some(self.parity(other)))
-    // }
-
-    // fn scalar_product(self, other: Self) -> (Self, Option<Sign>) {
-    //     (
-    //         self ^ other,
-    //         ((self ^ other).grade() == Grade { grade: 0 }).then(|| self.parity(other)),
-    //     )
-    // }
-
-    // fn left_inner_product(self, other: Self) -> (Self, Option<Sign>) {
-    //     (
-    //         self ^ other,
-    //         (self.grade() + (self ^ other).grade() == other.grade()).then(|| self.parity(other)),
-    //     )
-    // }
-
-    // fn right_inner_product(self, other: Self) -> (Self, Option<Sign>) {
-    //     (
-    //         self ^ other,
-    //         (other.grade() + (self ^ other).grade() == self.grade()).then(|| self.parity(other)),
-    //     )
-    // }
-
-    // fn inner_product(self, other: Self) -> (Self, Option<Sign>) {
-    //     (
-    //         self ^ other,
-    //         (self.grade() + (self ^ other).grade() == other.grade()
-    //             || other.grade() + (self ^ other).grade() == self.grade())
-    //         .then(|| self.parity(other)),
-    //     )
-    // }
-
-    // fn outer_product(self, other: Self) -> (Self, Option<Sign>) {
-    //     (
-    //         self ^ other,
-    //         (self.grade() + other.grade() == (self ^ other).grade()).then(|| self.parity(other)),
-    //     )
-    // }
-
-    // fn regressive_product(self, other: Self) -> (Self, Option<Sign>) {
-    //     (
-    //         self ^ other,
-    //         ((!self).grade() + (!other).grade() == (!(self ^ other)).grade())
-    //             .then(|| (!other).parity(!self)),
-    //     )
-    // }
 }
 
 #[repr(transparent)]
@@ -213,6 +145,12 @@ impl<const DIM: usize> Grade<DIM> {
     fn iter_blades(self) -> impl Iterator<Item = Blade<DIM>> + Clone {
         Blade::iter().filter(move |blade| self == blade.grade())
     }
+
+    fn dual(self) -> Self {
+        Self {
+            grade: DIM - self.grade,
+        }
+    }
 }
 
 #[repr(transparent)]
@@ -230,25 +168,29 @@ impl<const DIM: usize> Space<DIM> {
         Grade::iter().filter(move |grade| self.grade_bits & 1 << grade.grade != 0)
     }
 
-    fn from_grades(iter: impl Iterator<Item = Grade<DIM>>) -> Self {
-        Self {grade_bits: iter.map(|grade| 1 << grade.grade).fold(0, std::ops::BitXor::bitxor)}
+    // fn from_grades(iter: impl Iterator<Item = Grade<DIM>>) -> Self {
+    //     Self {grade_bits: iter.map(|grade| 1 << grade.grade).fold(0, std::ops::BitXor::bitxor)}
+    // }
+
+    fn iter_blades(self) -> impl Iterator<Item = Blade<DIM>> + Clone {
+        self.iter_grades().flat_map(|grade| grade.iter_blades())
     }
 
-    // fn iter_blades(self) -> impl Iterator<Item = Blade<DIM>> + Clone {
-    //     Blade::iter().filter(move |blade| self.grade_bits & 1 << blade.grade() != 0)
-    // }
+    fn from_blades(blades: impl Iterator<Item = Blade<DIM>>) -> Self {
+        Self {
+            grade_bits: blades
+                .map(|blade| 1 << blade.grade().grade)
+                .fold(0, std::ops::BitOr::bitor),
+        }
+    }
 
-    // fn from_blades(blades: impl Iterator<Item = Blade<DIM>>) -> Self {
-    //     Self {
-    //         grade_bits: blades
-    //             .map(|blade| 1 << blade.grade())
-    //             .fold(0, std::ops::BitOr::bitor),
-    //     }
-    // }
+    fn contains(self, other: Self) -> bool {
+        self.grade_bits & other.grade_bits == other.grade_bits
+    }
 
-    // fn contains(self, other: Self) -> bool {
-    //     self.grade_bits & other.grade_bits == other.grade_bits
-    // }
+    fn contains_blade(self, blade: Blade<DIM>) -> bool {
+        self.grade_bits & 1 << blade.grade().grade != 0
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -487,75 +429,338 @@ enum Operation {
     SDiv,
 }
 
-struct Terms<K, V>(std::collections::BTreeMap<K, V>);
+#[repr(transparent)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+struct Binding {
+    binding: usize,
+}
 
-impl<K, V> FromIterator<(K, V)> for Terms<K, V>
-where
-    K: Copy + std::cmp::Ord,
-    V: AbelianGroup,
+// #[derive(Default)]
+// struct Polynomial<const DIM: usize>(
+//     std::collections::BTreeMap<Vec<(Binding, Blade<DIM>)>, Coefficient>,
+// );
+
+// impl<const DIM: usize> FromIterator<(Vec<(Binding, Blade<DIM>)>, Coefficient)> for Polynomial<DIM> {
+//     fn from_iter<I>(iter: I) -> Self
+//     where
+//         I: IntoIterator<Item = (Vec<(Binding, Blade<DIM>)>, Coefficient)>,
+//     {
+//         let mut polynomial = Self::default();
+//         iter.into_iter().for_each(|(multi_index, coeff)| {
+//             polynomial.insert(multi_index, coeff);
+//         });
+//         polynomial
+//     }
+// }
+
+// impl<const DIM: usize> IntoIterator for Polynomial<DIM> {
+//     type Item = (Vec<(Binding, Blade<DIM>)>, Coefficient);
+//     type IntoIter = std::collections::btree_map::IntoIter<Vec<(Binding, Blade<DIM>)>, Coefficient>;
+
+//     fn into_iter(self) -> Self::IntoIter {
+//         self.0.into_iter()
+//     }
+// }
+
+// impl<const DIM: usize> Polynomial<DIM> {
+//     fn is_empty(&self) -> bool {
+//         self.0.is_empty()
+//     }
+
+//     fn iter(
+//         &self,
+//     ) -> std::collections::btree_map::Iter<'_, Vec<(Binding, Blade<DIM>)>, Coefficient> {
+//         self.0.iter()
+//     }
+
+//     fn insert(
+//         &mut self,
+//         mut multi_index: Vec<(Binding, Blade<DIM>)>,
+//         coeff: Coefficient,
+//     ) -> &mut Self {
+//         if coeff != 0 {
+//             multi_index.sort();
+//             match self.0.entry(multi_index) {
+//                 std::collections::btree_map::Entry::Vacant(vacant) => {
+//                     vacant.insert(coeff);
+//                 }
+//                 std::collections::btree_map::Entry::Occupied(mut occupied) => {
+//                     let slot = occupied.get_mut();
+//                     *slot += coeff;
+//                     if *slot == 0 {
+//                         occupied.remove_entry();
+//                     }
+//                 }
+//             }
+//         }
+//         self
+//     }
+
+//     fn substitute(
+//         self,
+//         binding_substitutes: &std::collections::BTreeMap<(Binding, Blade<DIM>), Self>,
+//     ) -> Self {
+//         self.into_iter()
+//             .flat_map(|(multi_index, coeff)| {
+//                 multi_index
+//                     .into_iter()
+//                     .map(|index| binding_substitutes[&index].iter())
+//                     .multi_cartesian_product()
+//                     .map(move |monomials| {
+//                         monomials.into_iter().fold(
+//                             (Vec::new(), coeff),
+//                             |(mut index_acc, mut coeff_acc), (index, coeff)| {
+//                                 index_acc.extend(index);
+//                                 coeff_acc *= coeff;
+//                                 (index_acc, coeff_acc)
+//                             },
+//                         )
+//                     })
+//             })
+//             .collect()
+//     }
+
+//     fn space_instantiate(&self, spaces: &std::collections::BTreeMap<Binding, Space<DIM>>) -> Self {
+//         self.iter()
+//             .filter(|(multi_index, _)| {
+//                 multi_index
+//                     .iter()
+//                     .all(|(binding, blade)| spaces[binding].contains_blade(*blade))
+//             })
+//             .map(|(multi_index, blade)| (multi_index.clone(), *blade))
+//             .collect()
+//     }
+
+//     fn into_expr(self) -> Box<Expr<DIM>> {
+//         self.into_iter()
+//             .fold(None, |expr_acc, (multi_index, coeff)| {
+//                 let exprs = multi_index
+//                     .into_iter()
+//                     .map(|(binding, blade)| Expr::variable(binding).field(blade));
+//                 let coeff_abs = coeff.unsigned_abs();
+//                 let literal = Expr::literal(coeff_abs);
+//                 Some(match (expr_acc, coeff_abs == 1, coeff < 0) {
+//                     (Some(expr_acc), false, false) => {
+//                         expr_acc + exprs.fold(literal, std::ops::Mul::mul)
+//                     }
+//                     (Some(expr_acc), false, true) => {
+//                         expr_acc - exprs.fold(literal, std::ops::Mul::mul)
+//                     }
+//                     (Some(expr_acc), true, false) => {
+//                         expr_acc + exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+//                     }
+//                     (Some(expr_acc), true, true) => {
+//                         expr_acc - exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+//                     }
+//                     (None, false, false) => exprs.fold(literal, std::ops::Mul::mul),
+//                     (None, false, true) => exprs.fold(-literal, std::ops::Mul::mul),
+//                     (None, true, false) => exprs.reduce(std::ops::Mul::mul).unwrap_or(literal),
+//                     (None, true, true) => exprs
+//                         .fold(None, |expr_acc, expr| {
+//                             Some(match expr_acc {
+//                                 Some(expr_acc) => expr_acc * expr,
+//                                 None => -expr,
+//                             })
+//                         })
+//                         .unwrap_or(-literal),
+//                 })
+//             })
+//             .unwrap_or_else(|| Expr::literal(0))
+//     }
+// }
+
+struct Multinomial<const DIM: usize>(
+    std::collections::BTreeMap<
+        Blade<DIM>,
+        std::collections::BTreeMap<Vec<(Binding, Blade<DIM>)>, Coefficient>,
+    >,
+);
+
+impl<const DIM: usize> FromIterator<(Blade<DIM>, Vec<(Binding, Blade<DIM>)>, Coefficient)>
+    for Multinomial<DIM>
 {
-    fn from_iter<I: IntoIterator<Item = (K, V)>>(iter: I) -> Self {
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (Blade<DIM>, Vec<(Binding, Blade<DIM>)>, Coefficient)>,
+    {
         let mut map = std::collections::BTreeMap::new();
-        iter.into_iter().for_each(|(key, value)| {
-            let slot = map.entry(key).or_insert_with(V::zero);
-            slot.add_assign(value);
-            if slot.is_zero() {
-                map.remove(&key);
-            }
-        });
+        iter.into_iter()
+            .for_each(|(blade, mut multi_index, coeff)| {
+                if coeff != 0 {
+                    multi_index.sort();
+                    let polynomial: &mut std::collections::BTreeMap<_, _> =
+                        map.entry(blade).or_default();
+                    match polynomial.entry(multi_index) {
+                        std::collections::btree_map::Entry::Vacant(vacant) => {
+                            vacant.insert(coeff);
+                        }
+                        std::collections::btree_map::Entry::Occupied(mut occupied) => {
+                            let slot = occupied.get_mut();
+                            *slot += coeff;
+                            if *slot == 0 {
+                                occupied.remove_entry();
+                            }
+                        }
+                    }
+                    if polynomial.is_empty() {
+                        map.remove(&blade);
+                    }
+                }
+            });
         Self(map)
     }
 }
 
-impl<K, V> std::ops::Deref for Terms<K, V> {
-    type Target = std::collections::BTreeMap<K, V>;
+impl<const DIM: usize> IntoIterator for Multinomial<DIM> {
+    type Item = (
+        Blade<DIM>,
+        std::collections::BTreeMap<Vec<(Binding, Blade<DIM>)>, Coefficient>,
+    );
+    type IntoIter = std::collections::btree_map::IntoIter<
+        Blade<DIM>,
+        std::collections::BTreeMap<Vec<(Binding, Blade<DIM>)>, Coefficient>,
+    >;
 
-    fn deref(&self) -> &Self::Target {
-        &self.0
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
     }
 }
 
-trait AbelianGroup {
-    fn zero() -> Self;
-    fn is_zero(&self) -> bool;
-    fn add_assign(&mut self, other: Self);
-}
-
-impl AbelianGroup for Coefficient {
-    fn zero() -> Self {
-        0
+impl<const DIM: usize> Multinomial<DIM> {
+    fn iter(
+        &self,
+    ) -> std::collections::btree_map::Iter<
+        '_,
+        Blade<DIM>,
+        std::collections::BTreeMap<Vec<(Binding, Blade<DIM>)>, Coefficient>,
+    > {
+        self.0.iter()
     }
 
-    fn is_zero(&self) -> bool {
-        *self == 0
+    // fn insert(
+    //     &mut self,
+    //     blade: Blade<DIM>,
+    //     multi_index: Vec<(Binding, Blade<DIM>)>,
+    //     coeff: Coefficient,
+    // ) -> &mut Self {
+    //     if self
+    //         .0
+    //         .entry(blade)
+    //         .or_default()
+    //         .insert(multi_index, coeff)
+    //         .is_empty()
+    //     {
+    //         self.0.remove(&blade);
+    //     }
+    //     self
+    // }
+
+    fn substitute(self, binding_substitutes: &[Self]) -> Self {
+        self.into_iter()
+            .flat_map(|(blade, polynomial)| {
+                polynomial
+                    .into_iter()
+                    .flat_map(move |(multi_index, coeff)| {
+                        multi_index
+                            .into_iter()
+                            .map(|(binding, binding_blade)| {
+                                binding_substitutes[binding.binding].0[&binding_blade].iter()
+                            })
+                            .multi_cartesian_product()
+                            .map(move |monomials| {
+                                let (multi_index, coeff) = monomials.into_iter().fold(
+                                    (Vec::new(), coeff),
+                                    |(mut multi_index_acc, mut coeff_acc), (multi_index, coeff)| {
+                                        multi_index_acc.extend(multi_index);
+                                        coeff_acc *= coeff;
+                                        (multi_index_acc, coeff_acc)
+                                    },
+                                );
+                                (blade, multi_index, coeff)
+                            })
+                    })
+            })
+            .collect()
     }
 
-    fn add_assign(&mut self, other: Self) {
-        *self += other;
-    }
-}
-
-impl<K, V> AbelianGroup for Terms<K, V>
-where
-    K: Copy + std::cmp::Ord,
-    V: AbelianGroup,
-{
-    fn zero() -> Self {
-        Self(std::collections::BTreeMap::new())
-    }
-
-    fn is_zero(&self) -> bool {
-        self.0.is_empty()
+    fn space_instantiate(&self, spaces: &[Space<DIM>]) -> Self {
+        self.iter()
+            .flat_map(|(blade, polynomial)| {
+                polynomial
+                    .iter()
+                    .filter(|(multi_index, _)| {
+                        multi_index.iter().all(|(binding, binding_blade)| {
+                            spaces[binding.binding].contains_blade(*binding_blade)
+                        })
+                    })
+                    .map(|(multi_index, coeff)| (*blade, multi_index.clone(), *coeff))
+            })
+            .collect()
     }
 
-    fn add_assign(&mut self, other: Self) {
-        other.0.into_iter().for_each(|(key, value)| {
-            let slot = self.0.entry(key).or_insert_with(V::zero);
-            slot.add_assign(value);
-            if slot.is_zero() {
-                self.0.remove(&key);
-            }
-        })
+    fn polynomial_to_type_expr(
+        polynomial: &std::collections::BTreeMap<Vec<(Binding, Blade<DIM>)>, Coefficient>,
+    ) -> (Type<DIM>, Box<Expr<DIM>>) {
+        (
+            Type::Atom,
+            polynomial
+                .into_iter()
+                .fold(None, |expr_acc, (multi_index, &coeff)| {
+                    let exprs = multi_index.into_iter().map(|&(binding, binding_blade)| {
+                        Expr::variable(binding).field(binding_blade)
+                    });
+                    let coeff_abs = coeff.unsigned_abs();
+                    let literal = Expr::literal(coeff_abs);
+                    Some(match (expr_acc, coeff_abs == 1, coeff < 0) {
+                        (Some(expr_acc), false, false) => {
+                            expr_acc + exprs.fold(literal, std::ops::Mul::mul)
+                        }
+                        (Some(expr_acc), false, true) => {
+                            expr_acc - exprs.fold(literal, std::ops::Mul::mul)
+                        }
+                        (Some(expr_acc), true, false) => {
+                            expr_acc + exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+                        }
+                        (Some(expr_acc), true, true) => {
+                            expr_acc - exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+                        }
+                        (None, false, false) => exprs.fold(literal, std::ops::Mul::mul),
+                        (None, false, true) => exprs.fold(-literal, std::ops::Mul::mul),
+                        (None, true, false) => exprs.reduce(std::ops::Mul::mul).unwrap_or(literal),
+                        (None, true, true) => exprs
+                            .fold(None, |expr_acc, expr| {
+                                Some(match expr_acc {
+                                    Some(expr_acc) => expr_acc * expr,
+                                    None => -expr,
+                                })
+                            })
+                            .unwrap_or(-literal),
+                    })
+                })
+                .unwrap_or_else(|| Expr::literal(0)),
+        )
+    }
+
+    fn to_type_expr(&self) -> (Type<DIM>, Box<Expr<DIM>>) {
+        let space = Space::from_blades(self.0.keys().cloned());
+        (
+            Type::Space(space),
+            Expr::structure(
+                space,
+                space.iter_blades().map(|blade| {
+                    (blade, {
+                        match self.0.get(&blade) {
+                            None => Expr::literal(0),
+                            Some(polynomial) => {
+                                let (_, polynomial_expr) =
+                                    Self::polynomial_to_type_expr(polynomial);
+                                polynomial_expr
+                            }
+                        }
+                    })
+                }),
+            ),
+        )
     }
 }
 
@@ -582,118 +787,298 @@ impl<const DIM: usize> std::ops::Index<Space<DIM>> for GeometricAlgebra<DIM> {
 }
 
 impl<const DIM: usize> GeometricAlgebra<DIM> {
-    // fn grade(index: BladeIndex) -> u32 {
-    //     index.count_ones()
-    // }
-
-    // fn gray_code_inv(index: BladeIndex, DIM: u32) -> usize {
-    //     (0..DIM)
-    //         .map(|grade| index >> grade)
-    //         .fold(0, std::ops::BitXor::bitxor)
-    // }
-    fn product_implementation(&self, grade_filter: fn(Grade<DIM>, Grade<DIM>, Grade<DIM>) -> bool, parity_sign: fn(Blade<DIM>, Blade<DIM>) -> Sign) -> Vec<Implementation<DIM>> {
+    fn involution(&self, grade_sign: fn(Grade<DIM>) -> Sign) -> Vec<Implementation<DIM>> {
         Space::iter()
-                .zip(Space::iter())
-                .map(|(space_0, space_1)| {
-                    let terms: Terms<_, Terms<_, _>> = space_0
-                        .iter_grades()
-                        .cartesian_product(space_1.iter_grades())
-                        .flat_map(|(grade_0, grade_1)| {
-                            grade_0
-                                .iter_blades()
-                                .cartesian_product(grade_1.iter_blades())
-                                .map(|(blade_0, blade_1)| {
-                                    let blade_product = blade_0 ^ blade_1;
-                                    (blade_product.grade(), grade_filter(blade_0.grade(), blade_1.grade(), blade_product.grade()).then(|| {
-                                        (
-                                            blade_product,
-                                            Coefficient::from(
-                                                parity_sign(blade_0, blade_1)
-                                                    ^ self[blade_0].intrinsic_sign
-                                                    ^ self[blade_1].intrinsic_sign
-                                                    ^ self[blade_product].intrinsic_sign,
-                                            ) * (blade_0 & blade_1)
-                                                .iter_generators()
-                                                .map(|generator| self.generator_squares[generator.generator])
-                                                .product::<Coefficient>(),
-                                        )
-                                    }).into_iter().collect())
-                                    
-                                })
-                        })
-                        .collect();
-                    let space = Space::from_grades(terms.keys().cloned());
-                    Implementation {
-                        generic_types: [Type::Space(space_0), Type::Space(space_1)].into(),
-                        self_variable: Variable {
-                            name: "self",
-                            ty: Type::Space(space_0),
-                        },
-                        arg_variables: [Variable {
-                            name: "other",
-                            ty: Type::Space(space_1),
-                        }]
-                        .into(),
-                        return_type: Some(Type::Space(space)),
-                        statements: [].into(),
-                        return_expr: Some(Expression::Struct { space, fields: () }),
-                    }
-                })
-                .collect()
+            .map(|space| {
+                let terms = space
+                    .iter_blades()
+                    .map(|blade| {
+                        (
+                            blade,
+                            std::iter::once((blade, Coefficient::from(grade_sign(blade.grade()))))
+                                .collect::<Terms<_, _>>(),
+                        )
+                    })
+                    .collect::<Terms<_, _>>();
+                let space_output = Space::from_blades(terms.keys().cloned());
+                Implementation {
+                    generic_types: [Type::Space(space)].into(),
+                    self_var: Var {
+                        name: "self",
+                        ty: Type::Space(space),
+                    },
+                    arg_vars: [].into(),
+                    return_type: Some(Type::Space(space_output)),
+                    statements: [].into(),
+                    return_expr: Some(Expr::structure(
+                        space_output,
+                        space_output.iter_blades().map(|blade| {
+                            (blade, {
+                                match terms.get(&blade) {
+                                    None => Expr::literal(0),
+                                    Some(terms) => terms
+                                        .to_polynomial_expr(|blade| Expr::var("self").field(blade)),
+                                }
+                            })
+                        }),
+                    )),
+                }
+            })
+            .collect()
     }
+
+    fn dual(
+        &self,
+        // blade_map: fn(Blade<DIM>) -> Blade<DIM>,
+        parity: fn(Blade<DIM>) -> Sign,
+    ) -> Vec<Implementation<DIM>> {
+        Space::iter()
+            .map(|space| {
+                let terms = space
+                    .iter_blades()
+                    .map(|blade| {
+                        let blade_output = !blade;
+                        (
+                            blade_output,
+                            std::iter::once((
+                                blade,
+                                Coefficient::from(
+                                    parity(blade)
+                                        ^ self[blade].intrinsic_sign
+                                        ^ self[blade_output].intrinsic_sign,
+                                ),
+                            ))
+                            .collect::<Terms<_, _>>(),
+                        )
+                    })
+                    .collect::<Terms<_, _>>();
+                let space_output = Space::from_blades(terms.keys().cloned());
+                Implementation {
+                    generic_types: [Type::Space(space)].into(),
+                    self_var: Var {
+                        name: "self",
+                        ty: Type::Space(space),
+                    },
+                    arg_vars: [].into(),
+                    return_type: Some(Type::Space(space_output)),
+                    statements: [].into(),
+                    return_expr: Some(Expr::structure(
+                        space_output,
+                        space_output.iter_blades().map(|blade| {
+                            (blade, {
+                                match terms.get(&blade) {
+                                    None => Expr::literal(0),
+                                    Some(terms) => terms
+                                        .to_polynomial_expr(|blade| Expr::var("self").field(blade)),
+                                }
+                            })
+                        }),
+                    )),
+                }
+            })
+            .collect()
+    }
+
+    fn product(
+        &self,
+        grade_filter: fn(Grade<DIM>, Grade<DIM>, Grade<DIM>) -> bool,
+        parity: fn(Blade<DIM>, Blade<DIM>) -> Sign,
+    ) -> Multinomial<DIM> {
+        Blade::iter()
+            .cartesian_product(Blade::iter())
+            .filter_map(|(blade_0, blade_1)| {
+                let blade_output = blade_0 ^ blade_1;
+                grade_filter(blade_output.grade(), blade_0.grade(), blade_1.grade()).then(|| {
+                    (
+                        blade_output,
+                        [
+                            (Binding { binding: 0 }, blade_0),
+                            (Binding { binding: 1 }, blade_1),
+                        ]
+                        .to_vec(),
+                        Coefficient::from(
+                            parity(blade_0, blade_1)
+                                ^ self[blade_0].intrinsic_sign
+                                ^ self[blade_1].intrinsic_sign
+                                ^ self[blade_output].intrinsic_sign,
+                        ) * (blade_0 & blade_1)
+                            .iter_generators()
+                            .map(|generator| self.generator_squares[generator.generator])
+                            .product::<Coefficient>(),
+                    )
+                })
+            })
+            .collect()
+    }
+
+    fn implementations_from_multinomial(multinomial: Multinomial<DIM>) -> Vec<Implementation<DIM>> {
+        Space::iter()
+            .cartesian_product(Space::iter())
+            .map(|(space_0, space_1)| {
+                let (return_type, return_expr) = multinomial
+                    .space_instantiate(&[space_0, space_1])
+                    .to_type_expr();
+                Implementation {
+                    generic_types: [Type::Space(space_0), Type::Space(space_1)].into(),
+                    self_type: Type::Space(space_0),
+                    arg_types: [Type::Space(space_1)].into(),
+                    return_type: Some(return_type),
+                    statements: [].into(),
+                    return_expr: Some(return_expr),
+                }
+            })
+            .collect()
+    }
+
+    // fn product(
+    //     &self,
+    //     grade_filter: fn(Grade<DIM>, Grade<DIM>, Grade<DIM>) -> bool,
+    //     parity: fn(Blade<DIM>, Blade<DIM>) -> Sign,
+    // ) -> Vec<Implementation<DIM>> {
+    //     Space::iter()
+    //         .cartesian_product(Space::iter())
+    //         .map(|(space_0, space_1)| {
+    //             let terms = space_0
+    //                 .iter_blades()
+    //                 .cartesian_product(space_1.iter_blades())
+    //                 .filter_map(|(blade_0, blade_1)| {
+    //                     let blade_output = blade_0 ^ blade_1;
+    //                     grade_filter(blade_0.grade(), blade_1.grade(), blade_output.grade()).then(
+    //                         || {
+    //                             (
+    //                                 blade_output,
+    //                                 std::iter::once((
+    //                                     (blade_0, blade_1),
+    //                                     Coefficient::from(
+    //                                         parity(blade_0, blade_1)
+    //                                             ^ self[blade_0].intrinsic_sign
+    //                                             ^ self[blade_1].intrinsic_sign
+    //                                             ^ self[blade_output].intrinsic_sign,
+    //                                     ) * (blade_0 & blade_1)
+    //                                         .iter_generators()
+    //                                         .map(|generator| {
+    //                                             self.generator_squares[generator.generator]
+    //                                         })
+    //                                         .product::<Coefficient>(),
+    //                                 ))
+    //                                 .collect::<Terms<_, _>>(),
+    //                             )
+    //                         },
+    //                     )
+    //                 })
+    //                 .collect::<Terms<_, _>>();
+    //             let space_output = Space::from_blades(terms.keys().cloned());
+    //             Implementation {
+    //                 generic_types: [Type::Space(space_0), Type::Space(space_1)].into(),
+    //                 self_var: Var {
+    //                     name: "self",
+    //                     ty: Type::Space(space_0),
+    //                 },
+    //                 arg_vars: [Var {
+    //                     name: "other",
+    //                     ty: Type::Space(space_1),
+    //                 }]
+    //                 .into(),
+    //                 return_type: Some(Type::Space(space_output)),
+    //                 statements: [].into(),
+    //                 return_expr: Some(Expr::structure(
+    //                     space_output,
+    //                     space_output.iter_blades().map(|blade| {
+    //                         (blade, {
+    //                             match terms.get(&blade) {
+    //                                 None => Expr::literal(0),
+    //                                 Some(terms) => {
+    //                                     terms.to_polynomial_expr(|(blade_0, blade_1)| {
+    //                                         (Expr::var("self").field(blade_0)
+    //                                             * Expr::var("other").field(blade_1))
+    //                                         .group()
+    //                                     })
+    //                                 }
+    //                             }
+    //                         })
+    //                     }),
+    //                 )),
+    //             }
+    //         })
+    //         .collect()
+    // }
 
     fn implementations(&self, operation: Operation) -> Vec<Implementation<DIM>> {
         match operation {
-            Operation::Zero => Space::iter().map(|space| todo!()).collect(),
-            Operation::One => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectGrade0 => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectGrade1 => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectGrade2 => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectGrade3 => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectGrade4 => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectGrade5 => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectGrade6 => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectScalar => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectEven => Space::iter().map(|space| todo!()).collect(),
-            Operation::SelectOdd => Space::iter().map(|space| todo!()).collect(),
-            Operation::Inject => Space::iter().map(|space| todo!()).collect(),
-            Operation::Surject => Space::iter().map(|space| todo!()).collect(),
-            Operation::SInject => Space::iter().map(|space| todo!()).collect(),
-            Operation::SurjectS => Space::iter().map(|space| todo!()).collect(),
-            Operation::Involution => Space::iter().map(|space| todo!()).collect(),
-            Operation::Reverse => Space::iter().map(|space| todo!()).collect(),
-            Operation::Conjugate => Space::iter().map(|space| todo!()).collect(),
-            Operation::Dual => Space::iter().map(|space| todo!()).collect(),
-            Operation::InverseDual => Space::iter().map(|space| todo!()).collect(),
-            Operation::Inverse => Space::iter().map(|space| todo!()).collect(),
-            Operation::NormSquared => Space::iter().map(|space| todo!()).collect(),
-            Operation::Norm => Space::iter().map(|space| todo!()).collect(),
-            Operation::Normalized => Space::iter().map(|space| todo!()).collect(),
-            Operation::Normalize => Space::iter().map(|space| todo!()).collect(),
-            Operation::GeometricProduct => ,
-            Operation::ScalarProduct => Space::iter().map(|space| todo!()).collect(),
-            Operation::LeftInnerProduct => Space::iter().map(|space| todo!()).collect(),
-            Operation::RightInnerProduct => Space::iter().map(|space| todo!()).collect(),
-            Operation::InnerProduct => Space::iter().map(|space| todo!()).collect(),
-            Operation::OuterProduct => Space::iter().map(|space| todo!()).collect(),
-            Operation::RegressiveProduct => Space::iter().map(|space| todo!()).collect(),
-            Operation::Commutator => Space::iter().map(|space| todo!()).collect(),
-            Operation::Anticommutator => Space::iter().map(|space| todo!()).collect(),
-            Operation::Transform => Space::iter().map(|space| todo!()).collect(),
-            Operation::Project => Space::iter().map(|space| todo!()).collect(),
-            Operation::Reject => Space::iter().map(|space| todo!()).collect(),
-            Operation::Add => Space::iter().map(|space| todo!()).collect(),
-            Operation::Sub => Space::iter().map(|space| todo!()).collect(),
-            Operation::Mul => Space::iter().map(|space| todo!()).collect(),
-            Operation::AddAssign => Space::iter().map(|space| todo!()).collect(),
-            Operation::SubAssign => Space::iter().map(|space| todo!()).collect(),
-            Operation::MulAssign => Space::iter().map(|space| todo!()).collect(),
-            Operation::MulS => Space::iter().map(|space| todo!()).collect(),
-            Operation::DivS => Space::iter().map(|space| todo!()).collect(),
-            Operation::MulSAssign => Space::iter().map(|space| todo!()).collect(),
-            Operation::DivSAssign => Space::iter().map(|space| todo!()).collect(),
-            Operation::SMul => Space::iter().map(|space| todo!()).collect(),
-            Operation::SDiv => Space::iter().map(|space| todo!()).collect(),
+            Operation::Zero => todo!(),
+            Operation::One => todo!(),
+            Operation::SelectGrade0 => todo!(),
+            Operation::SelectGrade1 => todo!(),
+            Operation::SelectGrade2 => todo!(),
+            Operation::SelectGrade3 => todo!(),
+            Operation::SelectGrade4 => todo!(),
+            Operation::SelectGrade5 => todo!(),
+            Operation::SelectGrade6 => todo!(),
+            Operation::SelectScalar => todo!(),
+            Operation::SelectEven => todo!(),
+            Operation::SelectOdd => todo!(),
+            Operation::Inject => todo!(),
+            Operation::Surject => todo!(),
+            Operation::SInject => todo!(),
+            Operation::SurjectS => todo!(),
+            Operation::Involution => self.involution(|grade| Sign::from(grade.grade)),
+            Operation::Reverse => self.involution(|grade| Sign::from(grade.grade >> 1)),
+            Operation::Conjugate => self.involution(|grade| Sign::from((grade.grade + 1) >> 1)),
+            Operation::Dual => self.dual(|blade| Blade::parity(blade, !blade)),
+            Operation::InverseDual => self.dual(|blade| Blade::parity(!blade, blade)),
+            Operation::Inverse => todo!(),
+            Operation::NormSquared => todo!(),
+            Operation::Norm => todo!(),
+            Operation::Normalized => todo!(),
+            Operation::Normalize => todo!(),
+            Operation::GeometricProduct => Self::implementations_from_multinomial(
+                self.product(|_grade_output, _grade_0, _grade_1| true, Blade::parity),
+            ),
+            Operation::ScalarProduct => Self::implementations_from_multinomial(self.product(
+                |grade_output, _grade_0, _grade_1| grade_output == Grade { grade: 0 },
+                Blade::parity,
+            )),
+            Operation::LeftInnerProduct => Self::implementations_from_multinomial(self.product(
+                |grade_output, grade_0, grade_1| grade_output + grade_0 == grade_1,
+                Blade::parity,
+            )),
+            Operation::RightInnerProduct => Self::implementations_from_multinomial(self.product(
+                |grade_output, grade_0, grade_1| grade_output + grade_1 == grade_0,
+                Blade::parity,
+            )),
+            Operation::InnerProduct => Self::implementations_from_multinomial(self.product(
+                |grade_output, grade_0, grade_1| {
+                    grade_output + grade_0 == grade_1 || grade_output + grade_1 == grade_0
+                },
+                Blade::parity,
+            )),
+            Operation::OuterProduct => Self::implementations_from_multinomial(self.product(
+                |grade_output, grade_0, grade_1| grade_output == grade_0 + grade_1,
+                Blade::parity,
+            )),
+            Operation::RegressiveProduct => Self::implementations_from_multinomial(self.product(
+                |grade_output, grade_0, grade_1| {
+                    grade_output.dual() == grade_0.dual() + grade_1.dual()
+                },
+                |blade_0, blade_1| Blade::parity(!blade_1, !blade_0),
+            )),
+            Operation::Commutator => todo!(),
+            Operation::Anticommutator => todo!(),
+            Operation::Transform => todo!(),
+            Operation::Project => todo!(),
+            Operation::Reject => todo!(),
+            Operation::Add => todo!(),
+            Operation::Sub => todo!(),
+            Operation::Mul => todo!(),
+            Operation::AddAssign => todo!(),
+            Operation::SubAssign => todo!(),
+            Operation::MulAssign => todo!(),
+            Operation::MulS => todo!(),
+            Operation::DivS => todo!(),
+            Operation::MulSAssign => todo!(),
+            Operation::DivSAssign => todo!(),
+            Operation::SMul => todo!(),
+            Operation::SDiv => todo!(),
         }
     }
 }
@@ -722,17 +1107,17 @@ impl<const DIM: usize> GeometricAlgebra<DIM> {
 
 struct Implementation<const DIM: usize> {
     generic_types: Vec<Type<DIM>>,
-    self_variable: Variable<DIM>,
-    arg_variables: Vec<Variable<DIM>>,
+    self_type: Type<DIM>,
+    arg_types: Vec<Type<DIM>>,
     return_type: Option<Type<DIM>>,
-    statements: Vec<Statement<DIM>>,
-    return_expr: Option<Expression<DIM>>,
+    statements: Vec<Stmt<DIM>>,
+    return_expr: Option<Box<Expr<DIM>>>,
 }
 
 // struct AssignmentImpl<Generics, Args> {
 //     trait_ident: Rc<str>,
 //     generics: Generics,
-//     arg_variables: Args,
+//     arg_vars: Args,
 //     statements: Vec<Statement>,
 // }
 
@@ -789,32 +1174,34 @@ enum Type<const DIM: usize> {
 // impl TypeTrait for TypeSpace {}
 // impl TypeTrait for TypeSpacePtr {}
 
-struct Variable<const DIM: usize> {
-    name: &'static str,
-    ty: Type<DIM>,
-}
+// struct Var<const DIM: usize> {
+//     name: &'static str,
+//     ty: Type<DIM>,
+// }
 
-enum Expression<const DIM: usize> {
+enum Expr<const DIM: usize> {
     Variable {
-        variable: Variable<DIM>,
-    },
-    FieldAccess {
-        expr: Box<Self>,
-        blade: Blade<DIM>,
-    },
-    FieldAccessPtr {
-        expr: Box<Self>,
-        blade: Blade<DIM>,
+        binding: Binding,
     },
     Literal {
         value: u8,
     },
-    Struct {
+    Structure {
         space: Space<DIM>,
-        fields: Vec<(Blade<DIM>, Self)>,
+        fields: Vec<(Blade<DIM>, Box<Self>)>,
     },
     Group {
         expr: Box<Self>,
+    },
+    Field {
+        expr: Box<Self>,
+        blade: Blade<DIM>,
+    },
+    Call {
+        expr: Box<Self>,
+        operation: Operation,
+        generic_types: Vec<Type<DIM>>,
+        arg_exprs: Vec<Box<Self>>,
     },
     Neg {
         expr: Box<Self>,
@@ -835,39 +1222,115 @@ enum Expression<const DIM: usize> {
         lhs: Box<Self>,
         rhs: Box<Self>,
     },
-    Call {
+}
+
+impl<const DIM: usize> Expr<DIM> {
+    fn variable(binding: Binding) -> Box<Self> {
+        Box::new(Expr::Variable { binding })
+    }
+
+    fn literal(value: u8) -> Box<Self> {
+        Box::new(Expr::Literal { value })
+    }
+
+    fn structure(
+        space: Space<DIM>,
+        fields: impl Iterator<Item = (Blade<DIM>, Box<Self>)>,
+    ) -> Box<Self> {
+        Box::new(Expr::Structure {
+            space,
+            fields: fields.collect(),
+        })
+    }
+
+    fn group(self: Box<Self>) -> Box<Self> {
+        Box::new(Expr::Group { expr: self })
+    }
+
+    fn field(self: Box<Self>, blade: Blade<DIM>) -> Box<Self> {
+        Box::new(Expr::Field { expr: self, blade })
+    }
+
+    fn call<const GENERICS: usize, const ARGS: usize>(
+        self: Box<Self>,
         operation: Operation,
-        generic_types: Vec<Type<DIM>>,
-        self_expr: Box<Self>,
-        arg_exprs: Vec<Self>,
-    },
+        generic_types: [Type<DIM>; GENERICS],
+        arg_exprs: [Box<Self>; ARGS],
+    ) -> Box<Self> {
+        Box::new(Expr::Call {
+            expr: self,
+            operation,
+            generic_types: generic_types.into(),
+            arg_exprs: arg_exprs.into(),
+        })
+    }
+}
+
+impl<const DIM: usize> std::ops::Neg for Box<Expr<DIM>> {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Box::new(Expr::Neg { expr: self })
+    }
+}
+
+impl<const DIM: usize> std::ops::Add for Box<Expr<DIM>> {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Box::new(Expr::Add { lhs: self, rhs })
+    }
+}
+
+impl<const DIM: usize> std::ops::Sub for Box<Expr<DIM>> {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Box::new(Expr::Sub { lhs: self, rhs })
+    }
+}
+
+impl<const DIM: usize> std::ops::Mul for Box<Expr<DIM>> {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Box::new(Expr::Mul { lhs: self, rhs })
+    }
+}
+
+impl<const DIM: usize> std::ops::Div for Box<Expr<DIM>> {
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        Box::new(Expr::Div { lhs: self, rhs })
+    }
 }
 
 // type Expression = Box<ExpressionRepr>;
 
-enum Statement<const DIM: usize> {
-    Expression {
-        expr: Expression<DIM>,
+enum Stmt<const DIM: usize> {
+    Expr {
+        expr: Box<Expr<DIM>>,
     },
     AddAssign {
-        expr: Expression<DIM>,
+        expr: Box<Expr<DIM>>,
         blade_index: usize,
-        rhs: Expression<DIM>,
+        rhs: Box<Expr<DIM>>,
     },
     SubAssign {
-        expr: Expression<DIM>,
+        expr: Box<Expr<DIM>>,
         blade_index: usize,
-        rhs: Expression<DIM>,
+        rhs: Box<Expr<DIM>>,
     },
     MulAssign {
-        expr: Expression<DIM>,
+        expr: Box<Expr<DIM>>,
         blade_index: usize,
-        rhs: Expression<DIM>,
+        rhs: Box<Expr<DIM>>,
     },
     DivAssign {
-        expr: Expression<DIM>,
+        expr: Box<Expr<DIM>>,
         blade_index: usize,
-        rhs: Expression<DIM>,
+        rhs: Box<Expr<DIM>>,
     },
 }
 
