@@ -150,6 +150,10 @@ impl<const DIM: usize> Grade<DIM> {
         Blade::iter().filter(move |blade| self == blade.grade())
     }
 
+    fn zero() -> Self {
+        Self { grade: 0 }
+    }
+
     fn dual(self) -> Self {
         Self {
             grade: DIM - self.grade,
@@ -172,10 +176,6 @@ impl<const DIM: usize> Space<DIM> {
         Grade::iter().filter(move |grade| self.grade_bits & 1 << grade.grade != 0)
     }
 
-    // fn from_grades(iter: impl Iterator<Item = Grade<DIM>>) -> Self {
-    //     Self {grade_bits: iter.map(|grade| 1 << grade.grade).fold(0, std::ops::BitXor::bitxor)}
-    // }
-
     fn iter_blades(self) -> impl Iterator<Item = Blade<DIM>> + Clone {
         self.iter_grades().flat_map(|grade| grade.iter_blades())
     }
@@ -185,6 +185,12 @@ impl<const DIM: usize> Space<DIM> {
             grade_bits: blades
                 .map(|blade| 1 << blade.grade().grade)
                 .fold(0, std::ops::BitOr::bitor),
+        }
+    }
+
+    fn from_grade(grade: Grade<DIM>) -> Self {
+        Self {
+            grade_bits: 1 << grade.grade,
         }
     }
 
@@ -279,184 +285,854 @@ impl<const DIM: usize> GeometricAlgebraBuilder<DIM> {
     }
 }
 
-enum BuiltinOperation {
+enum BuiltinUnaryOperation {
+    Abs,
     Sqrt,
 }
 
-#[derive(strum::EnumIter, strum::EnumProperty)]
-enum Operation {
-    /// Additive identity.
-    #[strum(props(trait = "Zero"))]
-    Zero,
-    /// Multiplicative identity.
-    #[strum(props(trait = "One"))]
-    One,
-    /// Grade-0 selection.
-    #[strum(props(trait = "SelectGrade0"))]
-    SelectGrade0,
-    /// Grade-1 selection.
-    #[strum(props(trait = "SelectGrade1"))]
-    SelectGrade1,
-    /// Grade-2 selection.
-    #[strum(props(trait = "SelectGrade2"))]
-    SelectGrade2,
-    /// Grade-3 selection.
-    #[strum(props(trait = "SelectGrade3"))]
-    SelectGrade3,
-    /// Grade-4 selection.
-    #[strum(props(trait = "SelectGrade4"))]
-    SelectGrade4,
-    /// Grade-5 selection.
-    #[strum(props(trait = "SelectGrade5"))]
-    SelectGrade5,
-    /// Grade-6 selection.
-    #[strum(props(trait = "SelectGrade6"))]
-    SelectGrade6,
-    /// Scalar (grade-0) selection.
-    #[strum(props(trait = "SelectScalar"))]
-    SelectScalar,
-    /// Even grade selection.
-    #[strum(props(trait = "SelectEven"))]
-    SelectEven,
-    /// Odd grade selection.
-    #[strum(props(trait = "SelectOdd"))]
-    SelectOdd,
-    /// Vector space injection.
-    #[strum(props(trait = "Inject"))]
-    Inject,
-    /// Vector space surjection.
-    #[strum(props(trait = "Surject"))]
-    Surject,
-    /// Inject scalar into vector space.
-    #[strum(props(trait = "Inject"))]
-    SInject,
-    /// Surject scalar from vector space.
-    #[strum(props(trait = "Surject"))]
-    SurjectS,
-    /// Flip signs by `g % 2 = 1`
-    #[strum(props(trait = "Involution"))]
-    Involution,
-    /// Flip signs by `g % 4 = 2, 3`
-    #[strum(props(trait = "Reverse"))]
-    Reverse,
-    /// Flip signs by `g % 4 = 1, 2`
-    #[strum(props(trait = "Conjugate"))]
-    Conjugate,
-    /// `geometric_product(a, dual(a)) = I`
-    #[strum(props(trait = "Dual"))]
-    Dual,
-    /// `geometric_product(inverse_dual(a), a) = I`
-    #[strum(props(trait = "InverseDual"))]
-    InverseDual,
-    /// `reverse(A) / norm_squared(A)`
-    #[strum(props(trait = "Inverse"))]
-    Inverse,
-    /// `scalar(geometric_product(reverse(A), A))`
-    #[strum(props(trait = "NormSquared"))]
-    NormSquared,
-    /// `sqrt(abs(norm_squared(A)))`
-    #[strum(props(trait = "Norm"))]
-    Norm,
-    /// `A / norm(A)`
-    #[strum(props(trait = "Normalized"))]
-    Normalized,
-    /// In-place normalization.
-    #[strum(props(trait = "Normalize"))]
-    Normalize,
-    /// The geometric product.
-    #[strum(props(trait = "GeometricProduct"))]
-    GeometricProduct,
-    /// Geometric product grade-filtered by `c = 0`
-    #[strum(props(trait = "ScalarProduct"))]
-    ScalarProduct,
-    /// Geometric product grade-filtered by `c = b - a`
-    #[strum(props(trait = "LeftInnerProduct"))]
-    LeftInnerProduct,
-    /// Geometric product grade-filtered by `c = a - b`
-    #[strum(props(trait = "RightInnerProduct"))]
-    RightInnerProduct,
-    /// Geometric product grade-filtered by `c = |a - b|`
-    #[strum(props(trait = "InnerProduct"))]
-    InnerProduct,
-    /// Geometric product grade-filtered by `c = a + b`
-    #[strum(props(trait = "OuterProduct"))]
-    OuterProduct,
-    /// `inverse_dual(outer_product(dual(a), dual(b)))`
-    #[strum(props(trait = "RegressiveProduct"))]
-    RegressiveProduct,
-    /// `(geometric_product(A, B) - geometric_product(B, A)) / 2`
-    #[strum(props(trait = "Commutator"))]
-    Commutator,
-    /// `(geometric_product(A, B) + geometric_product(B, A)) / 2`
-    #[strum(props(trait = "Anticommutator"))]
-    Anticommutator,
-    /// `geometric_product(geometric_product(A, B), reverse(A))`
-    #[strum(props(trait = "Transform"))]
-    Transform,
-    /// `left_inner(left_inner(A, B), inverse(B))`
-    #[strum(props(trait = "Project"))]
-    Project,
-    /// `A - project(A, B)`
-    #[strum(props(trait = "Reject"))]
-    Reject,
-    /// `A + B`
-    #[strum(props(trait = "Add"))]
-    Add,
-    /// `A - B`
-    #[strum(props(trait = "Sub"))]
-    Sub,
-    /// `A * B` (geometric product)
-    #[strum(props(trait = "Mul"))]
-    Mul,
-    /// `A += B`
-    #[strum(props(trait = "AddAssign"))]
-    AddAssign,
-    /// `A -= B`
-    #[strum(props(trait = "SubAssign"))]
-    SubAssign,
-    /// `A *= B` (geometric product)
-    #[strum(props(trait = "MulAssign"))]
-    MulAssign,
-    /// `A * s`
-    #[strum(props(trait = "Mul"))]
-    MulS,
-    /// `A / s`
-    #[strum(props(trait = "Div"))]
-    DivS,
-    /// `A *= s`
-    #[strum(props(trait = "MulAssign"))]
-    MulSAssign,
-    /// `A /= s`
-    #[strum(props(trait = "DivAssign"))]
-    DivSAssign,
-    /// `s * A`
-    #[strum(props(trait = "Mul"))]
-    SMul,
-    /// `s / A = s * inverse(A)`
-    #[strum(props(trait = "Div"))]
-    SDiv,
+macro_rules! name {
+    ($(
+        $(#[$meta:meta])*
+        struct $ident:ident;
+    )*) => {$(
+        $(#[$meta])*
+        struct $ident;
+
+        impl TraitNames for $ident {
+            const TRAIT_NAME: &'static str = stringify!($ident);
+            const METHOD_NAME: &'static str = stringify!($ident);
+        }
+    )*};
+}
+
+name! {
+/// Additive identity.
+struct Zero;
+/// Multiplicative identity.
+struct One;
+/// Grade selection.
+struct Select;
+/// Flip signs by `g % 2 = 1`
+struct GradeInvolution;
+/// Flip signs by `g % 4 = 2, 3`
+struct Reverse;
+/// Flip signs by `g % 4 = 1, 2`
+struct Conjugate;
+/// `geometric_product(a, dual(a)) = I`
+struct Dual;
+/// `geometric_product(inverse_dual(a), a) = I`
+struct Undual;
+/// `scalar(geometric_product(reverse(A), A))`
+struct NormSquared;
+/// `sqrt(abs(norm_squared(A)))`
+struct Norm;
+/// `A / norm(A)`
+struct Normalized;
+/// `reverse(A) / norm_squared(A)`
+struct Inverse;
+/// The geometric product.
+struct GeometricProduct;
+/// Geometric product grade-filtered by `c = 0`
+struct ScalarProduct;
+/// Geometric product grade-filtered by `c = b - a`
+struct LeftInnerProduct;
+/// Geometric product grade-filtered by `c = a - b`
+struct RightInnerProduct;
+/// Geometric product grade-filtered by `c = |a - b|`
+struct InnerProduct;
+/// Geometric product grade-filtered by `c = a + b`
+struct OuterProduct;
+/// `inverse_dual(outer_product(dual(a), dual(b)))`
+struct RegressiveProduct;
+/// `(geometric_product(A, B) - geometric_product(B, A)) / 2`
+struct Commutator;
+/// `(geometric_product(A, B) + geometric_product(B, A)) / 2`
+struct Anticommutator;
+/// `geometric_product(geometric_product(A, B), reverse(A))`
+struct Transform;
+/// `left_inner(left_inner(A, B), inverse(B))`
+struct Project;
+/// `right_inner(outer(A, B), inverse(B))`
+struct Reject;
+/// `-A`
+struct Neg;
+/// `A + B`
+struct Add;
+/// `A - B`
+struct Sub;
+/// `A * s`, `s * A`, `A * B` (geometric product)
+struct Mul;
+/// `A / s`, `s / A = s * inverse(A)`
+struct Div;
+/// `A += B`
+struct AddAssign;
+/// `A -= B`
+struct SubAssign;
+/// `A *= s`
+struct MulAssign;
+/// `A /= s`
+struct DivAssign;
+}
+
+impl ExprOperation<Zero, 1, 0> for Zero {
+    fn signature(&self) -> ExprSignature<1, 0> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [],
+            return_pretype: ReturnPretype::Pretype {
+                pretype: Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        _geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<1, 0, DIM>> {
+        Space::iter()
+            .map(|space_0| ExprOperationImpl {
+                type_params: [Type::Space(space_0)],
+                return_type: Type::Space(space_0),
+                return_expr: Expr::structure(
+                    space_0,
+                    space_0.iter_blades().map(|blade| (blade, Expr::literal(0))),
+                ),
+            })
+            .collect()
+    }
+}
+
+impl ExprOperation<One, 1, 0> for One {
+    fn signature(&self) -> ExprSignature<1, 0> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [],
+            return_pretype: ReturnPretype::Pretype {
+                pretype: Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        _geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<1, 0, DIM>> {
+        Space::iter()
+            .filter(|space_0| space_0.contains_blade(Blade::zero()))
+            .map(|space_0| ExprOperationImpl {
+                type_params: [Type::Space(space_0)],
+                return_type: Type::Space(space_0),
+                return_expr: Expr::structure(
+                    space_0,
+                    space_0.iter_blades().map(|blade| {
+                        (
+                            blade,
+                            if blade == Blade::zero() {
+                                Expr::literal(1)
+                            } else {
+                                Expr::literal(0)
+                            },
+                        )
+                    }),
+                ),
+            })
+            .collect()
+    }
+}
+
+impl ExprOperation<Select, 2, 1> for Select {
+    fn signature(&self) -> ExprSignature<2, 1> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [(
+                "self",
+                Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            )],
+            return_pretype: ReturnPretype::Pretype {
+                pretype: Pretype::Binding {
+                    binding: Binding::new(1),
+                },
+            },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        _geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<2, 1, DIM>> {
+        Space::iter()
+            .cartesian_product(Space::iter())
+            .map(|(space_0, space_1)| ExprOperationImpl {
+                type_params: [space_0, space_1].map(Type::Space),
+                return_type: Type::Space(space_1),
+                return_expr: Expr::structure(
+                    space_1,
+                    space_1.iter_blades().map(|blade| {
+                        (
+                            blade,
+                            if space_0.contains_blade(blade) {
+                                Expr::variable(Binding::new(0)).field(blade)
+                            } else {
+                                Expr::literal(0)
+                            },
+                        )
+                    }),
+                ),
+            })
+            .chain(Space::iter().map(|space_0| ExprOperationImpl {
+                type_params: [Type::Space(space_0), Type::Atom],
+                return_type: Type::Atom,
+                return_expr: if space_0.contains_blade(Blade::zero()) {
+                    Expr::variable(Binding::new(0)).field(Blade::zero())
+                } else {
+                    Expr::literal(0)
+                },
+            }))
+            .chain(Space::iter().map(|space_1| ExprOperationImpl {
+                type_params: [Type::Atom, Type::Space(space_1)],
+                return_type: Type::Space(space_1),
+                return_expr: Expr::structure(
+                    space_1,
+                    space_1.iter_blades().map(|blade| {
+                        (
+                            blade,
+                            if blade == Blade::zero() {
+                                Expr::variable(Binding::new(0))
+                            } else {
+                                Expr::literal(0)
+                            },
+                        )
+                    }),
+                ),
+            }))
+            .collect()
+    }
+}
+
+trait InvolutionOperation {
+    fn reindex<const DIM: usize>(blades: [Blade<DIM>; 1]) -> [Blade<DIM>; 1] {
+        blades
+    }
+
+    fn term_sign<const DIM: usize>(_blades: [Blade<DIM>; 1]) -> Sign {
+        Sign::POS
+    }
+}
+
+struct InvolutionTag;
+
+impl<Op> ExprOperation<InvolutionTag, 1, 1> for Op
+where
+    Op: InvolutionOperation,
+{
+    fn signature(&self) -> ExprSignature<1, 1> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [(
+                "self",
+                Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            )],
+            return_pretype: ReturnPretype::Associated { name: "Output" },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<1, 1, DIM>> {
+        let multinomial = geometric_algebra.multinomial::<1, 1>(
+            [Binding::new(0)],
+            Op::reindex,
+            |_| true,
+            Op::term_sign,
+        );
+        Space::iter()
+            .map(move |space_0| {
+                let multinomial = multinomial.filtrate([space_0]);
+                let space = multinomial.space();
+                ExprOperationImpl {
+                    type_params: [space_0].map(Type::Space),
+                    return_type: Type::Space(space),
+                    return_expr: multinomial.struct_expr(space),
+                }
+            })
+            .collect()
+    }
+}
+
+impl InvolutionOperation for GradeInvolution {
+    fn term_sign<const DIM: usize>([blade]: [Blade<DIM>; 1]) -> Sign {
+        Sign::from(blade.grade().grade)
+    }
+}
+
+impl InvolutionOperation for Reverse {
+    fn term_sign<const DIM: usize>([blade]: [Blade<DIM>; 1]) -> Sign {
+        Sign::from(blade.grade().grade >> 1)
+    }
+}
+
+impl InvolutionOperation for Conjugate {
+    fn term_sign<const DIM: usize>([blade]: [Blade<DIM>; 1]) -> Sign {
+        Sign::from((blade.grade().grade + 1) >> 1)
+    }
+}
+
+impl InvolutionOperation for Dual {
+    fn reindex<const DIM: usize>([blade]: [Blade<DIM>; 1]) -> [Blade<DIM>; 1] {
+        [!blade]
+    }
+
+    fn term_sign<const DIM: usize>([blade]: [Blade<DIM>; 1]) -> Sign {
+        blade.parity(!blade)
+    }
+}
+
+impl InvolutionOperation for Undual {
+    fn reindex<const DIM: usize>([blade]: [Blade<DIM>; 1]) -> [Blade<DIM>; 1] {
+        [!blade]
+    }
+
+    fn term_sign<const DIM: usize>([blade]: [Blade<DIM>; 1]) -> Sign {
+        (!blade).parity(blade)
+    }
+}
+
+trait ProductOperation {
+    fn term_filter<const DIM: usize>(_blades: [Blade<DIM>; 2]) -> bool {
+        true
+    }
+
+    // rustfmt fails here?
+    fn term_sign<const DIM: usize>(blades: [Blade<DIM>; 2]) -> Sign {
+        blades[0].parity(blades[1])
+    }
+}
+
+struct ProductTag;
+
+impl<Op> ExprOperation<ProductTag, 2, 2> for Op
+where
+    Op: ProductOperation,
+{
+    fn signature(&self) -> ExprSignature<2, 2> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [
+                (
+                    "self",
+                    Pretype::Binding {
+                        binding: Binding::new(0),
+                    },
+                ),
+                (
+                    "other",
+                    Pretype::Binding {
+                        binding: Binding::new(1),
+                    },
+                ),
+            ],
+            return_pretype: ReturnPretype::Associated { name: "Output" },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<2, 2, DIM>> {
+        let multinomial = geometric_algebra.multinomial::<2, 2>(
+            [Binding::new(0), Binding::new(1)],
+            std::convert::identity,
+            Op::term_filter,
+            Op::term_sign,
+        );
+        Space::iter()
+            .cartesian_product(Space::iter())
+            .map(move |(space_0, space_1)| {
+                let multinomial = multinomial.filtrate([space_0, space_1]);
+                let space = multinomial.space();
+                ExprOperationImpl {
+                    type_params: [space_0, space_1].map(Type::Space),
+                    return_type: Type::Space(space),
+                    return_expr: multinomial.struct_expr(space),
+                }
+            })
+            .collect()
+    }
+}
+
+impl ProductOperation for GeometricProduct {}
+
+impl ProductOperation for ScalarProduct {
+    fn term_filter<const DIM: usize>([blade_0, blade_1]: [Blade<DIM>; 2]) -> bool {
+        blade_0 ^ blade_1 == Blade::zero()
+    }
+}
+
+impl ProductOperation for LeftInnerProduct {
+    fn term_filter<const DIM: usize>([blade_0, blade_1]: [Blade<DIM>; 2]) -> bool {
+        blade_0 & blade_1 == blade_0
+    }
+}
+
+impl ProductOperation for RightInnerProduct {
+    fn term_filter<const DIM: usize>([blade_0, blade_1]: [Blade<DIM>; 2]) -> bool {
+        blade_0 & blade_1 == blade_1
+    }
+}
+
+impl ProductOperation for InnerProduct {
+    fn term_filter<const DIM: usize>([blade_0, blade_1]: [Blade<DIM>; 2]) -> bool {
+        blade_0 & blade_1 == blade_0 || blade_0 & blade_1 == blade_1
+    }
+}
+
+impl ProductOperation for OuterProduct {
+    fn term_filter<const DIM: usize>([blade_0, blade_1]: [Blade<DIM>; 2]) -> bool {
+        blade_0 & blade_1 == Blade::zero()
+    }
+}
+
+impl ProductOperation for RegressiveProduct {
+    fn term_filter<const DIM: usize>([blade_0, blade_1]: [Blade<DIM>; 2]) -> bool {
+        !blade_0 & !blade_1 == Blade::zero()
+    }
+
+    fn term_sign<const DIM: usize>([blade_0, blade_1]: [Blade<DIM>; 2]) -> Sign {
+        (!blade_1).parity(!blade_0)
+    }
+}
+
+impl ProductOperation for Commutator {
+    fn term_filter<const DIM: usize>([blade_0, blade_1]: [Blade<DIM>; 2]) -> bool {
+        blade_0.grade().grade & blade_1.grade().grade & 1 != 0
+    }
+}
+
+impl ProductOperation for Anticommutator {
+    fn term_filter<const DIM: usize>([blade_0, blade_1]: [Blade<DIM>; 2]) -> bool {
+        blade_0.grade().grade & blade_1.grade().grade & 1 == 0
+    }
+}
+
+trait CompoundProductOperation {
+    fn prototype() -> [Binding<2>; 3];
+
+    fn term_filter<const DIM: usize>(_blades: [Blade<DIM>; 3]) -> bool {
+        true
+    }
+
+    fn term_sign<const DIM: usize>(_blades: [Blade<DIM>; 3]) -> Sign {
+        Sign::POS
+    }
+
+    fn wrap_expr<const DIM: usize>(
+        _param_types: [Type<DIM>; 2],
+        _return_type: Type<DIM>,
+        return_expr: Expr<2, DIM>,
+    ) -> Expr<2, DIM> {
+        return_expr
+    }
+}
+
+struct CompoundProductTag;
+
+impl<Op> ExprOperation<CompoundProductTag, 2, 2> for Op
+where
+    Op: CompoundProductOperation,
+{
+    fn signature(&self) -> ExprSignature<2, 2> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [
+                (
+                    "self",
+                    Pretype::Binding {
+                        binding: Binding::new(0),
+                    },
+                ),
+                (
+                    "other",
+                    Pretype::Binding {
+                        binding: Binding::new(1),
+                    },
+                ),
+            ],
+            return_pretype: ReturnPretype::Associated { name: "Output" },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<2, 2, DIM>> {
+        let multinomial = geometric_algebra.multinomial::<2, 3>(
+            Op::prototype(),
+            std::convert::identity,
+            Op::term_filter,
+            Op::term_sign,
+        );
+        Space::iter()
+            .cartesian_product(Space::iter())
+            .map(move |(space_0, space_1)| {
+                let multinomial = multinomial.filtrate([space_0, space_1]);
+                let space = multinomial.space();
+                let type_params = [space_0, space_1].map(Type::Space);
+                let return_type = Type::Space(space);
+                let return_expr =
+                    Op::wrap_expr(type_params, return_type, multinomial.struct_expr(space));
+                ExprOperationImpl {
+                    type_params,
+                    return_type,
+                    return_expr,
+                }
+            })
+            .collect()
+    }
+}
+
+impl CompoundProductOperation for Transform {
+    fn prototype() -> [Binding<2>; 3] {
+        [Binding::new(0), Binding::new(1), Binding::new(0)]
+    }
+
+    fn term_sign<const DIM: usize>([blade_0, blade_1, blade_2]: [Blade<DIM>; 3]) -> Sign {
+        blade_0.parity(blade_1)
+            ^ blade_0.parity(blade_2)
+            ^ blade_1.parity(blade_2)
+            ^ Sign::from(blade_2.grade().grade >> 1)
+    }
+}
+
+impl CompoundProductOperation for Project {
+    fn prototype() -> [Binding<2>; 3] {
+        [Binding::new(0), Binding::new(1), Binding::new(1)]
+    }
+
+    fn term_filter<const DIM: usize>([blade_0, blade_1, blade_2]: [Blade<DIM>; 3]) -> bool {
+        blade_0 & blade_1 == blade_0 && (blade_0 ^ blade_1) & blade_2 == blade_0 ^ blade_1
+        // TODO: check
+    }
+
+    fn term_sign<const DIM: usize>([blade_0, blade_1, blade_2]: [Blade<DIM>; 3]) -> Sign {
+        blade_0.parity(blade_1)
+            ^ blade_0.parity(blade_2)
+            ^ blade_1.parity(blade_2)
+            ^ Sign::from(blade_2.grade().grade >> 1)
+    }
+
+    fn wrap_expr<const DIM: usize>(
+        param_types: [Type<DIM>; 2],
+        return_type: Type<DIM>,
+        return_expr: Expr<2, DIM>,
+    ) -> Expr<2, DIM> {
+        return_expr.call(
+            Div,
+            [return_type, Type::Atom],
+            [Expr::variable(Binding::new(1)).call(NormSquared, [param_types[1]], [])],
+        )
+    }
+}
+
+impl CompoundProductOperation for Reject {
+    fn prototype() -> [Binding<2>; 3] {
+        [Binding::new(0), Binding::new(1), Binding::new(1)]
+    }
+
+    fn term_filter<const DIM: usize>([blade_0, blade_1, blade_2]: [Blade<DIM>; 3]) -> bool {
+        blade_0 & blade_1 == Blade::zero() && (blade_0 ^ blade_1) & blade_2 == blade_2
+        // TODO: check
+    }
+
+    fn term_sign<const DIM: usize>([blade_0, blade_1, blade_2]: [Blade<DIM>; 3]) -> Sign {
+        blade_0.parity(blade_1)
+            ^ blade_0.parity(blade_2)
+            ^ blade_1.parity(blade_2)
+            ^ Sign::from(blade_2.grade().grade >> 1)
+    }
+
+    fn wrap_expr<const DIM: usize>(
+        param_types: [Type<DIM>; 2],
+        return_type: Type<DIM>,
+        return_expr: Expr<2, DIM>,
+    ) -> Expr<2, DIM> {
+        return_expr.call(
+            Div,
+            [return_type, Type::Atom],
+            [Expr::variable(Binding::new(1)).call(NormSquared, [param_types[1]], [])],
+        )
+    }
+}
+
+impl ExprOperation<NormSquared, 1, 1> for NormSquared {
+    fn signature(&self) -> ExprSignature<1, 1> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [(
+                "self",
+                Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            )],
+            return_pretype: ReturnPretype::Pretype {
+                pretype: Pretype::Atom,
+            },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<1, 1, DIM>> {
+        let multinomial = geometric_algebra.multinomial::<1, 2>(
+            [Binding::new(0), Binding::new(0)],
+            std::convert::identity,
+            |_| true,
+            |_| Sign::POS,
+        );
+        Space::iter()
+            .map(move |space_0| {
+                let multinomial = multinomial.filtrate([space_0]);
+                let space = multinomial.space();
+                ExprOperationImpl {
+                    type_params: [space_0].map(Type::Space),
+                    return_type: Type::Atom,
+                    return_expr: multinomial.struct_expr(space).field(Blade::zero()),
+                }
+            })
+            .collect()
+    }
+}
+
+impl ExprOperation<Norm, 1, 1> for Norm {
+    fn signature(&self) -> ExprSignature<1, 1> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [(
+                "self",
+                Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            )],
+            return_pretype: ReturnPretype::Pretype {
+                pretype: Pretype::Atom,
+            },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        _geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<1, 1, DIM>> {
+        Space::iter()
+            .map(|space_0| ExprOperationImpl {
+                type_params: [space_0].map(Type::Space),
+                return_type: Type::Atom,
+                return_expr: Expr::variable(Binding::new(0))
+                    .call(NormSquared, [Type::Space(space_0)], [])
+                    .call_builtin_unary(BuiltinUnaryOperation::Abs)
+                    .call_builtin_unary(BuiltinUnaryOperation::Sqrt),
+            })
+            .collect()
+    }
+}
+
+impl ExprOperation<Normalized, 1, 1> for Normalized {
+    fn signature(&self) -> ExprSignature<1, 1> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [(
+                "self",
+                Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            )],
+            return_pretype: ReturnPretype::Pretype {
+                pretype: Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        _geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<1, 1, DIM>> {
+        Space::iter()
+            .map(|space_0| ExprOperationImpl {
+                type_params: [space_0].map(Type::Space),
+                return_type: Type::Atom,
+                return_expr: Expr::variable(Binding::new(0)).call(
+                    Div,
+                    [Type::Space(space_0), Type::Atom],
+                    [Expr::variable(Binding::new(0)).call(Norm, [Type::Space(space_0)], [])],
+                ),
+            })
+            .collect()
+    }
+}
+
+impl ExprOperation<Inverse, 1, 1> for Inverse {
+    fn signature(&self) -> ExprSignature<1, 1> {
+        ExprSignature {
+            is_operator: false,
+            param_pretypes: [(
+                "self",
+                Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            )],
+            return_pretype: ReturnPretype::Pretype {
+                pretype: Pretype::Binding {
+                    binding: Binding::new(0),
+                },
+            },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        _geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<1, 1, DIM>> {
+        Space::iter()
+            .map(|space_0| ExprOperationImpl {
+                type_params: [space_0].map(Type::Space),
+                return_type: Type::Atom,
+                return_expr: Expr::variable(Binding::new(0)).call(
+                    Div,
+                    [Type::Space(space_0), Type::Atom],
+                    [
+                        Expr::variable(Binding::new(0)).call(
+                            NormSquared,
+                            [Type::Space(space_0)],
+                            [],
+                        ),
+                    ],
+                ),
+            })
+            .collect()
+    }
+}
+
+impl ExprOperation<Div, 2, 2> for Div {
+    fn signature(&self) -> ExprSignature<2, 2> {
+        ExprSignature {
+            is_operator: true,
+            param_pretypes: [
+                (
+                    "self",
+                    Pretype::Binding {
+                        binding: Binding::new(0),
+                    },
+                ),
+                (
+                    "other",
+                    Pretype::Binding {
+                        binding: Binding::new(1),
+                    },
+                ),
+            ],
+            return_pretype: ReturnPretype::Associated { name: "Output" },
+        }
+    }
+
+    fn implementations<const DIM: usize>(
+        &self,
+        geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<2, 2, DIM>> {
+        Space::iter()
+            .map(|space_0| ExprOperationImpl {
+                type_params: [Type::Space(space_0), Type::Atom],
+                return_type: Type::Space(space_0),
+                return_expr: Expr::structure(
+                    space_0,
+                    space_0.iter_blades().map(|blade| {
+                        (
+                            blade,
+                            Expr::variable(Binding::new(0)).field(blade)
+                                / Expr::variable(Binding::new(1)),
+                        )
+                    }),
+                ),
+            })
+            .chain(Space::iter().map(|space_1| {
+                Expr::variable(Binding::new(0)).call(
+                    Mul,
+                    [Type::Atom, Type::Space(space_1)],
+                    [Expr::variable(Binding::new(1)).call(Inverse, [Type::Space(space_1)], [])],
+                )
+            }))
+            .collect()
+    }
 }
 
 #[repr(transparent)]
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
-struct Binding {
-    binding: usize,
+struct Binding<const BOUND: usize>(usize);
+
+impl<const BOUND: usize> Binding<BOUND> {
+    fn new(index: usize) -> Self {
+        assert!(index < BOUND);
+        Self(index)
+    }
 }
 
-struct Multinomial<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize>(
+impl<T, const BOUND: usize> std::ops::Index<&Binding<BOUND>> for [T; BOUND] {
+    type Output = T;
+
+    fn index(&self, index: &Binding<BOUND>) -> &Self::Output {
+        &self[index.0]
+    }
+}
+
+impl<T, const BOUND: usize> std::ops::Index<Binding<BOUND>> for [T; BOUND] {
+    type Output = T;
+
+    fn index(&self, index: Binding<BOUND>) -> &Self::Output {
+        &self[index.0]
+    }
+}
+
+impl<const BOUND: usize> std::ops::Deref for Binding<BOUND> {
+    type Target = usize;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+struct Multinomial<const PARAMS: usize, const DEGREE: usize, const DIM: usize>(
     std::collections::BTreeMap<
         Blade<DIM>,
-        std::collections::BTreeMap<[(Binding, Blade<DIM>); DEGREE], Coefficient>,
+        std::collections::BTreeMap<[(Binding<PARAMS>, Blade<DIM>); DEGREE], Coefficient>,
     >,
 );
 
-impl<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize>
-    FromIterator<(Blade<DIM>, [(Binding, Blade<DIM>); DEGREE], Coefficient)>
-    for Multinomial<PARAMETERS, DEGREE, DIM>
+impl<const PARAMS: usize, const DEGREE: usize, const DIM: usize>
+    FromIterator<(
+        Blade<DIM>,
+        [(Binding<PARAMS>, Blade<DIM>); DEGREE],
+        Coefficient,
+    )> for Multinomial<PARAMS, DEGREE, DIM>
 {
     fn from_iter<I>(iter: I) -> Self
     where
-        I: IntoIterator<Item = (Blade<DIM>, [(Binding, Blade<DIM>); DEGREE], Coefficient)>,
+        I: IntoIterator<
+            Item = (
+                Blade<DIM>,
+                [(Binding<PARAMS>, Blade<DIM>); DEGREE],
+                Coefficient,
+            ),
+        >,
     {
         let mut map = std::collections::BTreeMap::new();
         iter.into_iter()
@@ -486,72 +1162,8 @@ impl<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize>
     }
 }
 
-// impl<const DIM: usize> IntoIterator for Multinomial<DIM> {
-//     type Item = (
-//         Blade<DIM>,
-//         std::collections::BTreeMap<[(Binding, Blade<DIM>); DEGREE], Coefficient>,
-//     );
-//     type IntoIter = std::collections::btree_map::IntoIter<
-//         Blade<DIM>,
-//         std::collections::BTreeMap<[(Binding, Blade<DIM>); DEGREE], Coefficient>,
-//     >;
-
-//     fn into_iter(self) -> Self::IntoIter {
-//         self.0.into_iter()
-//     }
-// }
-
-impl<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize>
-    Multinomial<PARAMETERS, DEGREE, DIM>
-{
-    // fn iter(
-    //     &self,
-    // ) -> std::collections::btree_map::Iter<
-    //     '_,
-    //     Blade<DIM>,
-    //     std::collections::BTreeMap<[(Binding, Blade<DIM>); DEGREE], Coefficient>,
-    // > {
-    //     self.0.iter()
-    // }
-
-    // fn substitute(self, binding_substitutes: &[Self]) -> Self {
-    //     self.into_iter()
-    //         .flat_map(|(blade, polynomial)| {
-    //             polynomial
-    //                 .into_iter()
-    //                 .flat_map(move |(multi_index, coeff)| {
-    //                     multi_index
-    //                         .into_iter()
-    //                         .map(|(binding, binding_blade)| {
-    //                             binding_substitutes[binding.binding].0[&binding_blade].iter()
-    //                         })
-    //                         .multi_cartesian_product()
-    //                         .map(move |monomials| {
-    //                             let (multi_index, coeff) = monomials.into_iter().fold(
-    //                                 (Vec::new(), coeff),
-    //                                 |(mut multi_index_acc, mut coeff_acc), (multi_index, coeff)| {
-    //                                     multi_index_acc.extend(multi_index);
-    //                                     coeff_acc *= coeff;
-    //                                     (multi_index_acc, coeff_acc)
-    //                                 },
-    //                             );
-    //                             (blade, multi_index, coeff)
-    //                         })
-    //                 })
-    //         })
-    //         .collect()
-    // }
-
-    fn dual(self) -> Self {
-        Self(
-            self.0
-                .into_iter()
-                .map(|(blade, polynomial)| (!blade, polynomial))
-                .collect(),
-        )
-    }
-
-    fn filtrate(&self, spaces: [Space<DIM>; PARAMETERS]) -> Self {
+impl<const PARAMS: usize, const DEGREE: usize, const DIM: usize> Multinomial<PARAMS, DEGREE, DIM> {
+    fn filtrate(&self, spaces: [Space<DIM>; PARAMS]) -> Self {
         self.0
             .iter()
             .flat_map(|(blade, polynomial)| {
@@ -559,7 +1171,7 @@ impl<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize>
                     .iter()
                     .filter(|(multi_index, _)| {
                         multi_index.iter().all(|(binding, binding_blade)| {
-                            spaces[binding.binding].contains_blade(*binding_blade)
+                            spaces[binding].contains_blade(*binding_blade)
                         })
                     })
                     .map(|(multi_index, coeff)| (*blade, multi_index.clone(), *coeff))
@@ -571,7 +1183,7 @@ impl<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize>
         Space::from_blades(self.0.keys().cloned())
     }
 
-    fn field_expr(&self, blade: Blade<DIM>) -> Box<Expr<DIM>> {
+    fn field_expr(&self, blade: Blade<DIM>) -> Expr<PARAMS, DIM> {
         match self.0.get(&blade) {
             None => Expr::literal(0),
             Some(polynomial) => polynomial
@@ -612,7 +1224,7 @@ impl<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize>
         }
     }
 
-    fn struct_expr(&self, space: Space<DIM>) -> Box<Expr<DIM>> {
+    fn struct_expr(&self, space: Space<DIM>) -> Expr<PARAMS, DIM> {
         Expr::structure(
             space,
             space
@@ -620,309 +1232,7 @@ impl<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize>
                 .map(|blade| (blade, self.field_expr(blade))),
         )
     }
-
-    // fn implementations_custom(
-    //     &self,
-    //     expr_fn: Option<fn(Self) -> (Type<DIM>, Box<Expr<DIM>>)>,
-    //     stmt_fn: Option<fn([Type<DIM>; PARAMETERS]) -> Vec<Stmt<DIM>>>,
-    // ) -> Vec<Implementation<DIM>> {
-    //     let expr_fn = expr_fn.unwrap_or(|multinomial| {
-    //         let space = multinomial.space();
-    //         (Type::Space(space), multinomial.struct_expr(space))
-    //     });
-    //     let stmt_fn = stmt_fn.unwrap_or(|_| [].into());
-    //     std::iter::repeat_n(Space::iter(), PARAMETERS)
-    //         .multi_cartesian_product()
-    //         .map(|spaces| -> [Space<DIM>; PARAMETERS] { spaces.try_into().unwrap() })
-    //         .map(move |spaces| {
-    //             let (return_type, return_expr) = expr_fn(self.filtrate(spaces));
-    //             let space_types = spaces.map(Type::Space);
-    //             let stmts = stmt_fn(space_types);
-    //             Implementation {
-    //                 type_params: space_types.into(),
-    //                 param_types: space_types.into(),
-    //                 return_type: Some(return_type),
-    //                 stmts,
-    //                 return_expr: Some(return_expr),
-    //             }
-    //         })
-    //         .collect()
-    // }
-
-    // fn implementations(&self) -> Vec<Implementation<DIM>> {
-    //     self.implementations_custom(None, None)
-    // }
-
-    // fn blade_implementation(&self, blade: Blade) -> Implementation<DIM> {
-    //     Implementation {
-    //                 type_params: [Type::Space(space_0), Type::Space(space_1)].into(),
-    //                 self_type: Type::Space(space_0),
-    //                 arg_types: [Type::Space(space_1)].into(),
-    //                 return_type: Some(return_type),
-    //                 stmts: [].into(),
-    //                 return_expr: Some(return_expr),
-    //             }
-    // }
-
-    // fn polynomial_to_type_expr(
-    //     polynomial: &std::collections::BTreeMap<[(Binding, Blade<DIM>); DEGREE], Coefficient>,
-    // ) -> (Type<DIM>, Box<Expr<DIM>>) {
-    //     (
-    //         Type::Atom,
-    //         polynomial
-    //             .into_iter()
-    //             .fold(None, |expr_acc, (multi_index, &coeff)| {
-    //                 let exprs = multi_index.into_iter().map(|&(binding, binding_blade)| {
-    //                     Expr::variable(binding).field(binding_blade)
-    //                 });
-    //                 let coeff_abs = coeff.unsigned_abs();
-    //                 let literal = Expr::literal(coeff_abs);
-    //                 Some(match (expr_acc, coeff_abs == 1, coeff < 0) {
-    //                     (Some(expr_acc), false, false) => {
-    //                         expr_acc + exprs.fold(literal, std::ops::Mul::mul)
-    //                     }
-    //                     (Some(expr_acc), false, true) => {
-    //                         expr_acc - exprs.fold(literal, std::ops::Mul::mul)
-    //                     }
-    //                     (Some(expr_acc), true, false) => {
-    //                         expr_acc + exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
-    //                     }
-    //                     (Some(expr_acc), true, true) => {
-    //                         expr_acc - exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
-    //                     }
-    //                     (None, false, false) => exprs.fold(literal, std::ops::Mul::mul),
-    //                     (None, false, true) => exprs.fold(-literal, std::ops::Mul::mul),
-    //                     (None, true, false) => exprs.reduce(std::ops::Mul::mul).unwrap_or(literal),
-    //                     (None, true, true) => exprs
-    //                         .fold(None, |expr_acc, expr| {
-    //                             Some(match expr_acc {
-    //                                 Some(expr_acc) => expr_acc * expr,
-    //                                 None => -expr,
-    //                             })
-    //                         })
-    //                         .unwrap_or(-literal),
-    //                 })
-    //             })
-    //             .unwrap_or_else(|| Expr::literal(0)),
-    //     )
-    // }
-
-    // fn to_type_expr(&self) -> (Type<DIM>, Box<Expr<DIM>>) {
-    //     let space = Space::from_blades(self.0.keys().cloned());
-    //     (
-    //         Type::Space(space),
-    //         Expr::structure(
-    //             space,
-    //             space.iter_blades().map(|blade| {
-    //                 (blade, {
-    //                     match self.0.get(&blade) {
-    //                         None => Expr::literal(0),
-    //                         Some(polynomial) => {
-    //                             let (_, polynomial_expr) =
-    //                                 Self::polynomial_to_type_expr(polynomial);
-    //                             polynomial_expr
-    //                         }
-    //                     }
-    //                 })
-    //             }),
-    //         ),
-    //     )
-    // }
 }
-
-struct MultinomialImplementor<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize> {
-    multinomial: Multinomial<PARAMETERS, DEGREE, DIM>,
-    expr_fn: fn(Multinomial<PARAMETERS, DEGREE, DIM>) -> (Type<DIM>, Box<Expr<DIM>>),
-    stmt_fn: fn([Type<DIM>; PARAMETERS]) -> Vec<Stmt<DIM>>,
-}
-
-impl<const PARAMETERS: usize, const DEGREE: usize, const DIM: usize>
-    MultinomialImplementor<PARAMETERS, DEGREE, DIM>
-{
-    fn new(multinomial: Multinomial<PARAMETERS, DEGREE, DIM>) -> Self {
-        Self {
-            multinomial,
-            expr_fn: |multinomial| {
-                let space = multinomial.space();
-                (Type::Space(space), multinomial.struct_expr(space))
-            },
-            stmt_fn: |_| [].into(),
-        }
-    }
-
-    fn dual(mut self) -> Self {
-        self.multinomial = self.multinomial.dual();
-        self
-    }
-
-    fn expr_fn(
-        mut self,
-        expr_fn: fn(Multinomial<PARAMETERS, DEGREE, DIM>) -> (Type<DIM>, Box<Expr<DIM>>),
-    ) -> Self {
-        self.expr_fn = expr_fn;
-        self
-    }
-
-    fn stmt_fn(mut self, stmt_fn: fn([Type<DIM>; PARAMETERS]) -> Vec<Stmt<DIM>>) -> Self {
-        self.stmt_fn = stmt_fn;
-        self
-    }
-
-    fn implementations(self) -> Vec<Implementation<DIM>> {
-        std::iter::repeat_n(Space::iter(), PARAMETERS)
-            .multi_cartesian_product()
-            .map(|spaces| -> [Space<DIM>; PARAMETERS] { spaces.try_into().unwrap() })
-            .map(move |spaces| {
-                let space_types = spaces.map(Type::Space);
-                let (return_type, return_expr) = (self.expr_fn)(self.multinomial.filtrate(spaces));
-                let stmts = (self.stmt_fn)(space_types);
-                Implementation {
-                    type_params: space_types.into(),
-                    param_types: space_types.into(),
-                    return_type: Some(return_type),
-                    stmts,
-                    return_expr: Some(return_expr),
-                }
-            })
-            .collect()
-    }
-}
-
-// struct ProductOperation<
-//     'a,
-//     const TYPE_PARAMETERS: usize,
-//     const PARAMETERS: usize,
-//     const DEGREE: usize,
-//     const DIM: usize,
-// > {
-//     // binding_spaces: [(Binding, Space<DIM>); PARAMETERS],
-//     geometric_algebra: &'a GeometricAlgebra<DIM>,
-//     prototype: [Binding; DEGREE],
-//     instantiate: fn(
-//         &Multinomial<PARAMETERS, DEGREE, DIM>,
-//         [Space<DIM>; PARAMETERS],
-//     ) -> Vec<([Space<DIM>; TYPE_PARAMETERS], Type<DIM>, Box<Expr<DIM>>)>,
-//     term_sign: fn([Blade<DIM>; DEGREE]) -> Option<Sign>,
-//     blade_reindex: fn([Blade<DIM>; DEGREE]) -> [Blade<DIM>; DEGREE],
-//     shadow_parameters: fn([Type<DIM>; TYPE_PARAMETERS]) -> Vec<Stmt<DIM>>,
-// }
-
-// impl<
-//         'a,
-//         const TYPE_PARAMETERS: usize,
-//         const PARAMETERS: usize,
-//         const DEGREE: usize,
-//         const DIM: usize,
-//     > ProductOperation<'a, TYPE_PARAMETERS, PARAMETERS, DEGREE, DIM>
-// {
-//     fn new(geometric_algebra: &'a GeometricAlgebra<DIM>, prototype: [usize; DEGREE]) -> Self {
-//         Self {
-//             geometric_algebra,
-//             prototype: prototype.map(|binding| Binding { binding }).into(),
-//             instantiate: |_, _| [].into(),
-//             shadow_parameters: |_| [].into(),
-//             term_sign: |_| Some(Sign::POS),
-//             blade_reindex: std::convert::identity,
-//         }
-//     }
-
-//     fn instantiate(
-//         mut self,
-//         instantiate: fn(
-//             &Multinomial<PARAMETERS, DEGREE, DIM>,
-//             [Space<DIM>; PARAMETERS],
-//         ) -> Vec<([Space<DIM>; TYPE_PARAMETERS], Type<DIM>, Box<Expr<DIM>>)>,
-//     ) -> Self {
-//         self.instantiate = instantiate;
-//         self
-//     }
-
-//     fn term_sign(mut self, term_sign: fn([Blade<DIM>; DEGREE]) -> Option<Sign>) -> Self {
-//         self.term_sign = term_sign;
-//         self
-//     }
-
-//     fn blade_reindex(
-//         mut self,
-//         blade_reindex: fn([Blade<DIM>; DEGREE]) -> [Blade<DIM>; DEGREE],
-//     ) -> Self {
-//         self.blade_reindex = blade_reindex;
-//         self
-//     }
-
-//     fn shadow_parameters(
-//         mut self,
-//         shadow_parameters: fn([Type<DIM>; TYPE_PARAMETERS]) -> Vec<Stmt<DIM>>,
-//     ) -> Self {
-//         self.shadow_parameters = shadow_parameters;
-//         self
-//     }
-
-// fn type_expr(
-//     &mut self,
-//     type_expr: fn(&Multinomial<PARAMETERS, DEGREE, DIM>) -> (Type<DIM>, Box<Expr<DIM>>),
-// ) -> &mut Self {
-//     self.type_expr = type_expr;
-//     self
-// }
-
-//     fn implementations(&self) -> Vec<Implementation<DIM>> {
-//         std::iter::repeat_n(Space::iter(), PARAMETERS)
-//             .multi_cartesian_product()
-//             .map(|spaces| -> [Space<DIM>; PARAMETERS] { spaces.try_into().unwrap() })
-//             .flat_map(|spaces| {
-//                 // let spaces = (self.param_spaces)(&type_spaces);
-//                 let multinomial = self
-//                     .prototype
-//                     .iter()
-//                     .map(|binding| spaces[binding.binding].iter_blades())
-//                     .multi_cartesian_product()
-//                     .map(|blades| -> [Blade<DIM>; DEGREE] { blades.try_into().unwrap() })
-//                     .map(self.blade_reindex)
-//                     .filter_map(|blades| {
-//                         (self.term_sign)(blades).map(|sign| {
-//                             let multi_index =
-//                                 std::array::from_fn(|index| (self.prototype[index], blades[index]));
-//                             let blade = blades
-//                                 .into_iter()
-//                                 .fold(Blade::zero(), std::ops::BitXor::bitxor);
-//                             let coeff = Coefficient::from(
-//                                 sign ^ blades
-//                                     .into_iter()
-//                                     .map(|blade| self.geometric_algebra[blade].intrinsic_sign)
-//                                     .fold(
-//                                         self.geometric_algebra[blade].intrinsic_sign,
-//                                         std::ops::BitXor::bitxor,
-//                                     ),
-//                             ) * blades
-//                                 .into_iter()
-//                                 .fold(!Blade::zero(), std::ops::BitAnd::bitand)
-//                                 .iter_generators()
-//                                 .map(|generator| {
-//                                     self.geometric_algebra.generator_squares[generator.generator]
-//                                 })
-//                                 .product::<Coefficient>();
-//                             (blade, multi_index, coeff)
-//                         })
-//                     })
-//                     .collect();
-//                 (self.instantiate)(&multinomial, spaces).into_iter().map(
-//                     move |(type_spaces, return_type, return_expr)| {
-//                         let type_params = type_spaces.map(Type::Space);
-//                         let param_types = spaces.map(Type::Space);
-//                         Implementation {
-//                             type_params: type_params.into(),
-//                             param_types: param_types.into(),
-//                             return_type: Some(return_type),
-//                             stmts: (self.shadow_parameters)(type_params),
-//                             return_expr: Some(return_expr),
-//                         }
-//                     },
-//                 )
-//             })
-//             .collect()
-//     }
-// }
 
 struct GeometricAlgebra<const DIM: usize> {
     generator_squares: [Coefficient; DIM],
@@ -947,527 +1257,444 @@ impl<const DIM: usize> std::ops::Index<Space<DIM>> for GeometricAlgebra<DIM> {
 }
 
 impl<const DIM: usize> GeometricAlgebra<DIM> {
-    fn multinomial_implementor<const PARAMETERS: usize, const DEGREE: usize>(
+    fn multinomial<const PARAMS: usize, const DEGREE: usize>(
         &self,
-        prototype: [usize; DEGREE],
-        term_sign: fn([Blade<DIM>; DEGREE]) -> Option<Sign>,
-        // blade_reindex: fn([Blade<DIM>; DEGREE]) -> [Blade<DIM>; DEGREE],
-    ) -> MultinomialImplementor<PARAMETERS, DEGREE, DIM> {
-        MultinomialImplementor::new(
-            std::iter::repeat_n(Blade::iter(), DEGREE)
-                .multi_cartesian_product()
-                .map(|blades| -> [Blade<DIM>; DEGREE] { blades.try_into().unwrap() })
-                // .map(blade_reindex)
-                .filter_map(|blades| {
-                    term_sign(blades).map(|sign| {
-                        let multi_index = std::array::from_fn(|index| {
-                            (
-                                Binding {
-                                    binding: prototype[index],
-                                },
-                                blades[index],
-                            )
-                        });
-                        let blade = blades
+        prototype: [Binding<PARAMS>; DEGREE],
+        reindex: fn([Blade<DIM>; DEGREE]) -> [Blade<DIM>; DEGREE],
+        term_filter: fn([Blade<DIM>; DEGREE]) -> bool,
+        term_sign: fn([Blade<DIM>; DEGREE]) -> Sign,
+    ) -> Multinomial<PARAMS, DEGREE, DIM> {
+        std::iter::repeat_n(Blade::iter(), DEGREE)
+            .multi_cartesian_product()
+            .map(|blades| -> [Blade<DIM>; DEGREE] { blades.try_into().unwrap() })
+            .map(reindex)
+            .filter(|blades| term_filter(*blades))
+            .map(|blades| {
+                let multi_index = std::array::from_fn(|index| (prototype[index], blades[index]));
+                let blade = blades
+                    .into_iter()
+                    .fold(Blade::zero(), std::ops::BitXor::bitxor);
+                let coeff = Coefficient::from(
+                    term_sign(blades)
+                        ^ blades
                             .into_iter()
-                            .fold(Blade::zero(), std::ops::BitXor::bitxor);
-                        let coeff = Coefficient::from(
-                            sign ^ blades
-                                .into_iter()
-                                .map(|blade| self[blade].intrinsic_sign)
-                                .fold(self[blade].intrinsic_sign, std::ops::BitXor::bitxor),
-                        ) * blades
-                            .into_iter()
-                            .fold(!Blade::zero(), std::ops::BitAnd::bitand)
-                            .iter_generators()
-                            .map(|generator| self.generator_squares[generator.generator])
-                            .product::<Coefficient>();
-                        (blade, multi_index, coeff)
-                    })
-                })
-                .collect(),
-        )
+                            .map(|blade| self[blade].intrinsic_sign)
+                            .fold(self[blade].intrinsic_sign, std::ops::BitXor::bitxor),
+                ) * blades
+                    .into_iter()
+                    .fold(!Blade::zero(), std::ops::BitAnd::bitand)
+                    .iter_generators()
+                    .map(|generator| self.generator_squares[generator.generator])
+                    .product::<Coefficient>();
+                (blade, multi_index, coeff)
+            })
+            .collect()
     }
-
-    // fn unary_product<const DEGREE: usize>(
-    //     &self,
-    //     prototype: [usize; DEGREE],
-    // ) -> ProductOperation<1, 1, DEGREE, DIM> {
-    //     ProductOperation::new(self, prototype).instantiate(|multinomial, [space_0]| {
-    //         let space = multinomial.space();
-    //         [(
-    //             [space_0],
-    //             Type::Space(space),
-    //             multinomial.struct_expr(space),
-    //         )]
-    //         .into()
-    //     })
-    // }
-
-    // fn binary_product<const DEGREE: usize>(
-    //     &self,
-    //     prototype: [usize; DEGREE],
-    // ) -> ProductOperation<2, 2, DEGREE, DIM> {
-    //     ProductOperation::new(self, prototype).instantiate(|multinomial, [space_0, space_1]| {
-    //         let space = multinomial.space();
-    //         [(
-    //             [space_0, space_1],
-    //             Type::Space(space),
-    //             multinomial.struct_expr(space),
-    //         )]
-    //         .into()
-    //     })
-    // }
-
-    // fn unary_product_scalar<const DEGREE: usize>(
-    //     &self,
-    //     prototype: [usize; DEGREE],
-    // ) -> ProductOperation<1, 1, DEGREE, DIM> {
-    //     ProductOperation::new(self, prototype).instantiate(|multinomial, [space_0]| {
-    //         [([space_0], Type::Atom, multinomial.field_expr(Blade::zero()))].into()
-    //     })
-    // }
-
-    // fn unary_product_generic<const DEGREE: usize>(
-    //     &self,
-    //     prototype: [usize; DEGREE],
-    // ) -> ProductOperation<2, 1, DEGREE, DIM> {
-    //     ProductOperation::new(self, prototype).instantiate(|multinomial, [space_0]| {
-    //         Space::iter()
-    //             .map(|space| {
-    //                 (
-    //                     [space_0, space],
-    //                     Type::Space(space),
-    //                     multinomial.struct_expr(space),
-    //                 )
-    //             })
-    //             .collect()
-    //     })
-    // }
 
     fn implementations(&self, operation: Operation) -> Vec<Implementation<DIM>> {
         match operation {
-            Operation::Zero => todo!(),
-            Operation::One => todo!(),
-            Operation::SelectGrade0 => todo!(),
-            Operation::SelectGrade1 => todo!(),
-            Operation::SelectGrade2 => todo!(),
-            Operation::SelectGrade3 => todo!(),
-            Operation::SelectGrade4 => todo!(),
-            Operation::SelectGrade5 => todo!(),
-            Operation::SelectGrade6 => todo!(),
-            Operation::SelectScalar => todo!(),
-            Operation::SelectEven => todo!(),
-            Operation::SelectOdd => todo!(),
-            Operation::Inject => todo!(),
-            Operation::Surject => todo!(),
-            Operation::SInject => todo!(),
-            Operation::SurjectS => todo!(),
-            Operation::Involution => self
-                .multinomial_implementor::<1, 1>([0], |[blade]| {
-                    Some(Sign::from(blade.grade().grade))
-                })
-                .implementations(),
-            Operation::Reverse => self
-                .multinomial_implementor::<1, 1>([0], |[blade]| {
-                    Some(Sign::from(blade.grade().grade >> 1))
-                })
-                .implementations(),
-            Operation::Conjugate => self
-                .multinomial_implementor::<1, 1>([0], |[blade]| {
-                    Some(Sign::from((blade.grade().grade + 1) >> 1))
-                })
-                .implementations(),
-            Operation::Dual => self
-                .multinomial_implementor::<1, 1>([0], |[blade]| Some((!blade).parity(blade)))
-                .dual()
-                .implementations(),
-            Operation::InverseDual => self
-                .multinomial_implementor::<1, 1>([0], |[blade]| Some(blade.parity(!blade)))
-                .dual()
-                .implementations(),
-            Operation::Inverse => todo!(),
-            Operation::NormSquared => self
-                .multinomial_implementor::<1, 2>([0, 0], |_| Some(Sign::POS))
-                .expr_fn(|multinomial| (Type::Atom, multinomial.field_expr(Blade::zero())))
-                .implementations(),
-            Operation::Norm => todo!(),
-            Operation::Normalized => todo!(),
-            Operation::Normalize => todo!(),
-            Operation::GeometricProduct => self
-                .multinomial_implementor::<2, 2>([0, 1], |[blade_0, blade_1]| {
-                    Some(blade_0.parity(blade_1))
-                })
-                .implementations(),
-            Operation::ScalarProduct => self
-                .multinomial_implementor::<2, 2>([0, 1], |[blade_0, blade_1]| {
-                    (blade_0 ^ blade_1 == Blade::zero()).then(|| blade_0.parity(blade_1))
-                })
-                .implementations(),
-            Operation::LeftInnerProduct => self
-                .multinomial_implementor::<2, 2>([0, 1], |[blade_0, blade_1]| {
-                    (blade_0 & blade_1 == blade_0).then(|| blade_0.parity(blade_1))
-                })
-                .implementations(),
-            Operation::RightInnerProduct => self
-                .multinomial_implementor::<2, 2>([0, 1], |[blade_0, blade_1]| {
-                    (blade_0 & blade_1 == blade_1).then(|| blade_0.parity(blade_1))
-                })
-                .implementations(),
-            Operation::InnerProduct => self
-                .multinomial_implementor::<2, 2>([0, 1], |[blade_0, blade_1]| {
-                    (blade_0 & blade_1 == blade_0 || blade_0 & blade_1 == blade_1)
-                        .then(|| blade_0.parity(blade_1))
-                })
-                .implementations(),
-            Operation::OuterProduct => self
-                .multinomial_implementor::<2, 2>([0, 1], |[blade_0, blade_1]| {
-                    (blade_0 & blade_1 == Blade::zero()).then(|| blade_0.parity(blade_1))
-                })
-                .implementations(),
-            Operation::RegressiveProduct => self
-                .multinomial_implementor::<2, 2>([0, 1], |[blade_0, blade_1]| {
-                    (!blade_0 & !blade_1 == Blade::zero()).then(|| (!blade_1).parity(!blade_0))
-                })
-                .implementations(),
-            Operation::Commutator => self
-                .multinomial_implementor::<2, 2>([0, 1], |[blade_0, blade_1]| {
-                    (blade_0.grade().grade & blade_1.grade().grade & 1 != 0)
-                        .then(|| blade_0.parity(blade_1))
-                })
-                .implementations(),
-            Operation::Anticommutator => self
-                .multinomial_implementor::<2, 2>([0, 1], |[blade_0, blade_1]| {
-                    (blade_0.grade().grade & blade_1.grade().grade & 1 == 0)
-                        .then(|| blade_0.parity(blade_1))
-                })
-                .implementations(),
-            Operation::Transform => self
-                .multinomial_implementor::<2, 3>([0, 1, 0], |[blade_0, blade_1, blade_2]| {
-                    Some(
-                        blade_0.parity(blade_1)
-                            ^ blade_0.parity(blade_2)
-                            ^ blade_1.parity(blade_2)
-                            ^ Sign::from(blade_2.grade().grade >> 1),
-                    )
-                })
-                .implementations(),
-            Operation::Project => self
-                .multinomial_implementor::<2, 3>([0, 1, 1], |[blade_0, blade_1, blade_2]| {
-                    (blade_0 & blade_1 == blade_0).then(|| {
-                        blade_0.parity(blade_1)
-                            ^ blade_0.parity(blade_2)
-                            ^ blade_1.parity(blade_2)
-                            ^ Sign::from(blade_2.grade().grade >> 1)
-                    })
-                })
-                .stmt_fn(|[_, type_1]| {
-                    [Stmt::ShadowBind {
-                        binding: Binding { binding: 1 },
-                        expr: Expr::variable(Binding { binding: 1 }).call(
-                            Operation::Normalized,
-                            [type_1],
-                            [],
-                        ),
-                    }]
-                    .into()
-                })
-                .implementations(),
-            Operation::Reject => todo!(),
             Operation::Add => todo!(),
             Operation::Sub => todo!(),
             Operation::Mul => todo!(),
+            Operation::Div => todo!(),
             Operation::AddAssign => todo!(),
             Operation::SubAssign => todo!(),
             Operation::MulAssign => todo!(),
-            Operation::MulS => todo!(),
-            Operation::DivS => todo!(),
-            Operation::MulSAssign => todo!(),
-            Operation::DivSAssign => todo!(),
-            Operation::SMul => todo!(),
-            Operation::SDiv => todo!(),
+            Operation::DivAssign => todo!(),
         }
     }
 }
 
-// struct Signature<Generics, Args, ReturnType> {
-//     generics: Generics,
-//     args: Args,
-//     return_type: ReturnType,
-// }
-
-// struct Return<Type> {
-//     ty: Type,
-// }
-
-// trait ReturnType {
-//     type Expr;
-// }
-
-// impl ReturnType for () {
-//     type Expr = ();
-// }
-
-// impl<Type> ReturnType for Return<Type> {
-//     type Expr = TypedExpr<Type>;
-// }
-
-struct Implementation<const DIM: usize> {
-    type_params: Vec<Type<DIM>>,
-    param_types: Vec<Type<DIM>>,
-    return_type: Option<Type<DIM>>,
-    stmts: Vec<Stmt<DIM>>,
-    return_expr: Option<Box<Expr<DIM>>>,
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Pretype<const TYPE_PARAMS: usize> {
+    Atom,
+    Binding { binding: Binding<TYPE_PARAMS> },
 }
 
-// struct AssignmentImpl<Generics, Args> {
-//     trait_ident: Rc<str>,
-//     generics: Generics,
-//     arg_vars: Args,
-//     stmts: Vec<Statement>,
-// }
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum ReturnPretype<const TYPE_PARAMS: usize> {
+    Pretype { pretype: Pretype<TYPE_PARAMS> },
+    Associated { name: &'static str },
+}
 
-// trait Operation {
-//     const NAME: &'static str;
+impl<const TYPE_PARAMS: usize> Pretype<TYPE_PARAMS> {
+    fn resolve<const DIM: usize>(self, type_params: &[Type<DIM>; TYPE_PARAMS]) -> Type<DIM> {
+        match self {
+            Self::Atom => Type::Atom,
+            Self::Binding { binding } => type_params[binding],
+        }
+    }
+}
 
-//     fn implementations(&self, alg: &GeometricAlgebra) -> Vec<Implementation>;
-// }
+trait TraitNames {
+    const TRAIT_NAME: &'static str;
+    const METHOD_NAME: &'static str;
+}
 
-// trait Assignment<Generics, Args> {
-//     const NAME: &'static str;
+trait ExprOperation<Tag, const TYPE_PARAMS: usize, const PARAMS: usize> {
+    fn signature(&self) -> ExprSignature<TYPE_PARAMS, PARAMS>;
+    fn implementations<const DIM: usize>(
+        &self,
+        geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<ExprOperationImpl<TYPE_PARAMS, PARAMS, DIM>>;
+}
 
-//     type Generics;
-//     type Args;
+struct ExprSignature<const TYPE_PARAMS: usize, const PARAMS: usize> {
+    is_operator: bool,
+    param_pretypes: [(&'static str, Pretype<TYPE_PARAMS>); PARAMS],
+    return_pretype: ReturnPretype<TYPE_PARAMS>,
+}
 
-//     fn impls(&self, alg: &GeometricAlgebra) -> Vec<OperationImpl<Self::Generics, Self::Args>>;
-// }
+struct ExprOperationImpl<const TYPE_PARAMS: usize, const PARAMS: usize, const DIM: usize> {
+    type_params: [Type<DIM>; TYPE_PARAMS],
+    return_type: Type<DIM>,
+    return_expr: Expr<PARAMS, DIM>,
+}
 
-// trait Operation<Generics, Vars> {
-//     type OutputType: Type;
+trait StmtOperation<Tag, const TYPE_PARAMS: usize, const PARAMS: usize> {
+    fn signature(&self) -> StmtSignature<TYPE_PARAMS, PARAMS>;
+    fn implementations<const DIM: usize>(
+        &self,
+        geometric_algebra: GeometricAlgebra<DIM>,
+    ) -> Vec<StmtOperationImpl<TYPE_PARAMS, PARAMS, DIM>>;
+}
 
-//     fn generics(&self) ->
-//     fn output_type(&self, generics: &Generics) -> Self::OutputType;
-//     fn stmts(&self, generics: &Generics, vars: &Vars) -> Vec<Statement>;
-//     fn expression(&self, generics: &Generics, vars: &Vars) -> Expression;
-// }
+struct StmtSignature<const TYPE_PARAMS: usize, const PARAMS: usize> {
+    is_operator: bool,
+    param_pretypes: [(&'static str, Pretype<TYPE_PARAMS>); PARAMS],
+}
 
-// trait InplaceOperation<Generics, Vars> {
-//     fn stmts(&self, generics: &Generics, vars: &Vars) -> Vec<Statement>;
-// }
+struct StmtOperationImpl<const TYPE_PARAMS: usize, const PARAMS: usize, const DIM: usize> {
+    type_params: [Type<DIM>; TYPE_PARAMS],
+    stmts: Vec<Stmt<PARAMS, DIM>>,
+}
 
-// enum Type {
-//     Float,
-//     Space(usize),
-//     PtrSpace(usize),
-// }
+// const UNARY_OPERATION: ExprSignature<1, 1> = ExprSignature {
+//     is_operator: false,
+//     param_pretypes: [(
+//         "self",
+//         Pretype::Binding {
+//             binding: Binding(0),
+//         },
+//     )],
+//     return_pretype: ReturnPretype::Associated { name: "Output" },
+// };
+// const UNARY_OPERATION_INPLACE: StmtSignature<1, 1> = StmtSignature {
+//     is_operator: false,
+//     param_pretypes: [(
+//         "self",
+//         Pretype::Binding {
+//             binding: Binding(0),
+//         },
+//     )],
+// };
+// const UNARY_OPERATOR: ExprSignature<1, 1> = ExprSignature {
+//     is_operator: true,
+//     param_pretypes: [(
+//         "self",
+//         Pretype::Binding {
+//             binding: Binding(0),
+//         },
+//     )],
+//     return_pretype: ReturnPretype::Associated { name: "Output" },
+// };
+// const UNARY_OPERATION_GENERIC: ExprSignature<2, 1> = ExprSignature {
+//     is_operator: true,
+//     param_pretypes: [(
+//         "self",
+//         Pretype::Binding {
+//             binding: Binding(0),
+//         },
+//     )],
+//     return_pretype: ReturnPretype::Pretype {
+//         pretype: Pretype::Binding {
+//             binding: Binding(1),
+//         },
+//     },
+// };
+// const BINARY_OPERATION: ExprSignature<2, 2> = ExprSignature {
+//     is_operator: false,
+//     param_pretypes: [
+//         (
+//             "self",
+//             Pretype::Binding {
+//                 binding: Binding(0),
+//             },
+//         ),
+//         (
+//             "other",
+//             Pretype::Binding {
+//                 binding: Binding(1),
+//             },
+//         ),
+//     ],
+//     return_pretype: ReturnPretype::Associated { name: "Output" },
+// };
+// const BINARY_OPERATOR: ExprSignature<2, 2> = ExprSignature {
+//     is_operator: true,
+//     param_pretypes: [
+//         (
+//             "self",
+//             Pretype::Binding {
+//                 binding: Binding(0),
+//             },
+//         ),
+//         (
+//             "other",
+//             Pretype::Binding {
+//                 binding: Binding(1),
+//             },
+//         ),
+//     ],
+//     return_pretype: ReturnPretype::Associated { name: "Output" },
+// };
+// const BINARY_OPERATOR_INPLACE: StmtSignature<2, 2> = StmtSignature {
+//     is_operator: true,
+//     param_pretypes: [
+//         (
+//             "self",
+//             Pretype::Binding {
+//                 binding: Binding(0),
+//             },
+//         ),
+//         (
+//             "other",
+//             Pretype::Binding {
+//                 binding: Binding(1),
+//             },
+//         ),
+//     ],
+// };
+
+trait Writer {
+    fn write_struct(&mut self, name: &str, fields: Vec<&str>);
+    fn write_expr_impl(&mut self, expr_impl: ExprOperationImpl);
+    // fn write_operation_trait<const DIM: usize>(&mut self, )
+}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Type<const DIM: usize> {
     Atom,
     Space(Space<DIM>),
-    SpacePtr(Space<DIM>),
 }
 
-// #[derive(Clone, Copy, Debug, PartialEq)]
-// struct TypeAtom;
-// #[derive(Clone, Copy, Debug, PartialEq)]
-// struct TypeSpace(usize);
-// #[derive(Clone, Copy, Debug, PartialEq)]
-// struct TypeSpacePtr(usize);
-
-// trait TypeTrait: Copy + PartialEq + std::fmt::Debug {}
-// impl TypeTrait for TypeAtom {}
-// impl TypeTrait for TypeSpace {}
-// impl TypeTrait for TypeSpacePtr {}
-
-// struct Var<const DIM: usize> {
-//     name: &'static str,
-//     ty: Type<DIM>,
-// }
-
-enum Expr<const DIM: usize> {
+enum ExprRepr<const PARAMS: usize, const DIM: usize> {
     Variable {
-        binding: Binding,
+        binding: Binding<PARAMS>,
     },
     Literal {
         value: u8,
     },
     Structure {
         space: Space<DIM>,
-        fields: Vec<(Blade<DIM>, Box<Self>)>,
+        fields: Vec<(Blade<DIM>, Expr<PARAMS, DIM>)>,
     },
     Group {
-        expr: Box<Self>,
+        expr: Expr<PARAMS, DIM>,
     },
     Field {
-        expr: Box<Self>,
+        expr: Expr<PARAMS, DIM>,
         blade: Blade<DIM>,
     },
-    Call {
-        operation: Operation,
-        type_params: Vec<Type<DIM>>,
-        param_exprs: Vec<Box<Self>>,
+    CallBuiltinUnary {
+        operation: BuiltinUnaryOperation,
+        param_expr: Expr<PARAMS, DIM>,
     },
-    CallBuiltin {
-        operation: BuiltinOperation,
-        param_exprs: Vec<Box<Self>>,
+    Call {
+        trait_name: &'static str,
+        method_name: &'static str,
+        type_params: Vec<Type<DIM>>,
+        param_exprs: Vec<Expr<PARAMS, DIM>>,
     },
     Neg {
-        expr: Box<Self>,
+        expr: Expr<PARAMS, DIM>,
     },
     Add {
-        lhs: Box<Self>,
-        rhs: Box<Self>,
+        lhs: Expr<PARAMS, DIM>,
+        rhs: Expr<PARAMS, DIM>,
     },
     Sub {
-        lhs: Box<Self>,
-        rhs: Box<Self>,
+        lhs: Expr<PARAMS, DIM>,
+        rhs: Expr<PARAMS, DIM>,
     },
     Mul {
-        lhs: Box<Self>,
-        rhs: Box<Self>,
+        lhs: Expr<PARAMS, DIM>,
+        rhs: Expr<PARAMS, DIM>,
     },
     Div {
-        lhs: Box<Self>,
-        rhs: Box<Self>,
+        lhs: Expr<PARAMS, DIM>,
+        rhs: Expr<PARAMS, DIM>,
     },
 }
 
-impl<const DIM: usize> Expr<DIM> {
-    fn variable(binding: Binding) -> Box<Self> {
-        Box::new(Expr::Variable { binding })
-    }
+#[repr(transparent)]
+struct Expr<const PARAMS: usize, const DIM: usize>(Box<ExprRepr<PARAMS, DIM>>);
 
-    fn literal(value: u8) -> Box<Self> {
-        Box::new(Expr::Literal { value })
-    }
-
-    fn structure(
-        space: Space<DIM>,
-        fields: impl Iterator<Item = (Blade<DIM>, Box<Self>)>,
-    ) -> Box<Self> {
-        Box::new(Expr::Structure {
-            space,
-            fields: fields.collect(),
-        })
-    }
-
-    fn group(self: Box<Self>) -> Box<Self> {
-        Box::new(Expr::Group { expr: self })
-    }
-
-    fn field(self: Box<Self>, blade: Blade<DIM>) -> Box<Self> {
-        Box::new(Expr::Field { expr: self, blade })
-    }
-
-    fn call<const TYPE_PARAMETERS: usize, const PARAMETERS: usize>(
-        self: Box<Self>,
-        operation: Operation,
-        type_params: [Type<DIM>; TYPE_PARAMETERS],
-        param_exprs: [Box<Self>; PARAMETERS],
-    ) -> Box<Self> {
-        Box::new(Expr::Call {
-            operation,
-            type_params: type_params.into(),
-            param_exprs: std::iter::once(self).chain(param_exprs).collect(),
-        })
-    }
-
-    fn call_builtin<const PARAMETERS: usize>(
-        self: Box<Self>,
-        operation: BuiltinOperation,
-        param_exprs: [Box<Self>; PARAMETERS],
-    ) -> Box<Self> {
-        Box::new(Expr::CallBuiltin {
-            operation,
-            param_exprs: std::iter::once(self).chain(param_exprs).collect(),
-        })
+impl<const PARAMS: usize, const DIM: usize> From<ExprRepr<PARAMS, DIM>> for Expr<PARAMS, DIM> {
+    fn from(repr: ExprRepr<PARAMS, DIM>) -> Self {
+        Self(Box::new(repr))
     }
 }
 
-impl<const DIM: usize> std::ops::Neg for Box<Expr<DIM>> {
+impl<const PARAMS: usize, const DIM: usize> Expr<PARAMS, DIM> {
+    fn variable(binding: Binding<PARAMS>) -> Self {
+        ExprRepr::Variable { binding }.into()
+    }
+
+    fn literal(value: u8) -> Self {
+        ExprRepr::Literal { value }.into()
+    }
+
+    fn structure(space: Space<DIM>, fields: impl Iterator<Item = (Blade<DIM>, Self)>) -> Self {
+        ExprRepr::Structure {
+            space,
+            fields: fields.collect(),
+        }
+        .into()
+    }
+
+    fn group(self) -> Self {
+        ExprRepr::Group { expr: self }.into()
+    }
+
+    fn field(self, blade: Blade<DIM>) -> Self {
+        ExprRepr::Field { expr: self, blade }.into()
+    }
+
+    fn call_builtin_unary(self, operation: BuiltinUnaryOperation) -> Self {
+        ExprRepr::CallBuiltinUnary {
+            operation,
+            param_expr: self,
+        }
+        .into()
+    }
+
+    fn call<Op, Tag, const OP_TYPE_PARAMS: usize, const OP_PARAMS: usize, const ARGS: usize>(
+        self,
+        _operation: Op,
+        type_params: [Type<DIM>; OP_TYPE_PARAMS],
+        param_exprs: [Self; ARGS],
+    ) -> Self
+    where
+        Op: TraitNames + ExprOperation<Tag, OP_TYPE_PARAMS, OP_PARAMS>,
+    {
+        assert_eq!(ARGS + 1, OP_PARAMS);
+        ExprRepr::Call {
+            trait_name: Op::TRAIT_NAME,
+            method_name: Op::METHOD_NAME,
+            type_params: type_params.into(),
+            param_exprs: std::iter::once(self).chain(param_exprs).collect(),
+        }
+        .into()
+    }
+
+    fn add_assign(self, blade: Blade<DIM>, rhs: Self) -> Stmt<PARAMS, DIM> {
+        StmtRepr::AddAssign {
+            expr: self,
+            blade,
+            rhs,
+        }
+        .into()
+    }
+
+    fn sub_assign(self, blade: Blade<DIM>, rhs: Self) -> Stmt<PARAMS, DIM> {
+        StmtRepr::SubAssign {
+            expr: self,
+            blade,
+            rhs,
+        }
+        .into()
+    }
+
+    fn mul_assign(self, blade: Blade<DIM>, rhs: Self) -> Stmt<PARAMS, DIM> {
+        StmtRepr::MulAssign {
+            expr: self,
+            blade,
+            rhs,
+        }
+        .into()
+    }
+
+    fn div_assign(self, blade: Blade<DIM>, rhs: Self) -> Stmt<PARAMS, DIM> {
+        StmtRepr::DivAssign {
+            expr: self,
+            blade,
+            rhs,
+        }
+        .into()
+    }
+}
+
+impl<const PARAMS: usize, const DIM: usize> std::ops::Neg for Expr<PARAMS, DIM> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
-        Box::new(Expr::Neg { expr: self })
+        ExprRepr::Neg { expr: self }.into()
     }
 }
 
-impl<const DIM: usize> std::ops::Add for Box<Expr<DIM>> {
+impl<const PARAMS: usize, const DIM: usize> std::ops::Add for Expr<PARAMS, DIM> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        Box::new(Expr::Add { lhs: self, rhs })
+        ExprRepr::Add { lhs: self, rhs }.into()
     }
 }
 
-impl<const DIM: usize> std::ops::Sub for Box<Expr<DIM>> {
+impl<const PARAMS: usize, const DIM: usize> std::ops::Sub for Expr<PARAMS, DIM> {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        Box::new(Expr::Sub { lhs: self, rhs })
+        ExprRepr::Sub { lhs: self, rhs }.into()
     }
 }
 
-impl<const DIM: usize> std::ops::Mul for Box<Expr<DIM>> {
+impl<const PARAMS: usize, const DIM: usize> std::ops::Mul for Expr<PARAMS, DIM> {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        Box::new(Expr::Mul { lhs: self, rhs })
+        ExprRepr::Mul { lhs: self, rhs }.into()
     }
 }
 
-impl<const DIM: usize> std::ops::Div for Box<Expr<DIM>> {
+impl<const PARAMS: usize, const DIM: usize> std::ops::Div for Expr<PARAMS, DIM> {
     type Output = Self;
 
     fn div(self, rhs: Self) -> Self::Output {
-        Box::new(Expr::Div { lhs: self, rhs })
+        ExprRepr::Div { lhs: self, rhs }.into()
     }
 }
 
-// type Expression = Box<ExpressionRepr>;
-
-enum Stmt<const DIM: usize> {
-    // Expr {
-    //     expr: Box<Expr<DIM>>,
-    // },
-    ShadowBind {
-        binding: Binding,
-        expr: Box<Expr<DIM>>,
-    },
+enum StmtRepr<const PARAMS: usize, const DIM: usize> {
     AddAssign {
-        expr: Box<Expr<DIM>>,
-        blade_index: usize,
-        rhs: Box<Expr<DIM>>,
+        expr: Expr<PARAMS, DIM>,
+        blade: Blade<DIM>,
+        rhs: Expr<PARAMS, DIM>,
     },
     SubAssign {
-        expr: Box<Expr<DIM>>,
-        blade_index: usize,
-        rhs: Box<Expr<DIM>>,
+        expr: Expr<PARAMS, DIM>,
+        blade: Blade<DIM>,
+        rhs: Expr<PARAMS, DIM>,
     },
     MulAssign {
-        expr: Box<Expr<DIM>>,
-        blade_index: usize,
-        rhs: Box<Expr<DIM>>,
+        expr: Expr<PARAMS, DIM>,
+        blade: Blade<DIM>,
+        rhs: Expr<PARAMS, DIM>,
     },
     DivAssign {
-        expr: Box<Expr<DIM>>,
-        blade_index: usize,
-        rhs: Box<Expr<DIM>>,
+        expr: Expr<PARAMS, DIM>,
+        blade: Blade<DIM>,
+        rhs: Expr<PARAMS, DIM>,
     },
 }
 
-// type Statement = Box<StatementRepr>;
+#[repr(transparent)]
+struct Stmt<const PARAMS: usize, const DIM: usize>(Box<StmtRepr<PARAMS, DIM>>);
 
-enum Item<const DIM: usize> {
-    Struct {
-        space: Space<DIM>,
-        fields: Vec<Blade<DIM>>,
-    },
-    Impl {
-        operation: Operation,
-        implementation: Implementation<DIM>,
-    },
+impl<const PARAMS: usize, const DIM: usize> From<StmtRepr<PARAMS, DIM>> for Stmt<PARAMS, DIM> {
+    fn from(repr: StmtRepr<PARAMS, DIM>) -> Self {
+        Self(Box::new(repr))
+    }
 }
 
 const PGA1D_RENAMES: GeometricAlgebraRenames = GeometricAlgebraRenames {
@@ -1577,15 +1804,3 @@ fn algebras() -> Vec<(&'static str, GeometricAlgebra)> {
     ]
     .into()
 }
-
-// struct GeometricAlgebra {
-//     name: &'static str,
-//     generator_squares: &'static str,
-//     signed_blades: &'static str,
-//     structures: &'static [Structure],
-// }
-
-// struct Structure {
-//     ty: &'static str,
-//     fields: &'static str,
-// }
