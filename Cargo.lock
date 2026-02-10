@@ -13,6 +13,7 @@ name = "geometric-alg-codegen"
 version = "0.1.0"
 dependencies = [
  "itertools",
+ "symbol",
 ]
 
 [[package]]
@@ -22,4 +23,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
 dependencies = [
  "either",
+]
+
+[[package]]
+name = "lazy_static"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+
+[[package]]
+name = "spin"
+version = "0.4.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ceac490aa12c567115b40b7b7fceca03a6c9d53d5defea066123debc83c5dc1f"
+
+[[package]]
+name = "symbol"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "79699c3ae2258766b51a8a11079a355f003e4a0a5cadbdbb66d5c3d8632d4423"
+dependencies = [
+ "lazy_static",
+ "spin",
 ]
