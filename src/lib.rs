@@ -1,682 +1,12 @@
+mod ast;
+mod emitter;
+
+use crate::ast::{
+    Expr, ExprRepr, Items, OperationHandle, OperationSignature, Ownership, Pretype, ToSymbol,
+};
 use itertools::Itertools;
 use symbol::Symbol;
 
-trait EvalType<Type, const GENERICS: usize, const ASSOCIATES: usize> {
-    type OutputType;
-
-    fn eval_type(
-        &self,
-        generic_types: &[Type; GENERICS],
-        associate_types: &[Type; ASSOCIATES],
-    ) -> Self::OutputType;
-}
-
-struct Context<Pretype, Type> {
-    function: <Self as std::ops::Index<ProtocolFunction>>::Output,
-    method_expr: <Self as std::ops::Index<ProtocolMethodExpr>>::Output,
-    method_stmt: <Self as std::ops::Index<ProtocolMethodStmt>>::Output,
-}
-
-struct OperationGroup<Protocol, Pretype, ReturnPretype, Type, ReturnType, Body> {
-    signatures: Vec<OperationSignatureErased<Protocol, Pretype, ReturnPretype>>,
-    implementations: Vec<(
-        ImplementationSignatureErased<Protocol, Type, ReturnType>,
-        Body,
-    )>,
-}
-
-// struct ImplementationBody {
-//     stmts: Vec<Stmt>,
-//     return_expr: Option<Expr>,
-// }
-
-// struct Struct<Type> {
-//     ident: Symbol,
-//     r#type: Type,
-//     fields: Vec<Field<Type>>,
-// }
-
-// struct Field<Type> {
-//     ident: Symbol,
-//     r#type: Type,
-// }
-
-trait OperationProtocol<Pretype, Type> {
-    type ReturnPretype;
-    type ReturnType;
-    type Body;
-}
-
-#[derive(Clone, Copy)]
-struct ProtocolFunction;
-
-impl<Pretype, Type> OperationProtocol<Pretype, Type> for ProtocolFunction {
-    type ReturnPretype = Pretype;
-    type ReturnType = Type;
-    type Body = Expr;
-}
-
-impl<Pretype, Type> std::ops::Index<ProtocolFunction> for Context<Pretype, Type> {
-    type Output = OperationGroup<
-        ProtocolFunction,
-        Pretype,
-        <ProtocolFunction as OperationProtocol<Pretype, Type>>::ReturnPretype,
-        Type,
-        <ProtocolFunction as OperationProtocol<Pretype, Type>>::ReturnType,
-        <ProtocolFunction as OperationProtocol<Pretype, Type>>::Body,
-    >;
-
-    fn index(&self, _index: ProtocolFunction) -> &Self::Output {
-        &self.function
-    }
-}
-
-impl<Pretype, Type> std::ops::IndexMut<ProtocolFunction> for Context<Pretype, Type> {
-    fn index_mut(&mut self, _index: ProtocolFunction) -> &mut Self::Output {
-        &mut self.function
-    }
-}
-
-#[derive(Clone, Copy)]
-struct ProtocolMethodExpr;
-
-impl<Pretype, Type> OperationProtocol<Pretype, Type> for ProtocolMethodExpr {
-    type ReturnPretype = Pretype;
-    type ReturnType = Type;
-    type Body = Expr;
-}
-
-impl<Pretype, Type> std::ops::Index<ProtocolMethodExpr> for Context<Pretype, Type> {
-    type Output = OperationGroup<
-        ProtocolMethodExpr,
-        Pretype,
-        <ProtocolMethodExpr as OperationProtocol<Pretype, Type>>::ReturnPretype,
-        Type,
-        <ProtocolMethodExpr as OperationProtocol<Pretype, Type>>::ReturnType,
-        <ProtocolMethodExpr as OperationProtocol<Pretype, Type>>::Body,
-    >;
-
-    fn index(&self, _index: ProtocolMethodExpr) -> &Self::Output {
-        &self.method_expr
-    }
-}
-
-impl<Pretype, Type> std::ops::IndexMut<ProtocolMethodExpr> for Context<Pretype, Type> {
-    fn index_mut(&mut self, _index: ProtocolMethodExpr) -> &mut Self::Output {
-        &mut self.method_expr
-    }
-}
-
-#[derive(Clone, Copy)]
-struct ProtocolMethodStmt;
-
-impl<Pretype, Type> OperationProtocol<Pretype, Type> for ProtocolMethodStmt {
-    type ReturnPretype = ();
-    type ReturnType = ();
-    type Body = Vec<Stmt>;
-}
-
-impl<Pretype, Type> std::ops::Index<ProtocolMethodStmt> for Context<Pretype, Type> {
-    type Output = OperationGroup<
-        ProtocolMethodStmt,
-        Pretype,
-        <ProtocolMethodStmt as OperationProtocol<Pretype, Type>>::ReturnPretype,
-        Type,
-        <ProtocolMethodStmt as OperationProtocol<Pretype, Type>>::ReturnType,
-        <ProtocolMethodStmt as OperationProtocol<Pretype, Type>>::Body,
-    >;
-
-    fn index(&self, _index: ProtocolMethodStmt) -> &Self::Output {
-        &self.method_stmt
-    }
-}
-
-impl<Pretype, Type> std::ops::IndexMut<ProtocolMethodStmt> for Context<Pretype, Type> {
-    fn index_mut(&mut self, _index: ProtocolMethodStmt) -> &mut Self::Output {
-        &mut self.method_stmt
-    }
-}
-
-struct OperationSignatureErased<Protocol, Pretype, ReturnPretype> {
-    protocol: Protocol,
-    ident: Symbol,
-    op_ident: Symbol,
-    generics: Vec<Symbol>,
-    associates: Vec<Symbol>,
-    param_items: Vec<(Symbol, Pretype)>,
-    return_pretype: ReturnPretype,
-    // implementations: Vec<Implementation<Type>>,
-    // implementor: Box<dyn Fn(&Context<Pretype, Type>, Vec<Expr>, Type) -> Option<Expr>>, // Lazily evaluated; None = builtin
-    // call_expr_repr: Box<dyn Fn(Symbol, Vec<Expr>, &Implementation<Type>) -> ExprRepr>,
-}
-
-#[derive(Clone)]
-struct OperationSignature<
-    Protocol,
-    Pretype,
-    ReturnPretype,
-    const GENERICS: usize,
-    const ASSOCIATES: usize,
-    const PARAMS: usize,
-> {
-    protocol: Protocol,
-    ident: Symbol,
-    op_ident: Symbol,
-    generics: [Symbol; GENERICS],
-    associates: [Symbol; ASSOCIATES],
-    param_items: [(Symbol, Pretype); PARAMS],
-    return_pretype: ReturnPretype,
-}
-
-impl<
-        Protocol,
-        Pretype,
-        ReturnPretype,
-        const GENERICS: usize,
-        const ASSOCIATES: usize,
-        const PARAMS: usize,
-    > OperationSignature<Protocol, Pretype, ReturnPretype, GENERICS, ASSOCIATES, PARAMS>
-{
-    fn erase(self) -> OperationSignatureErased<Protocol, Pretype, ReturnPretype> {
-        OperationSignatureErased {
-            protocol: self.protocol,
-            ident: self.ident,
-            op_ident: self.op_ident,
-            generics: Vec::from(self.generics),
-            associates: Vec::from(self.associates),
-            param_items: Vec::from(self.param_items),
-            return_pretype: self.return_pretype,
-        }
-    }
-}
-
-struct ImplementationSignatureErased<Protocol, Type, ReturnType> {
-    protocol: Protocol,
-    ident: Symbol,
-    op_ident: Symbol,
-    generic_items: Vec<(Symbol, Type)>,
-    associate_items: Vec<(Symbol, Type)>,
-    param_items: Vec<(Symbol, Type)>,
-    return_type: ReturnType,
-}
-
-#[derive(Clone)]
-struct ImplementationSignature<
-    Protocol,
-    Type,
-    ReturnType,
-    const GENERICS: usize,
-    const ASSOCIATES: usize,
-    const PARAMS: usize,
-> {
-    protocol: Protocol,
-    ident: Symbol,
-    op_ident: Symbol,
-    generic_items: [(Symbol, Type); GENERICS],
-    associate_items: [(Symbol, Type); ASSOCIATES],
-    param_items: [(Symbol, Type); PARAMS],
-    return_type: ReturnType,
-}
-
-impl<
-        Protocol,
-        Type,
-        ReturnType,
-        const GENERICS: usize,
-        const ASSOCIATES: usize,
-        const PARAMS: usize,
-    > ImplementationSignature<Protocol, Type, ReturnType, GENERICS, ASSOCIATES, PARAMS>
-{
-    fn erase(self) -> ImplementationSignatureErased<Protocol, Type, ReturnType> {
-        ImplementationSignatureErased {
-            protocol: self.protocol,
-            ident: self.ident,
-            op_ident: self.op_ident,
-            generic_items: Vec::from(self.generic_items),
-            associate_items: Vec::from(self.associate_items),
-            param_items: Vec::from(self.param_items),
-            return_type: self.return_type,
-        }
-    }
-}
-
-impl<Pretype, Type> Context<Pretype, Type> {
-    // fn register_struct<const FIELDS: usize>(
-    //     &mut self,
-    //     ident: impl AsRef<str>,
-    //     r#type: Type,
-    //     field_items: [(impl AsRef<str>, Type); FIELDS],
-    // ) -> &mut Self {
-    //     self.structs.push(Struct {
-    //         ident: Symbol::from(ident),
-    //         r#type,
-    //         fields: Vec::from(field_items.map(|(field_ident, field_type)| Field {
-    //             ident: Symbol::from(field_ident),
-    //             r#type: field_type,
-    //         })),
-    //     });
-    //     self
-    // }
-
-    fn register_operation<
-        Protocol,
-        const GENERICS: usize,
-        const ASSOCIATES: usize,
-        const PARAMS: usize,
-    >(
-        &mut self,
-        protocol: Protocol,
-        ident: impl AsRef<str>,
-        op_ident: impl AsRef<str>,
-        generics: [impl AsRef<str>; GENERICS],
-        associates: [impl AsRef<str>; ASSOCIATES],
-        param_items: [(impl AsRef<str>, Pretype); PARAMS],
-        return_pretype: Protocol::ReturnPretype,
-    ) -> OperationSignature<Protocol, Pretype, Protocol::ReturnPretype, GENERICS, ASSOCIATES, PARAMS>
-    where
-        Protocol: Clone + OperationProtocol<Pretype, Type>,
-        Pretype: Clone,
-        Protocol::ReturnPretype: Clone,
-        Self: std::ops::IndexMut<
-            Protocol,
-            Output = OperationGroup<
-                Protocol,
-                Pretype,
-                Protocol::ReturnPretype,
-                Type,
-                Protocol::ReturnType,
-                Protocol::Body,
-            >,
-        >,
-    {
-        let operation_signature = OperationSignature {
-            protocol,
-            ident: Symbol::from(ident),
-            op_ident: Symbol::from(op_ident),
-            generics: generics.map(Symbol::from),
-            associates: associates.map(Symbol::from),
-            param_items: param_items
-                .map(|(param_ident, param_pretype)| (Symbol::from(param_ident), param_pretype)),
-            return_pretype,
-        };
-        self[operation_signature.protocol.clone()]
-            .signatures
-            .push(operation_signature.clone().erase());
-        operation_signature
-    }
-
-    fn register_implementation<
-        Protocol,
-        const GENERICS: usize,
-        const ASSOCIATES: usize,
-        const PARAMS: usize,
-    >(
-        &mut self,
-        operation_signature: &OperationSignature<
-            Protocol,
-            Pretype,
-            Protocol::ReturnPretype,
-            GENERICS,
-            ASSOCIATES,
-            PARAMS,
-        >,
-        generic_types: [Type; GENERICS],
-        associate_types: [Type; ASSOCIATES],
-        body: Protocol::Body,
-    ) -> ImplementationSignature<Protocol, Type, Protocol::ReturnType, GENERICS, ASSOCIATES, PARAMS>
-    where
-        Protocol: Clone + OperationProtocol<Pretype, Type>,
-        Pretype: EvalType<Type, GENERICS, ASSOCIATES, OutputType = Type>,
-        Protocol::ReturnPretype:
-            EvalType<Type, GENERICS, ASSOCIATES, OutputType = Protocol::ReturnType>,
-        Type: Clone,
-        Protocol::ReturnType: Clone,
-        Self: std::ops::IndexMut<
-            Protocol,
-            Output = OperationGroup<
-                Protocol,
-                Pretype,
-                Protocol::ReturnPretype,
-                Type,
-                Protocol::ReturnType,
-                Protocol::Body,
-            >,
-        >,
-    {
-        let param_items =
-            operation_signature
-                .param_items
-                .each_ref()
-                .map(|(param_ident, param_pretype)| {
-                    (
-                        *param_ident,
-                        param_pretype.eval_type(&generic_types, &associate_types),
-                    )
-                });
-        let return_type = operation_signature
-            .return_pretype
-            .eval_type(&generic_types, &associate_types);
-        let implementation_signature = ImplementationSignature {
-            protocol: operation_signature.protocol.clone(),
-            ident: operation_signature.ident,
-            op_ident: operation_signature.op_ident,
-            generic_items: operation_signature
-                .generics
-                .iter()
-                .cloned()
-                .zip_eq(generic_types)
-                .collect::<Vec<_>>()
-                .try_into()
-                .ok()
-                .unwrap(),
-            associate_items: operation_signature
-                .associates
-                .iter()
-                .cloned()
-                .zip_eq(associate_types)
-                .collect::<Vec<_>>()
-                .try_into()
-                .ok()
-                .unwrap(),
-            param_items,
-            return_type,
-        };
-        self[implementation_signature.protocol.clone()]
-            .implementations
-            .push((implementation_signature.clone().erase(), body));
-        implementation_signature
-    }
-}
-
-// trait Subspace<Basis, Type> {
-//     fn get_type(&self) -> Type;
-//     fn get_coeff_expr(&self, basis: &Basis, expr: Expr) -> Option<Expr>;
-// }
-
-enum ExprRepr {
-    Variable {
-        ident: Symbol,
-    },
-    Literal {
-        value: u32,
-    },
-    Struct {
-        ident: Symbol,
-        fields: Vec<(Symbol, Expr)>,
-    },
-    Field {
-        expr: Expr,
-        ident: Symbol,
-    },
-    CallFunction {
-        ident: Symbol,
-        op_ident: Symbol,
-        generic_types: Vec<Symbol>,
-        param_exprs: Vec<Expr>,
-    },
-    CallMethod {
-        self_expr: Expr,
-        ident: Symbol,
-        op_ident: Symbol,
-        generic_types: Vec<Symbol>,
-        param_exprs: Vec<Expr>,
-    },
-    Neg {
-        expr: Expr,
-    },
-    Add {
-        lhs: Expr,
-        rhs: Expr,
-    },
-    Sub {
-        lhs: Expr,
-        rhs: Expr,
-    },
-    Mul {
-        lhs: Expr,
-        rhs: Expr,
-    },
-    Div {
-        lhs: Expr,
-        rhs: Expr,
-    },
-}
-
-struct Expr {
-    repr: Box<ExprRepr>,
-}
-
-impl From<ExprRepr> for Expr {
-    fn from(repr: ExprRepr) -> Self {
-        Self {
-            repr: Box::new(repr),
-        }
-    }
-}
-
-// trait TypeSymbol {
-//     fn to_symbol(&self) -> Symbol
-// }
-
-impl Expr {
-    fn variable(ident: Symbol) -> Self {
-        ExprRepr::Variable { ident }.into()
-    }
-
-    fn literal(value: u32) -> Self {
-        ExprRepr::Literal { value }.into()
-    }
-
-    fn r#struct(ident: Symbol, fields: Vec<(Symbol, Self)>) -> Self {
-        ExprRepr::Struct { ident, fields }.into()
-    }
-
-    fn field(self, ident: Symbol) -> Self {
-        ExprRepr::Field { expr: self, ident }.into()
-    }
-
-    // fn call_function<Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>(
-    //     implementation_signature: &ImplementationSignature<
-    //         ProtocolFunction,
-    //         Type,
-    //         Type,
-    //         GENERICS,
-    //         ASSOCIATES,
-    //         PARAMS,
-    //     >,
-    //     param_exprs: [Self; PARAMS],
-    // ) -> Self {
-    //     ExprRepr::CallFunction {
-    //         ident: implementation_signature.ident,
-    //         op_ident: implementation_signature.op_ident,
-    //         generic_types: implementation_signature.generic_items,
-    //         param_exprs: (),
-    //     }
-    // }
-}
-
-impl std::ops::Neg for Expr {
-    type Output = Self;
-
-    fn neg(self) -> Self::Output {
-        ExprRepr::Neg { expr: self }.into()
-    }
-}
-
-impl std::ops::Add for Expr {
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        ExprRepr::Add { lhs: self, rhs }.into()
-    }
-}
-
-impl std::ops::Sub for Expr {
-    type Output = Self;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        ExprRepr::Sub { lhs: self, rhs }.into()
-    }
-}
-
-impl std::ops::Mul for Expr {
-    type Output = Self;
-
-    fn mul(self, rhs: Self) -> Self::Output {
-        ExprRepr::Mul { lhs: self, rhs }.into()
-    }
-}
-
-impl std::ops::Div for Expr {
-    type Output = Self;
-
-    fn div(self, rhs: Self) -> Self::Output {
-        ExprRepr::Div { lhs: self, rhs }.into()
-    }
-}
-
-enum StmtRepr {
-    CallMethod {
-        self_expr: Expr,
-        ident: Symbol,
-        op_ident: Symbol,
-        generic_types: Vec<Symbol>,
-        param_exprs: Vec<Expr>,
-    },
-    AddAssign {
-        lhs: Expr,
-        rhs: Expr,
-    },
-    SubAssign {
-        lhs: Expr,
-        rhs: Expr,
-    },
-    MulAssign {
-        lhs: Expr,
-        rhs: Expr,
-    },
-    DivAssign {
-        lhs: Expr,
-        rhs: Expr,
-    },
-}
-
-struct Stmt {
-    repr: Box<StmtRepr>,
-}
-
-impl From<StmtRepr> for Stmt {
-    fn from(repr: StmtRepr) -> Self {
-        Self {
-            repr: Box::new(repr),
-        }
-    }
-}
-
-// impl<Pretype, Type> Context<Pretype, Type>
-// where
-//     Type: TypeTrait,
-// {
-//     fn variable(&self, ident: Symbol, r#type: Type) -> Expr {
-//         Expr {
-//             repr: Box::new(ExprRepr::Variable { ident }),
-//             r#type,
-//         }
-//     }
-
-//     fn literal(&self, value: u8) -> Expr {
-//         Expr {
-//             repr: Box::new(ExprRepr::Literal { value }),
-//             r#type: Type::literal_type(),
-//         }
-//     }
-
-//     fn r#struct(&self, ident: Symbol, field_expr_fn: impl Fn(Symbol) -> Expr) -> Expr {
-//         let r#struct = self
-//             .structs
-//             .iter()
-//             .filter(|r#struct| r#struct.ident == ident)
-//             .exactly_one()
-//             .ok()
-//             .unwrap();
-//         Expr {
-//             repr: Box::new(ExprRepr::Struct {
-//                 ident,
-//                 fields: r#struct
-//                     .fields
-//                     .iter()
-//                     .map(|field| {
-//                         let field_expr = field_expr_fn(field.ident);
-//                         (field.ident, field_expr)
-//                     })
-//                     .collect(),
-//             }),
-//             r#type: r#struct.r#type.clone(),
-//         }
-//     }
-
-//     fn field(&self, expr: Expr, ident: Symbol) -> Expr {
-//         let r#struct = self
-//             .structs
-//             .iter()
-//             .filter(|r#struct| r#struct.r#type == expr.r#type)
-//             .exactly_one()
-//             .ok()
-//             .unwrap();
-//         let field = r#struct
-//             .fields
-//             .iter()
-//             .filter(|field| field.ident == ident)
-//             .exactly_one()
-//             .ok()
-//             .unwrap();
-//         Expr {
-//             repr: Box::new(ExprRepr::Field { expr, ident }),
-//             r#type: field.r#type.clone(),
-//         }
-//     }
-
-//     fn call<const PARAMS: usize>(
-//         &self,
-//         op_ident: Symbol,
-//         param_exprs: [Expr; PARAMS],
-//     ) -> Expr {
-//         let r#trait = self
-//             .traits
-//             .iter()
-//             .filter(|r#trait| r#trait.op_ident == op_ident)
-//             .exactly_one()
-//             .ok()
-//             .unwrap();
-//         let implementation = r#trait
-//             .implementations
-//             .iter()
-//             .filter(|implementation| {
-//                 implementation
-//                     .param_types
-//                     .iter()
-//                     .zip_eq(param_exprs.each_ref())
-//                     .all(|(param_type, param_expr)| param_type == &param_expr.r#type)
-//             })
-//             .exactly_one()
-//             .ok()
-//             .unwrap();
-//         Expr {
-//             repr: Box::new((r#trait.call_expr_repr)(
-//                 op_ident,
-//                 Vec::from(param_exprs),
-//                 implementation,
-//             )),
-//             r#type: implementation.return_type.clone(),
-//         }
-//     }
-// }
-
-// struct Context {
-//     map: std::collections::BTreeMap<()>
-// }
-
-//
 type Coefficient = i32;
 
 #[derive(Clone, Copy)]
@@ -717,145 +47,509 @@ impl From<Sign> for Coefficient {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 struct Blade {
-    ident: Symbol,
     generator_bits: usize,
+}
+
+impl std::ops::BitXor for Blade {
+    type Output = Self;
+
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        Self {
+            generator_bits: self.generator_bits ^ rhs.generator_bits,
+        }
+    }
+}
+
+impl std::ops::BitAnd for Blade {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Self {
+            generator_bits: self.generator_bits & rhs.generator_bits,
+        }
+    }
+}
+
+impl Blade {
+    fn iter(dim: usize) -> impl Iterator<Item = Self> + Clone {
+        (0..1 << dim).map(|generator_bits| Self { generator_bits })
+    }
+
+    fn zero() -> Self {
+        Self { generator_bits: 0 }
+    }
+
+    fn iter_generators(self, dim: usize) -> impl Iterator<Item = usize> + Clone {
+        (0..dim).filter(move |generator| self.generator_bits & 1 << generator != 0)
+    }
+
+    fn grade(self) -> usize {
+        self.generator_bits.count_ones() as usize
+    }
+
+    fn dual(self, dim: usize) -> Self {
+        Self {
+            generator_bits: ((1 << dim) - 1) ^ self.generator_bits,
+        }
+    }
+
+    fn parity(self, other: Self) -> Sign {
+        let gray_inv = (0..)
+            .map(|offset| self.generator_bits >> offset)
+            .take_while(|&generator_bits| generator_bits != 0)
+            .fold(0, std::ops::BitXor::bitxor);
+        Sign::from((gray_inv >> 1 & other.generator_bits).count_ones() as usize)
+    }
+}
+
+struct BladeInfo {
+    ident: Symbol,
     intrinsic_sign: Sign,
 }
 
-struct GeometricAlgebraData {
-    ident: &'static str,
+struct GeometricAlgebra {
+    name: Symbol,
+    dim: usize,
+    signs: Vec<Coefficient>,
+    blades: Vec<BladeInfo>,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Space {
+    GradedVector(usize),
+    EvenMultivector,
+    OddMultivector,
+    Multivector,
+}
+
+impl ToSymbol for Space {
+    fn to_symbol(&self) -> Symbol {
+        match self {
+            Self::GradedVector(0) => "f32".into(), // TODO
+            Self::GradedVector(1) => "Vector".into(),
+            Self::GradedVector(2) => "Bivector".into(),
+            Self::GradedVector(3) => "Trivector".into(),
+            Self::GradedVector(4) => "FourVector".into(),
+            Self::GradedVector(5) => "FiveVector".into(),
+            Self::GradedVector(6) => "SixVector".into(),
+            Self::GradedVector(7) => "SevenVector".into(),
+            Self::GradedVector(8) => "EightVector".into(),
+            Self::GradedVector(9) => "NineVector".into(),
+            Self::GradedVector(10) => "TenVector".into(),
+            Self::GradedVector(11) => "ElevenVector".into(),
+            Self::GradedVector(12) => "TwelveVector".into(),
+            Self::GradedVector(grade) => format!("Vector{grade}").into(),
+            Self::EvenMultivector => "EvenMultivector".into(),
+            Self::OddMultivector => "OddMultivector".into(),
+            Self::Multivector => "Multivector".into(),
+        }
+    }
+}
+
+impl Space {
+    const SCALAR: Self = Self::GradedVector(0);
+
+    fn iter(dim: usize) -> impl Iterator<Item = Self> + Clone {
+        (0..=dim).map(Space::GradedVector).chain([
+            Space::EvenMultivector,
+            Space::OddMultivector,
+            Space::Multivector,
+        ])
+    }
+
+    fn contains_blade(self, blade: Blade) -> bool {
+        match self {
+            Self::GradedVector(grade) => blade.grade() == grade,
+            Self::EvenMultivector => blade.grade() & 1 == 0,
+            Self::OddMultivector => blade.grade() & 1 == 1,
+            Self::Multivector => true,
+        }
+    }
+
+    fn blades(self, dim: usize) -> Vec<Blade> {
+        Blade::iter(dim)
+            .filter(|&blade| self.contains_blade(blade))
+            .collect()
+    }
+}
+
+struct Multinomial<const PARAMS: usize, const DEGREE: usize>(
+    std::collections::BTreeMap<
+        Blade,
+        std::collections::BTreeMap<[(usize, Blade); DEGREE], Coefficient>,
+    >,
+);
+
+impl<const PARAMS: usize, const DEGREE: usize>
+    FromIterator<(Blade, [(usize, Blade); DEGREE], Coefficient)> for Multinomial<PARAMS, DEGREE>
+{
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (Blade, [(usize, Blade); DEGREE], Coefficient)>,
+    {
+        let mut map = std::collections::BTreeMap::new();
+        iter.into_iter()
+            .for_each(|(blade, mut multi_index, coeff)| {
+                if coeff != 0 {
+                    multi_index.sort();
+                    let polynomial: &mut std::collections::BTreeMap<_, _> =
+                        map.entry(blade).or_default();
+                    match polynomial.entry(multi_index) {
+                        std::collections::btree_map::Entry::Vacant(vacant) => {
+                            vacant.insert(coeff);
+                        }
+                        std::collections::btree_map::Entry::Occupied(mut occupied) => {
+                            let slot = occupied.get_mut();
+                            *slot += coeff;
+                            if *slot == 0 {
+                                occupied.remove_entry();
+                            }
+                        }
+                    }
+                    if polynomial.is_empty() {
+                        map.remove(&blade);
+                    }
+                }
+            });
+        Self(map)
+    }
+}
+
+struct MultinomialConfig<const DEGREE: usize> {
+    reindex: fn([Blade; DEGREE], usize) -> [Blade; DEGREE],
+    term_filter: fn([Blade; DEGREE], usize) -> bool,
+    term_sign: fn([Blade; DEGREE], usize) -> Sign,
+}
+
+impl<const DEGREE: usize> Default for MultinomialConfig<DEGREE> {
+    fn default() -> Self {
+        Self {
+            reindex: |blades, _| blades,
+            term_filter: |_, _| true,
+            term_sign: |_, _| Sign::POS,
+        }
+    }
+}
+
+impl GeometricAlgebra {
+    fn iter_fields(&self, space: Space) -> Option<impl Iterator<Item = (Symbol, Space)>> {
+        (space != Space::SCALAR).then(|| {
+            space
+                .blades(self.dim)
+                .into_iter()
+                .map(|blade| (self.blades[blade.generator_bits].ident, Space::SCALAR))
+        })
+    }
+
+    fn field_expr(&self, space: Space, blade: Blade, expr: Expr) -> Option<Expr> {
+        space.contains_blade(blade).then(|| {
+            if space == Space::SCALAR {
+                expr
+            } else {
+                ExprRepr::Field {
+                    expr,
+                    ident: self.blades[blade.generator_bits].ident,
+                }
+                .into()
+            }
+        })
+    }
+
+    fn struct_expr(&self, space: Space, field_expr_fn: impl Fn(Blade) -> Option<Expr>) -> Expr {
+        if space == Space::SCALAR {
+            field_expr_fn(Blade::zero()).unwrap_or(0.into())
+        } else {
+            ExprRepr::Struct {
+                ident: space.to_symbol(),
+                fields: space
+                    .blades(self.dim)
+                    .into_iter()
+                    .map(|blade| {
+                        (
+                            self.blades[blade.generator_bits].ident,
+                            field_expr_fn(blade).unwrap_or(0.into()),
+                        )
+                    })
+                    .collect(),
+            }
+            .into()
+        }
+    }
+
+    fn multinomial<const PARAMS: usize, const DEGREE: usize>(
+        &self,
+        prototype: [usize; DEGREE],
+        config: MultinomialConfig<DEGREE>,
+    ) -> Multinomial<PARAMS, DEGREE> {
+        std::iter::repeat_n(Blade::iter(self.dim), DEGREE)
+            .multi_cartesian_product()
+            .map(|blades| -> [Blade; DEGREE] { blades.try_into().unwrap() })
+            .map(|blades| (config.reindex)(blades, self.dim))
+            .filter(|blades| (config.term_filter)(*blades, self.dim))
+            .map(|blades| {
+                let multi_index = std::array::from_fn(|index| (prototype[index], blades[index]));
+                let blade = blades
+                    .into_iter()
+                    .fold(Blade::zero(), std::ops::BitXor::bitxor);
+                let coeff = Coefficient::from(
+                    (config.term_sign)(blades, self.dim)
+                        ^ blades
+                            .into_iter()
+                            .map(|blade| self.blades[blade.generator_bits].intrinsic_sign)
+                            .fold(
+                                self.blades[blade.generator_bits].intrinsic_sign,
+                                std::ops::BitXor::bitxor,
+                            ),
+                ) * blades
+                    .into_iter()
+                    .fold(Blade::zero().dual(self.dim), std::ops::BitAnd::bitand)
+                    .iter_generators(self.dim)
+                    .map(|generator| self.signs[generator])
+                    .product::<Coefficient>();
+                (blade, multi_index, coeff)
+            })
+            .collect()
+    }
+
+    fn multinomial_expr<const PARAMS: usize, const DEGREE: usize>(
+        &self,
+        multinomial: &Multinomial<PARAMS, DEGREE>,
+        space: Space,
+        spaces: [Space; PARAMS],
+        symbols: [Symbol; PARAMS],
+    ) -> Expr {
+        self.struct_expr(space, |blade| {
+            multinomial.0.get(&blade).and_then(|polynomial| {
+                polynomial
+                    .iter()
+                    .filter_map(|(multi_index, coeff)| {
+                        multi_index
+                            .iter()
+                            .map(|&(index, blade)| {
+                                self.field_expr(spaces[index], blade, symbols[index].into())
+                            })
+                            .collect::<Option<Vec<_>>>()
+                            .map(|exprs| (exprs.into_iter(), coeff))
+                    })
+                    .fold(None, |expr_acc, (exprs, &coeff)| {
+                        let coeff_abs = coeff.unsigned_abs();
+                        let literal = coeff_abs.into();
+                        Some(match (expr_acc, coeff_abs == 1, coeff < 0) {
+                            (Some(expr_acc), false, false) => {
+                                expr_acc + exprs.fold(literal, std::ops::Mul::mul)
+                            }
+                            (Some(expr_acc), false, true) => {
+                                expr_acc - exprs.fold(literal, std::ops::Mul::mul)
+                            }
+                            (Some(expr_acc), true, false) => {
+                                expr_acc + exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+                            }
+                            (Some(expr_acc), true, true) => {
+                                expr_acc - exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+                            }
+                            (None, false, false) => exprs.fold(literal, std::ops::Mul::mul),
+                            (None, false, true) => exprs.fold(-literal, std::ops::Mul::mul),
+                            (None, true, false) => {
+                                exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+                            }
+                            (None, true, true) => exprs
+                                .fold(None, |expr_acc, expr| {
+                                    Some(match expr_acc {
+                                        Some(expr_acc) => expr_acc * expr,
+                                        None => -expr,
+                                    })
+                                })
+                                .unwrap_or(-literal),
+                        })
+                    })
+            })
+        })
+    }
+
+    fn items(&self) -> Items {
+        let mut items = Items::default();
+        Space::iter(self.dim)
+            .filter_map(|space| self.iter_fields(space).map(|iter| (space, iter)))
+            .for_each(|(space, iter)| {
+                items.add_struct(space, iter);
+            });
+
+        let unary_signature = OperationSignature {
+            generics: [],
+            associates: ["Output"],
+            self_param_item: [("self", Ownership::Owned(Pretype::<Space>::SelfBining))],
+            param_items: [],
+            return_pretype: [Ownership::Owned(Pretype::AssociateBinding(0))],
+        };
+        let binary_signature = OperationSignature {
+            generics: ["T"],
+            associates: ["Output"],
+            self_param_item: [("self", Ownership::Owned(Pretype::SelfBining))],
+            param_items: [("other", Ownership::Owned(Pretype::GenericBinding(0)))],
+            return_pretype: [Ownership::Owned(Pretype::AssociateBinding(0))],
+        };
+
+        let mut add_product_operation =
+            |ident, op_ident, space_fn: fn([Space; 2], usize) -> Space, multinomial_config| {
+                let geometric_product_multinomial =
+                    self.multinomial::<2, 2>([0, 1], multinomial_config);
+                items.add_operation(
+                    ident,
+                    op_ident,
+                    &binary_signature,
+                    Space::iter(self.dim)
+                        .cartesian_product(Space::iter(self.dim))
+                        .map(|(space_0, space_1)| {
+                            (space_0, [space_1], [space_fn([space_0, space_1], self.dim)])
+                        }),
+                    |space_0, [space_1], [space], [symbol_0], [symbol_1]| {
+                        self.multinomial_expr(
+                            &geometric_product_multinomial,
+                            space,
+                            [space_0, space_1],
+                            [symbol_0, symbol_1],
+                        )
+                    },
+                )
+            };
+        add_product_operation(
+            "GeometricProduct",
+            "geometric_product",
+            |[space_0, space_1], _| {
+                if matches!(space_0, Space::Multivector) || matches!(space_1, Space::Multivector) {
+                    Space::Multivector
+                } else if (matches!(space_0, Space::GradedVector(grade) if grade & 1 == 0)
+                    || matches!(space_0, Space::EvenMultivector))
+                    ^ (matches!(space_1, Space::GradedVector(grade) if grade & 1 == 0)
+                        || matches!(space_1, Space::EvenMultivector))
+                {
+                    Space::OddMultivector
+                } else {
+                    Space::EvenMultivector
+                }
+            },
+            MultinomialConfig {
+                term_sign: |[blade_0, blade_1], _| blade_0.parity(blade_1),
+                ..Default::default()
+            },
+        );
+        add_product_operation(
+            "ScalarProduct",
+            "scalar_product",
+            |_, _| Space::SCALAR,
+            MultinomialConfig {
+                term_filter: |[blade_0, blade_1], _| blade_0 ^ blade_1 == Blade::zero(),
+                term_sign: |[blade_0, blade_1], _| blade_0.parity(blade_1),
+                ..Default::default()
+            },
+        );
+        add_product_operation(
+            "LeftInnerProduct",
+            "left_inner_product",
+            |[space_0, space_1], _| Space::SCALAR, // TODO
+            MultinomialConfig {
+                term_filter: |[blade_0, blade_1], _| blade_0 & blade_1 == blade_0,
+                term_sign: |[blade_0, blade_1], _| blade_0.parity(blade_1),
+                ..Default::default()
+            },
+        );
+
+        items
+    }
+}
+
+struct GeometricAlgebraMeta {
+    name: &'static str,
     signs: &'static str,
     blades: &'static str,
 }
 
-struct GeometricAlgebra {
-    dimension: usize,
-    signs: Vec<Coefficient>,
-    blades: Vec<Blade>,
+impl From<&GeometricAlgebraMeta> for GeometricAlgebra {
+    fn from(value: &GeometricAlgebraMeta) -> Self {
+        let signs: Vec<_> = value
+            .signs
+            .split_whitespace()
+            .map(|sign| match sign {
+                "+" => 1,
+                "-" => -1,
+                "0" => 0,
+                _ => unreachable!(),
+            })
+            .collect();
+        let blades: Vec<_> = value
+            .blades
+            .split_whitespace()
+            .map(|name| match name.strip_prefix('-') {
+                None => BladeInfo {
+                    ident: Symbol::from(name),
+                    intrinsic_sign: Sign::POS,
+                },
+                Some(name) => BladeInfo {
+                    ident: Symbol::from(name),
+                    intrinsic_sign: Sign::NEG,
+                },
+            })
+            .collect();
+        assert!(1 << signs.len() == blades.len());
+        Self {
+            name: Symbol::from(value.name),
+            dim: signs.len(),
+            signs,
+            blades,
+        }
+    }
 }
 
-enum GAType {
-    Primitive,
-    Compound(Vec<Blade>),
-}
-
-enum GAPretype<const GENERICS: usize, const ASSOCIATES: usize> {
-    Primitive,
-    GenericBinding(usize),
-    AssociateBinding(usize),
-}
-
-const ALGEBRAS: &[GeometricAlgebraData] = &[
-    GeometricAlgebraData {
-        ident: "epga1d",
+const ALGEBRAS: &[GeometricAlgebraMeta] = &[
+    GeometricAlgebraMeta {
+        name: "epga1d",
         signs: "+ -",
         blades: "s e0 e1 e01",
     },
-    GeometricAlgebraData {
-        ident: "ppga1d",
+    GeometricAlgebraMeta {
+        name: "ppga1d",
         signs: "+ 0",
         blades: "s e0 e1 e01",
     },
-    GeometricAlgebraData {
-        ident: "hpga1d",
+    GeometricAlgebraMeta {
+        name: "hpga1d",
         signs: "+ +",
         blades: "s e0 e1 e01",
     },
-    GeometricAlgebraData {
-        ident: "epga2d",
+    GeometricAlgebraMeta {
+        name: "epga2d",
         signs: "+ + -",
         blades: "s e0 e1 e01 e2 -e20 e12 e012",
     },
-    GeometricAlgebraData {
-        ident: "ppga2d",
+    GeometricAlgebraMeta {
+        name: "ppga2d",
         signs: "+ + 0",
         blades: "s e0 e1 e01 e2 -e20 e12 e012",
     },
-    GeometricAlgebraData {
-        ident: "hpga2d",
+    GeometricAlgebraMeta {
+        name: "hpga2d",
         signs: "+ + +",
         blades: "s e0 e1 e01 e2 -e20 e12 e012",
     },
-    GeometricAlgebraData {
-        ident: "epga3d",
+    GeometricAlgebraMeta {
+        name: "epga3d",
         signs: "+ + + -",
         blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
     },
-    GeometricAlgebraData {
-        ident: "ppga3d",
+    GeometricAlgebraMeta {
+        name: "ppga3d",
         signs: "+ + + 0",
         blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
     },
-    GeometricAlgebraData {
-        ident: "hpga3d",
+    GeometricAlgebraMeta {
+        name: "hpga3d",
         signs: "+ + + +",
         blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
     },
 ];
 
-trait Emitter<Pretype, Type> {
-    const SUFFIX: &str;
-
-    fn emit_function_operation(
-        &self,
-        buf: &mut String,
-        operation: &OperationSignatureErased<ProtocolFunction, Pretype, Pretype>,
-    );
-    fn emit_method_expr_operation(
-        &self,
-        buf: &mut String,
-        operation: &OperationSignatureErased<ProtocolMethodExpr, Pretype, Pretype>,
-    );
-    fn emit_method_stmt_operation(
-        &self,
-        buf: &mut String,
-        operation: &OperationSignatureErased<ProtocolMethodStmt, Pretype, ()>,
-    );
-    // fn emit_
-}
-
-struct StructSignature<Type> {
-    ident: Symbol,
-    definition: Vec<(Symbol, Type)>,
-}
-
 fn f() {
-    let alg = GeometricAlgebra {
-        generator_squares: Vec::from([1, 1, 1, -1]),
-        blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123"
-            .split_whitespace()
-            .enumerate()
-            .map(|(generator_bits, name)| match name.strip_prefix('-') {
-                None => Blade {
-                    ident: Symbol::from(name),
-                    generator_bits,
-                    intrinsic_sign: Sign::POS,
-                },
-                Some(name) => Blade {
-                    ident: Symbol::from(name),
-                    generator_bits,
-                    intrinsic_sign: Sign::NEG,
-                },
-            })
-            .collect(),
-        grade_idents: "Plane Line Point PseudoScalar"
-            .split_whitespace()
-            .map(Symbol::from)
-            .collect(),
-        even_ident: Symbol::from("Motor"),
-        odd_ident: Symbol::from("Flector"),
-        entire_ident: Symbol::from("Multivector"),
-    };
-    // let geometric_product = OperationSignature {
-    //     name: "GeometricProduct",
-    //     method_name: "geometric_product",
-    //     generics: ["Self", "T"],
-    //     associates: ["Output"],
-    //     params: [
-    //         ("self", GAPretype::GenericBinding(0)),
-    //         ("other", GAPretype::GenericBinding(1)),
-    //     ],
-    //     return_pretype: GAPretype::AssociateBinding(0),
-    // };
+    // let alg = GeometricAlgebra {};
 }
