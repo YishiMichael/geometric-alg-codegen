@@ -1,8 +1,5 @@
+use itertools::Itertools;
 use symbol::Symbol;
-
-pub trait ToSymbol {
-    fn to_symbol(&self) -> Symbol;
-}
 
 #[derive(Clone, Copy)]
 pub enum Ownership<T> {
@@ -11,14 +8,14 @@ pub enum Ownership<T> {
 }
 
 impl<T> Ownership<T> {
-    fn as_ref(&self) -> Ownership<&T> {
+    pub fn as_ref(&self) -> Ownership<&T> {
         match self {
             Self::Owned(t) => Ownership::Owned(t),
             Self::BorrowedMut(t) => Ownership::BorrowedMut(t),
         }
     }
 
-    fn map<F, U>(self, f: F) -> Ownership<U>
+    pub fn map<F, U>(self, f: F) -> Ownership<U>
     where
         F: FnOnce(T) -> U,
     {
@@ -36,40 +33,17 @@ pub enum Pretype<Type> {
     Fixed(Type),
 }
 
-pub enum PretypeSymbol {
-    SelfSymbol,
-    Generic(Symbol),
-    Associate(Symbol),
-    Fixed(Symbol),
-}
-
-impl<Type> Pretype<Type>
-where
-    Type: ToSymbol,
-{
-    fn eval_symbol<const GENERICS: usize, const ASSOCIATES: usize>(
-        &self,
-        generics: &[Symbol; GENERICS],
-        associates: &[Symbol; ASSOCIATES],
-    ) -> PretypeSymbol {
-        match self {
-            Self::SelfBining => PretypeSymbol::SelfSymbol,
-            Self::GenericBinding(index) => PretypeSymbol::Generic(generics[*index]),
-            Self::AssociateBinding(index) => PretypeSymbol::Associate(associates[*index]),
-            Self::Fixed(r#type) => PretypeSymbol::Fixed(r#type.to_symbol()),
-        }
-    }
-
+impl<Type> Pretype<Type> {
     fn eval_type<'t, const GENERICS: usize, const ASSOCIATES: usize>(
         &'t self,
         self_type: &'t Type,
-        generic_types: &'t [Type; GENERICS],
-        associate_types: &'t [Type; ASSOCIATES],
+        generic_types: [&'t Type; GENERICS],
+        associate_types: [&'t Type; ASSOCIATES],
     ) -> &'t Type {
         match self {
             Self::SelfBining => self_type,
-            Self::GenericBinding(index) => generic_types.each_ref()[*index],
-            Self::AssociateBinding(index) => associate_types.each_ref()[*index],
+            Self::GenericBinding(index) => generic_types[*index],
+            Self::AssociateBinding(index) => associate_types[*index],
             Self::Fixed(r#type) => r#type,
         }
     }
@@ -77,182 +51,13 @@ where
 
 #[derive(Default)]
 pub struct Items {
-    pub structs: Vec<Struct>,
-    pub operations: Vec<Operation>,
+    pub structures: Vec<Structure>,
     pub implementations: Vec<Implementation>,
 }
 
-impl Items {
-    pub fn add_struct<Type>(
-        &mut self,
-        r#type: Type,
-        fields: impl Iterator<Item = (Symbol, Type)>,
-    ) -> Type
-    where
-        Type: ToSymbol,
-    {
-        self.structs.push(Struct {
-            ident: r#type.to_symbol(),
-            fields: fields
-                .map(|(field_ident, field_type)| (field_ident, field_type.to_symbol()))
-                .collect(),
-        });
-        r#type
-    }
-
-    pub fn add_operation<
-        Type,
-        Body,
-        const GENERICS: usize,
-        const ASSOCIATES: usize,
-        const SELF: usize,
-        const PARAMS: usize,
-        const RETURN: usize,
-    >(
-        &mut self,
-        ident: &'static str,
-        op_ident: &'static str,
-        signature: &OperationSignature<Type, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>,
-        implementation_items: impl Iterator<Item = (Type, [Type; GENERICS], [Type; ASSOCIATES])>,
-        implementor: impl Fn(
-            Type,
-            [Type; GENERICS],
-            [Type; ASSOCIATES],
-            [Symbol; SELF],
-            [Symbol; PARAMS],
-        ) -> Body,
-    ) -> OperationHandle<GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
-    where
-        Type: ToSymbol,
-        Body: Into<ImplementationBody>,
-    {
-        let generics = signature.generics.each_ref().map(Symbol::from);
-        let associates = signature.associates.each_ref().map(Symbol::from);
-        self.operations.push(Operation {
-            ident: Symbol::from(ident),
-            op_ident: Symbol::from(op_ident),
-            generics: Vec::from(generics.clone()),
-            associates: Vec::from(associates.clone()),
-            self_param_item: signature.self_param_item.iter().next().map(
-                |(self_param_ident, self_param_pretype)| {
-                    (
-                        Symbol::from(self_param_ident),
-                        self_param_pretype.as_ref().map(|self_param_pretype| {
-                            self_param_pretype.eval_symbol(&generics, &associates)
-                        }),
-                    )
-                },
-            ),
-            param_items: Vec::from(signature.param_items.each_ref().map(
-                |(param_ident, param_pretype)| {
-                    (
-                        Symbol::from(param_ident),
-                        param_pretype
-                            .as_ref()
-                            .map(|param_pretype| param_pretype.eval_symbol(&generics, &associates)),
-                    )
-                },
-            )),
-            return_pretype: signature
-                .return_pretype
-                .iter()
-                .next()
-                .map(|return_pretype| {
-                    return_pretype
-                        .as_ref()
-                        .map(|return_pretype| return_pretype.eval_symbol(&generics, &associates))
-                }),
-        });
-        self.implementations.extend(implementation_items.map(
-            |(self_type, generic_types, associate_types)| {
-                Implementation {
-                    ident: Symbol::from(ident),
-                    op_ident: Symbol::from(op_ident),
-                    self_type: self_type.to_symbol(),
-                    generic_items: signature
-                        .generics
-                        .iter()
-                        .map(Symbol::from)
-                        .zip(generic_types.iter().map(ToSymbol::to_symbol))
-                        .collect(),
-                    associate_items: signature
-                        .associates
-                        .iter()
-                        .map(Symbol::from)
-                        .zip(associate_types.iter().map(ToSymbol::to_symbol))
-                        .collect(),
-                    self_param_item: signature.self_param_item.iter().next().map(
-                        |(self_param_ident, self_param_pretype)| {
-                            (
-                                Symbol::from(self_param_ident),
-                                self_param_pretype.as_ref().map(|self_param_pretype| {
-                                    self_param_pretype
-                                        .eval_type(&self_type, &generic_types, &associate_types)
-                                        .to_symbol()
-                                }),
-                            )
-                        },
-                    ),
-                    param_items: Vec::from(signature.param_items.each_ref().map(
-                        |(param_ident, param_pretype)| {
-                            (
-                                Symbol::from(param_ident),
-                                param_pretype.as_ref().map(|param_pretype| {
-                                    param_pretype
-                                        .eval_type(&self_type, &generic_types, &associate_types)
-                                        .to_symbol()
-                                }),
-                            )
-                        },
-                    )),
-                    return_type: signature
-                        .return_pretype
-                        .iter()
-                        .next()
-                        .map(|return_pretype| {
-                            return_pretype.as_ref().map(|return_pretype| {
-                                return_pretype
-                                    .eval_type(&self_type, &generic_types, &associate_types)
-                                    .to_symbol()
-                            })
-                        }),
-                    body: implementor(
-                        self_type,
-                        generic_types,
-                        associate_types,
-                        signature
-                            .self_param_item
-                            .each_ref()
-                            .map(|(self_param_ident, _)| Symbol::from(self_param_ident)),
-                        signature
-                            .param_items
-                            .each_ref()
-                            .map(|(param_ident, _)| Symbol::from(param_ident)),
-                    )
-                    .into(),
-                }
-            },
-        ));
-        OperationHandle {
-            ident: Symbol::from(ident),
-            op_ident: Symbol::from(op_ident),
-        }
-    }
-}
-
-pub struct Struct {
+pub struct Structure {
     pub ident: Symbol,
     pub fields: Vec<(Symbol, Symbol)>,
-}
-
-pub struct Operation {
-    pub ident: Symbol,
-    pub op_ident: Symbol,
-    pub generics: Vec<Symbol>,
-    pub associates: Vec<Symbol>,
-    pub self_param_item: Option<(Symbol, Ownership<PretypeSymbol>)>,
-    pub param_items: Vec<(Symbol, Ownership<PretypeSymbol>)>,
-    pub return_pretype: Option<Ownership<PretypeSymbol>>,
 }
 
 pub struct Implementation {
@@ -263,7 +68,7 @@ pub struct Implementation {
     pub associate_items: Vec<(Symbol, Symbol)>,
     pub self_param_item: Option<(Symbol, Ownership<Symbol>)>,
     pub param_items: Vec<(Symbol, Ownership<Symbol>)>,
-    pub return_type: Option<Ownership<Symbol>>,
+    pub return_type: Option<Symbol>,
     pub body: ImplementationBody,
 }
 
@@ -287,7 +92,244 @@ impl From<Expr> for ImplementationBody {
     }
 }
 
+// pub struct ComponentSignature<Component> {
+//     pub ident: Symbol,
+//     pub component: Component,
+// }
+
+pub trait ContextTrait: Sized {
+    type Component;
+    type Type;
+
+    fn resolve_component(&self, component: &Self::Component) -> Symbol;
+    fn resolve_type(&self, r#type: &Self::Type) -> Symbol;
+
+    fn register_structure(
+        &self,
+        items: &mut Items,
+        ident: impl AsRef<str>,
+        fields: impl Iterator<Item = Self::Component>,
+        field_type: impl Fn(&Self::Component) -> Self::Type,
+    ) -> StructureSignature<'_, Self, Self::Component> {
+        let signature = StructureSignature {
+            context: self,
+            ident: Symbol::from(ident),
+            fields: fields.collect_vec(),
+        };
+        items.structures.push(Structure {
+            ident: signature.ident,
+            fields: signature
+                .fields
+                .iter()
+                .map(|component| {
+                    (
+                        self.resolve_component(component),
+                        self.resolve_type(&field_type(component)),
+                    )
+                })
+                .collect(),
+        });
+        signature
+    }
+
+    fn register_operation<
+        Iter,
+        Body,
+        const GENERICS: usize,
+        const ASSOCIATES: usize,
+        const SELF: usize,
+        const PARAMS: usize,
+        const RETURN: usize,
+    >(
+        &self,
+        items: &mut Items,
+        ident: &'static str,
+        op_ident: &'static str,
+        generics: [&'static str; GENERICS],
+        associates: [&'static str; ASSOCIATES],
+        self_param_item: [(&'static str, Ownership<Pretype<Self::Type>>); SELF],
+        param_items: [(&'static str, Ownership<Pretype<Self::Type>>); PARAMS],
+        return_pretype: [Pretype<Self::Type>; RETURN],
+        implementor: impl FnOnce([Symbol; SELF], [Symbol; PARAMS]) -> Iter,
+    ) -> OperationSignature<'_, Self, Self::Type, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
+    where
+        Iter: Iterator<
+            Item = (
+                Self::Type,
+                [Self::Type; GENERICS],
+                [Self::Type; ASSOCIATES],
+                Body,
+            ),
+        >,
+        Body: Into<ImplementationBody>,
+    {
+        let signature = OperationSignature {
+            context: self,
+            ident: Symbol::from(ident),
+            op_ident: Symbol::from(op_ident),
+            generics: generics.map(Symbol::from),
+            associates: associates.map(Symbol::from),
+            self_param_item: self_param_item.map(|(self_param_ident, self_param_pretype)| {
+                (Symbol::from(self_param_ident), self_param_pretype)
+            }),
+            param_items: param_items
+                .map(|(param_ident, param_pretype)| (Symbol::from(param_ident), param_pretype)),
+            return_pretype,
+        };
+        items.implementations.extend(
+            implementor(
+                signature
+                    .self_param_item
+                    .each_ref()
+                    .map(|(self_param_ident, _)| *self_param_ident),
+                signature
+                    .param_items
+                    .each_ref()
+                    .map(|(param_ident, _)| *param_ident),
+            )
+            .map(
+                |(self_type, generic_types, associate_types, body)| Implementation {
+                    ident: signature.ident,
+                    op_ident: signature.op_ident,
+                    self_type: self.resolve_type(&self_type),
+                    generic_items: signature
+                        .generics
+                        .into_iter()
+                        .zip_eq(
+                            generic_types
+                                .each_ref()
+                                .map(|r#type| self.resolve_type(r#type)),
+                        )
+                        .collect(),
+                    associate_items: signature
+                        .associates
+                        .into_iter()
+                        .zip_eq(
+                            associate_types
+                                .each_ref()
+                                .map(|r#type| self.resolve_type(r#type)),
+                        )
+                        .collect(),
+                    self_param_item: signature.self_param_item.first().map(
+                        |(self_param_ident, self_param_pretype)| {
+                            (
+                                *self_param_ident,
+                                self_param_pretype.as_ref().map(|self_param_pretype| {
+                                    self.resolve_type(self_param_pretype.eval_type(
+                                        &self_type,
+                                        generic_types.each_ref(),
+                                        associate_types.each_ref(),
+                                    ))
+                                }),
+                            )
+                        },
+                    ),
+                    param_items: Vec::from(signature.param_items.each_ref().map(
+                        |(param_ident, param_pretype)| {
+                            (
+                                *param_ident,
+                                param_pretype.as_ref().map(|param_pretype| {
+                                    self.resolve_type(param_pretype.eval_type(
+                                        &self_type,
+                                        generic_types.each_ref(),
+                                        associate_types.each_ref(),
+                                    ))
+                                }),
+                            )
+                        },
+                    )),
+                    return_type: signature.return_pretype.first().map(|return_pretype| {
+                        self.resolve_type(return_pretype.eval_type(
+                            &self_type,
+                            generic_types.each_ref(),
+                            associate_types.each_ref(),
+                        ))
+                    }),
+                    body: body.into(),
+                },
+            ),
+        );
+        signature
+    }
+}
+
+// pub struct Context<Component, Type> {
+//     resolve_component: Rc<dyn Fn(&Component) -> Symbol>,
+//     resolve_type: Rc<dyn Fn(&Type) -> Symbol>,
+//     items: Items,
+// }
+
+// impl<Component, Type> Context<Component, Type> {
+//     pub fn new(
+//         resolve_component: impl Fn(&Component) -> Symbol,
+//         resolve_type: impl Fn(&Type) -> Symbol,
+//     ) -> Self {
+//         Self {
+//             resolve_component: Rc::new(resolve_component),
+//             resolve_type: Rc::new(resolve_type),
+//             items: Items {
+//                 structures: Vec::new(),
+//                 implementations: Vec::new(),
+//             },
+//         }
+//     }
+
+//     pub fn into_items(self) -> Items {
+//         self.items
+//     }
+
+// }
+
+pub struct StructureSignature<'ctx, Context, Component> {
+    context: &'ctx Context,
+    ident: Symbol,
+    fields: Vec<Component>,
+    // pub constructor_expr: fn(Symbol, Box<dyn Fn(Expr, Component) -> Option<Expr>>) -> Expr,
+    // pub accessor_expr: fn(Expr, Component) -> Option<Expr>,
+}
+
+impl<Context, Component> StructureSignature<'_, Context, Component>
+where
+    Context: ContextTrait<Component = Component>,
+{
+    pub fn construct(&self, field: impl Fn(&Component) -> Expr) -> Expr {
+        ExprRepr::Struct {
+            ident: self.ident,
+            fields: self
+                .fields
+                .iter()
+                .map(|component| (self.context.resolve_component(component), field(component)))
+                .collect(),
+        }
+        .into()
+    }
+
+    pub fn access(&self, expr: Expr, component: &Component) -> Expr {
+        ExprRepr::Field {
+            expr,
+            ident: self.context.resolve_component(component),
+        }
+        .into()
+    }
+
+    // pub fn register(self, items: &mut Items, field: Fn(&Component) -> Type) -> Self {
+    //     items.structures.push(Structure {
+    //         ident: self.ident,
+    //         fields: self
+    //             .fields
+    //             .iter()
+    //             .map(|(field_ident, field_component)| {
+    //                 (*field_ident, (self.resolve_component)(field_component))
+    //             })
+    //             .collect(),
+    //     });
+    //     self
+    // }
+}
+
 pub struct OperationSignature<
+    'ctx,
+    Context,
     Type,
     const GENERICS: usize,
     const ASSOCIATES: usize,
@@ -295,65 +337,79 @@ pub struct OperationSignature<
     const PARAMS: usize,
     const RETURN: usize,
 > {
-    pub generics: [&'static str; GENERICS],
-    pub associates: [&'static str; ASSOCIATES],
-    pub self_param_item: [(&'static str, Ownership<Pretype<Type>>); SELF],
-    pub param_items: [(&'static str, Ownership<Pretype<Type>>); PARAMS],
-    pub return_pretype: [Ownership<Pretype<Type>>; RETURN],
-}
-
-pub struct OperationHandle<
-    const GENERICS: usize,
-    const ASSOCIATES: usize,
-    const SELF: usize,
-    const PARAMS: usize,
-    const RETURN: usize,
-> {
+    context: &'ctx Context,
     ident: Symbol,
     op_ident: Symbol,
+    generics: [Symbol; GENERICS],
+    associates: [Symbol; ASSOCIATES],
+    self_param_item: [(Symbol, Ownership<Pretype<Type>>); SELF],
+    param_items: [(Symbol, Ownership<Pretype<Type>>); PARAMS],
+    return_pretype: [Pretype<Type>; RETURN],
 }
 
-impl<const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
-    OperationHandle<GENERICS, ASSOCIATES, 0, PARAMS, 1>
+// impl<
+//         Type,
+//         const GENERICS: usize,
+//         const ASSOCIATES: usize,
+//         const SELF: usize,
+//         const PARAMS: usize,
+//         const RETURN: usize,
+//     > OperationSignature<Type, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
+// {
+//     pub fn register<Iter, Body>(
+//         self,
+//         items: &mut Items,
+//         implementation_items: impl Fn([Symbol; SELF], [Symbol; PARAMS]) -> Iter,
+//     ) -> Self
+//     where
+//         Type: Clone,
+//         Iter: Iterator<Item = (Type, [Type; GENERICS], [Type; ASSOCIATES], Body)>,
+//         Body: Into<ImplementationBody>,
+//     {
+
+//         self
+//     }
+// }
+
+impl<Context, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
+    OperationSignature<'_, Context, Type, GENERICS, ASSOCIATES, 0, PARAMS, 1>
+where
+    Context: ContextTrait<Type = Type>,
 {
-    pub fn call<Type>(
+    pub fn call(
         &self,
-        self_type: Type,
-        generic_types: [Type; GENERICS],
+        self_type: &Type,
+        generic_types: [&Type; GENERICS],
         param_exprs: [Expr; PARAMS],
-    ) -> Expr
-    where
-        Type: ToSymbol,
-    {
+    ) -> Expr {
         ExprRepr::CallFunction {
             ident: self.ident,
             op_ident: self.op_ident,
-            self_type: self_type.to_symbol(),
-            generic_types: Vec::from(generic_types.each_ref().map(ToSymbol::to_symbol)),
+            self_type: self.context.resolve_type(self_type),
+            generic_types: Vec::from(generic_types.map(|r#type| self.context.resolve_type(r#type))),
             param_exprs: Vec::from(param_exprs),
         }
         .into()
     }
 }
 
-impl<const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
-    OperationHandle<GENERICS, ASSOCIATES, 1, PARAMS, 1>
+impl<Context, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
+    OperationSignature<'_, Context, Type, GENERICS, ASSOCIATES, 1, PARAMS, 1>
+where
+    Context: ContextTrait<Type = Type>,
 {
-    pub fn call<Type>(
+    pub fn call(
         &self,
-        self_type: Type,
-        generic_types: [Type; GENERICS],
+        self_type: &Type,
+        generic_types: [&Type; GENERICS],
         self_expr: Expr,
         param_exprs: [Expr; PARAMS],
-    ) -> Expr
-    where
-        Type: ToSymbol,
-    {
+    ) -> Expr {
         ExprRepr::CallMethod {
             ident: self.ident,
             op_ident: self.op_ident,
-            self_type: self_type.to_symbol(),
-            generic_types: Vec::from(generic_types.each_ref().map(ToSymbol::to_symbol)),
+            self_type: self.context.resolve_type(self_type),
+            generic_types: Vec::from(generic_types.map(|r#type| self.context.resolve_type(r#type))),
             self_expr,
             param_exprs: Vec::from(param_exprs),
         }

@@ -1,126 +1,45 @@
-use crate::ast::{ExprRepr, Implementation, Operation, Ownership, PretypeSymbol, StmtRepr, Struct};
-use crate::emitter::{Emitter, Writer};
-use itertools::Itertools;
+use crate::ast::{ExprRepr, Implementation, Ownership, StmtRepr, Structure};
+use crate::emitter::{Emitter, EmitterTrait};
+use itertools::{Itertools, Position};
 use std::io::Write;
-use symbol::Symbol;
 
-struct RustEmitter;
+pub struct RustLang;
 
-impl<W> Emitter<W> for RustEmitter
+impl<Buffer> EmitterTrait for Emitter<Buffer, RustLang>
 where
-    W: Write,
+    Buffer: Write,
 {
-    fn emit_preamble(&self, writer: &mut Writer<W>) {
-        writer.write("// Automatically generated");
-        writer.newline();
+    fn emit_preamble(&mut self) -> std::io::Result<()> {
+        write!(self, "// Automatically generated")?;
+        self.newline()?;
+        write!(self, "use crate::traits::*;")?;
+        self.newline()?;
+        Ok(())
     }
 
-    fn emit_struct(&self, writer: &mut Writer<W>, Struct { ident, fields }: Struct) {
-        writer.newline();
-        writer.write(format!("struct {ident} {{"));
-        {
-            let _ = writer.indent();
-            for (field_ident, field_type) in fields {
-                writer.newline();
-                writer.write(format!("{field_ident}: {field_type},"));
+    fn emit_structure(&mut self, Structure { ident, fields }: Structure) -> std::io::Result<()> {
+        self.newline()?;
+        if fields.is_empty() {
+            write!(self, "pub struct {ident};")?;
+        } else {
+            write!(self, "pub struct {ident} {{")?;
+            {
+                self.indent();
+                for (field_ident, field_type) in fields {
+                    self.newline()?;
+                    write!(self, "{field_ident}: {field_type},")?;
+                }
+                self.dedent();
             }
+            self.newline()?;
+            write!(self, "}}")?;
         }
-        writer.newline();
-        writer.write(format!("}}"));
-        writer.newline();
-    }
-
-    fn emit_operation(
-        &self,
-        writer: &mut Writer<W>,
-        Operation {
-            ident,
-            op_ident,
-            generics,
-            associates,
-            self_param_item,
-            param_items,
-            return_pretype,
-        }: Operation,
-    ) {
-        fn format_pretype(pretype: Ownership<PretypeSymbol>) -> String {
-            match pretype {
-                Ownership::Owned(pretype_symbol) => format!(
-                    "{}",
-                    match pretype_symbol {
-                        PretypeSymbol::SelfSymbol => format!("Self"),
-                        PretypeSymbol::Generic(symbol) => format!("{symbol}"),
-                        PretypeSymbol::Associate(symbol) => format!("Self::{symbol}"),
-                        PretypeSymbol::Fixed(symbol) => format!("{symbol}"),
-                    }
-                ),
-                Ownership::BorrowedMut(pretype_symbol) => format!(
-                    "&mut {}",
-                    match pretype_symbol {
-                        PretypeSymbol::SelfSymbol => format!("Self"),
-                        PretypeSymbol::Generic(symbol) => format!("{symbol}"),
-                        PretypeSymbol::Associate(symbol) => format!("Self::{symbol}"),
-                        PretypeSymbol::Fixed(symbol) => format!("{symbol}"),
-                    }
-                ),
-            }
-        }
-
-        writer.newline();
-        writer.write(format!(
-            "trait {ident}{generics} {{",
-            generics = if generics.is_empty() {
-                format!("")
-            } else {
-                format!(
-                    "<{generics}>",
-                    generics = generics.into_iter().map(Symbol::as_str).join(", "),
-                )
-            },
-        ));
-        {
-            let _ = writer.indent();
-            for associate_ident in associates {
-                writer.newline();
-                writer.write(format!("type {associate_ident};"));
-            }
-            writer.newline();
-            writer.write(format!(
-                "fn {op_ident}({params}){return_pretype};",
-                params = self_param_item
-                    .into_iter()
-                    .map(
-                        |(self_param_ident, self_param_pretype)| match self_param_pretype {
-                            Ownership::Owned(_) => format!("{self_param_ident}"),
-                            Ownership::BorrowedMut(_) => format!("&mut {self_param_ident}"),
-                        }
-                    )
-                    .chain(
-                        param_items
-                            .into_iter()
-                            .map(|(param_ident, param_pretype)| format!(
-                                "{param_ident}: {param_pretype}",
-                                param_pretype = format_pretype(param_pretype),
-                            ))
-                    )
-                    .join(", "),
-                return_pretype = match return_pretype {
-                    None => format!(""),
-                    Some(return_pretype) => format!(
-                        " -> {return_pretype}",
-                        return_pretype = format_pretype(return_pretype),
-                    ),
-                },
-            ))
-        }
-        writer.newline();
-        writer.write(format!("}}"));
-        writer.newline();
+        self.newline()?;
+        Ok(())
     }
 
     fn emit_implementation(
-        &self,
-        writer: &mut Writer<W>,
+        &mut self,
         Implementation {
             ident,
             op_ident,
@@ -132,19 +51,13 @@ where
             return_type,
             body,
         }: Implementation,
-    ) {
-        fn format_type(r#type: Ownership<Symbol>) -> String {
-            match r#type {
-                Ownership::Owned(type_symbol) => format!("{type_symbol}"),
-                Ownership::BorrowedMut(type_symbol) => format!("&mut {type_symbol}"),
-            }
-        }
-
-        writer.newline();
-        writer.write(format!(
+    ) -> std::io::Result<()> {
+        self.newline()?;
+        write!(
+            self,
             "impl {ident}{generics} for {self_type} {{",
             generics = if generic_items.is_empty() {
-                format!("")
+                String::new()
             } else {
                 format!(
                     "<{generics}>",
@@ -154,15 +67,16 @@ where
                         .join(", "),
                 )
             },
-        ));
+        )?;
         {
-            let _ = writer.indent();
+            self.indent();
             for (associate_ident, associate_type) in associate_items {
-                writer.newline();
-                writer.write(format!("type {associate_ident} = {associate_type};"));
+                self.newline()?;
+                write!(self, "type {associate_ident} = {associate_type};")?;
             }
-            writer.newline();
-            writer.write(format!(
+            self.newline()?;
+            write!(
+                self,
                 "fn {op_ident}({params}){return_type} {{",
                 params = self_param_item
                     .into_iter()
@@ -177,60 +91,70 @@ where
                             .into_iter()
                             .map(|(param_ident, param_type)| format!(
                                 "{param_ident}: {param_type}",
-                                param_type = format_type(param_type),
+                                param_type = match param_type {
+                                    Ownership::Owned(param_type) => format!("{param_type}"),
+                                    Ownership::BorrowedMut(param_type) =>
+                                        format!("&mut {param_type}"),
+                                },
                             ))
                     )
                     .join(", "),
-                return_type = match return_type {
-                    None => format!(""),
-                    Some(return_type) =>
-                        format!(" -> {return_type}", return_type = format_type(return_type)),
-                },
-            ));
+                return_type = return_type
+                    .map(|return_type| format!(" -> {return_type}"))
+                    .unwrap_or_default(),
+            )?;
             {
-                let _ = writer.indent();
+                self.indent();
                 for stmt in body.stmts {
-                    writer.newline();
-                    self.emit_stmt(writer, stmt);
+                    self.newline()?;
+                    self.emit_stmt(stmt)?;
                 }
-                for expr in body.expr {
-                    writer.newline();
-                    self.emit_expr(writer, expr);
+                if let Some(expr) = body.expr {
+                    self.newline()?;
+                    self.emit_expr(expr)?;
                 }
+                self.dedent();
             }
-            writer.newline();
-            writer.write(format!("}}"));
+            self.newline()?;
+            write!(self, "}}")?;
+            self.dedent();
         }
-        writer.newline();
-        writer.write(format!("}}"));
-        writer.newline();
+        self.newline()?;
+        write!(self, "}}")?;
+        self.newline()?;
+        Ok(())
     }
 
-    fn emit_expr_repr(&self, writer: &mut Writer<W>, expr_repr: ExprRepr) {
+    fn emit_expr_repr(&mut self, expr_repr: ExprRepr) -> std::io::Result<()> {
         match expr_repr {
             ExprRepr::Variable { ident } => {
-                writer.write(ident);
+                write!(self, "{ident}")?;
             }
             ExprRepr::Literal { value } => {
-                writer.write(value);
+                write!(self, "{value}.0")?;
             }
             ExprRepr::Struct { ident, fields } => {
-                writer.write(format!("{ident} {{"));
-                {
-                    let _ = writer.indent();
-                    for (field_ident, field_expr) in fields {
-                        writer.newline();
-                        writer.write(format!("{field_ident}: "));
-                        self.emit_expr(writer, field_expr);
-                        writer.write(",");
+                if fields.is_empty() {
+                    write!(self, "{ident}")?;
+                } else {
+                    write!(self, "{ident} {{")?;
+                    {
+                        self.indent();
+                        for (field_ident, field_expr) in fields {
+                            self.newline()?;
+                            write!(self, "{field_ident}: ")?;
+                            self.emit_expr(field_expr)?;
+                            write!(self, ",")?;
+                        }
+                        self.dedent();
                     }
-                    writer.newline();
-                    writer.write(format!("}}"));
+                    self.newline()?;
+                    write!(self, "}}")?;
                 }
             }
             ExprRepr::Field { expr, ident } => {
-                self.emit_expr(writer, expr);
-                writer.write(format!(".{ident}"));
+                self.emit_expr(expr)?;
+                write!(self, ".{ident}")?;
             }
             ExprRepr::CallFunction {
                 ident: _,
@@ -239,21 +163,14 @@ where
                 generic_types: _,
                 param_exprs,
             } => {
-                writer.write(format!("{self_type}::{op_ident}("));
-                for param_expr in itertools::Itertools::intersperse_with(
-                    param_exprs.into_iter().map(Some),
-                    || None,
-                ) {
-                    match param_expr {
-                        Some(param_expr) => {
-                            self.emit_expr(writer, param_expr);
-                        }
-                        None => {
-                            writer.write(", ");
-                        }
+                write!(self, "{self_type}::{op_ident}(")?;
+                for (position, param_expr) in param_exprs.into_iter().with_position() {
+                    self.emit_expr(param_expr)?;
+                    if matches!(position, Position::First | Position::Middle) {
+                        write!(self, ", ")?;
                     }
                 }
-                writer.write(")");
+                write!(self, ")")?;
             }
             ExprRepr::CallMethod {
                 ident: _,
@@ -263,72 +180,67 @@ where
                 self_expr,
                 param_exprs,
             } => {
-                self.emit_expr(writer, self_expr);
-                writer.write(format!(".{op_ident}("));
-                for param_expr in itertools::Itertools::intersperse_with(
-                    param_exprs.into_iter().map(Some),
-                    || None,
-                ) {
-                    match param_expr {
-                        Some(param_expr) => {
-                            self.emit_expr(writer, param_expr);
-                        }
-                        None => {
-                            writer.write(", ");
-                        }
+                self.emit_expr(self_expr)?;
+                write!(self, ".{op_ident}(")?;
+                for (position, param_expr) in param_exprs.into_iter().with_position() {
+                    self.emit_expr(param_expr)?;
+                    if matches!(position, Position::First | Position::Middle) {
+                        write!(self, ", ")?;
                     }
                 }
-                writer.write(")");
+                write!(self, ")")?;
             }
             ExprRepr::Neg { expr } => {
-                writer.write("-");
-                self.emit_expr(writer, expr);
+                write!(self, "-")?;
+                self.emit_expr(expr)?;
             }
             ExprRepr::Add { lhs, rhs } => {
-                self.emit_expr(writer, lhs);
-                writer.write(" + ");
-                self.emit_expr(writer, rhs);
+                self.emit_expr(lhs)?;
+                write!(self, " + ")?;
+                self.emit_expr(rhs)?;
             }
             ExprRepr::Sub { lhs, rhs } => {
-                self.emit_expr(writer, lhs);
-                writer.write(" - ");
-                self.emit_expr(writer, rhs);
+                self.emit_expr(lhs)?;
+                write!(self, " - ")?;
+                self.emit_expr(rhs)?;
             }
             ExprRepr::Mul { lhs, rhs } => {
-                self.emit_expr(writer, lhs);
-                writer.write(" * ");
-                self.emit_expr(writer, rhs);
+                self.emit_expr(lhs)?;
+                write!(self, " * ")?;
+                self.emit_expr(rhs)?;
             }
             ExprRepr::Div { lhs, rhs } => {
-                self.emit_expr(writer, lhs);
-                writer.write(" / ");
-                self.emit_expr(writer, rhs);
-            }
-        };
-    }
-
-    fn emit_stmt_repr(&self, writer: &mut Writer<W>, stmt_repr: StmtRepr) {
-        match stmt_repr {
-            StmtRepr::AddAssign { lhs, rhs } => {
-                self.emit_expr(writer, lhs);
-                writer.write(" += ");
-                self.emit_expr(writer, rhs);
-            }
-            StmtRepr::SubAssign { lhs, rhs } => {
-                self.emit_expr(writer, lhs);
-                writer.write(" -= ");
-                self.emit_expr(writer, rhs);
-            }
-            StmtRepr::MulAssign { lhs, rhs } => {
-                self.emit_expr(writer, lhs);
-                writer.write(" *= ");
-                self.emit_expr(writer, rhs);
-            }
-            StmtRepr::DivAssign { lhs, rhs } => {
-                self.emit_expr(writer, lhs);
-                writer.write(" /= ");
-                self.emit_expr(writer, rhs);
+                self.emit_expr(lhs)?;
+                write!(self, " / ")?;
+                self.emit_expr(rhs)?;
             }
         }
+        Ok(())
+    }
+
+    fn emit_stmt_repr(&mut self, stmt_repr: StmtRepr) -> std::io::Result<()> {
+        match stmt_repr {
+            StmtRepr::AddAssign { lhs, rhs } => {
+                self.emit_expr(lhs)?;
+                write!(self, " += ")?;
+                self.emit_expr(rhs)?;
+            }
+            StmtRepr::SubAssign { lhs, rhs } => {
+                self.emit_expr(lhs)?;
+                write!(self, " -= ")?;
+                self.emit_expr(rhs)?;
+            }
+            StmtRepr::MulAssign { lhs, rhs } => {
+                self.emit_expr(lhs)?;
+                write!(self, " *= ")?;
+                self.emit_expr(rhs)?;
+            }
+            StmtRepr::DivAssign { lhs, rhs } => {
+                self.emit_expr(lhs)?;
+                write!(self, " /= ")?;
+                self.emit_expr(rhs)?;
+            }
+        }
+        Ok(())
     }
 }
