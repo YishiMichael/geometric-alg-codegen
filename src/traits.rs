@@ -1,3 +1,5 @@
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+
 /// Additive identity.
 pub trait Zero {
     fn zero() -> Self;
@@ -63,7 +65,8 @@ pub trait Inverse {
 
 /// `A / norm(A)`
 pub trait Normalized {
-    fn normalized(self) -> Self;
+    type Output;
+    fn normalized(self) -> Self::Output;
 }
 
 /// In-place normalization.

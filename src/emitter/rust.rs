@@ -220,25 +220,33 @@ where
 
     fn emit_stmt_repr(&mut self, stmt_repr: StmtRepr) -> std::io::Result<()> {
         match stmt_repr {
+            StmtRepr::Expr { expr } => {
+                self.emit_expr(expr)?;
+                write!(self, ";")?;
+            }
             StmtRepr::AddAssign { lhs, rhs } => {
                 self.emit_expr(lhs)?;
                 write!(self, " += ")?;
                 self.emit_expr(rhs)?;
+                write!(self, ";")?;
             }
             StmtRepr::SubAssign { lhs, rhs } => {
                 self.emit_expr(lhs)?;
                 write!(self, " -= ")?;
                 self.emit_expr(rhs)?;
+                write!(self, ";")?;
             }
             StmtRepr::MulAssign { lhs, rhs } => {
                 self.emit_expr(lhs)?;
                 write!(self, " *= ")?;
                 self.emit_expr(rhs)?;
+                write!(self, ";")?;
             }
             StmtRepr::DivAssign { lhs, rhs } => {
                 self.emit_expr(lhs)?;
                 write!(self, " /= ")?;
                 self.emit_expr(rhs)?;
+                write!(self, ";")?;
             }
         }
         Ok(())

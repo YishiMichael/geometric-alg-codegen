@@ -5,7 +5,7 @@ mod emitter;
 mod traits;
 
 use crate::ast::{Expr, Items, OperationSignature, Ownership, Pretype, StructureSignature};
-use ast::ContextTrait;
+use ast::{ContextTrait, ImplementationBody};
 use itertools::Itertools;
 use symbol::Symbol;
 
@@ -125,7 +125,7 @@ struct GeometricAlgebra {
     blade_intrinsic_signs: Vec<Sign>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 enum Type {
     Base,
     Space(Space),
@@ -135,6 +135,15 @@ enum Type {
 enum Space {
     GradedVector { grade: usize },
     SaturatedVector { even: bool, odd: bool },
+}
+
+impl From<Type> for Space {
+    fn from(r#type: Type) -> Self {
+        match r#type {
+            Type::Base => Space::GradedVector { grade: 0 },
+            Type::Space(space) => space,
+        }
+    }
 }
 
 impl Space {
@@ -348,6 +357,7 @@ impl ContextTrait for GeometricAlgebra {
     }
 
     fn resolve_type(&self, r#type: &Self::Type) -> Symbol {
+        // TODO: make configurable
         match r#type {
             Type::Base => "f32".into(),
             Type::Space(Space::GradedVector { grade: 0 }) => "Scalar".into(),
@@ -385,61 +395,14 @@ impl ContextTrait for GeometricAlgebra {
 }
 
 impl GeometricAlgebra {
-    // fn iter_fields(&self, space: Space) -> Option<impl Iterator<Item = (Symbol, Space)>> {
-    //     (space != Space::SCALAR).then(|| {
-    //         space
-    //             .blades(self.dim)
-    //             .into_iter()
-    //             .map(|blade| (self.blades[blade.generator_bits].ident, Space::SCALAR))
-    //     })
-    // }
-
-    // fn field_expr(&self, space: Space, blade: Blade, expr: Expr) -> Option<Expr> {
-    //     space.contains_blade(blade).then(|| {
-    //         if space == Space::SCALAR {
-    //             expr
-    //         } else {
-    //             ExprRepr::Field {
-    //                 expr,
-    //                 ident: self.blades[blade.generator_bits].ident,
-    //             }
-    //             .into()
-    //         }
-    //     })
-    // }
-
-    // fn struct_expr(&self, space: Space, field_expr_fn: impl Fn(Blade) -> Option<Expr>) -> Expr {
-    //     if space == Space::SCALAR {
-    //         field_expr_fn(Blade::zero()).unwrap_or(0.into())
-    //     } else {
-    //         ExprRepr::Struct {
-    //             ident: space.to_symbol(),
-    //             fields: space
-    //                 .blades(self.dim)
-    //                 .into_iter()
-    //                 .map(|blade| {
-    //                     (
-    //                         self.blades[blade.generator_bits].ident,
-    //                         field_expr_fn(blade).unwrap_or(0.into()),
-    //                     )
-    //                 })
-    //                 .collect(),
-    //         }
-    //         .into()
-    //     }
-    // }
-
     fn multinomial<const DEGREE: usize>(
         &self,
         prototype: [usize; DEGREE],
         term_sign: fn([Blade; DEGREE], usize) -> Option<Sign>,
-        // config: MultinomialConfig<DEGREE>,
     ) -> Multinomial {
         std::iter::repeat_n(Blade::iter(self.dim), DEGREE)
             .multi_cartesian_product()
             .map(|blades| -> [Blade; DEGREE] { blades.try_into().unwrap() })
-            // .map(|blades| (config.reindex)(blades, self.dim))
-            // .filter(|blades| (config.term_filter)(*blades, self.dim))
             .filter_map(|blades| {
                 term_sign(blades, self.dim).map(|sign| {
                     let multi_index = prototype.into_iter().zip_eq(blades).sorted().collect_vec();
@@ -466,38 +429,389 @@ impl GeometricAlgebra {
             .collect()
     }
 
-    fn unary_multinomial_operations(
+    fn nullary_constructor_operation(
         &self,
-    ) -> [(
-        &'static str,
-        &'static str,
-        fn([Space; 1], usize) -> Type,
-        Multinomial,
-    ); 6] {
-        [
+        ident: &'static str,
+        op_ident: &'static str,
+    ) -> OperationSignature<'_, Self, Type, 0, 0, 0, 0, 1> {
+        self.define_operation(ident, op_ident, [], [], [], [], [Pretype::SelfBining])
+    }
+
+    fn unary_constructor_operation(
+        &self,
+        ident: &'static str,
+        op_ident: &'static str,
+    ) -> OperationSignature<'_, Self, Type, 1, 0, 0, 1, 1> {
+        self.define_operation(
+            ident,
+            op_ident,
+            ["T"],
+            [],
+            [],
+            [("value", Ownership::Owned(Pretype::GenericBinding(0)))],
+            [Pretype::SelfBining],
+        )
+    }
+
+    fn unary_operation(
+        &self,
+        ident: &'static str,
+        op_ident: &'static str,
+    ) -> OperationSignature<'_, Self, Type, 0, 1, 1, 0, 1> {
+        self.define_operation(
+            ident,
+            op_ident,
+            [],
+            ["Output"],
+            [("self", Ownership::Owned(Pretype::SelfBining))],
+            [],
+            [Pretype::AssociateBinding(0)],
+        )
+    }
+
+    fn binary_operation(
+        &self,
+        ident: &'static str,
+        op_ident: &'static str,
+    ) -> OperationSignature<'_, Self, Type, 1, 1, 1, 1, 1> {
+        self.define_operation(
+            ident,
+            op_ident,
+            ["T"],
+            ["Output"],
+            [("self", Ownership::Owned(Pretype::SelfBining))],
+            [("other", Ownership::Owned(Pretype::GenericBinding(0)))],
+            [Pretype::AssociateBinding(0)],
+        )
+    }
+
+    fn unary_inplace_operation(
+        &self,
+        ident: &'static str,
+        op_ident: &'static str,
+    ) -> OperationSignature<'_, Self, Type, 0, 0, 1, 0, 0> {
+        self.define_operation(
+            ident,
+            op_ident,
+            [],
+            [],
+            [("self", Ownership::Owned(Pretype::SelfBining))],
+            [],
+            [],
+        )
+    }
+
+    fn binary_inplace_operation(
+        &self,
+        ident: &'static str,
+        op_ident: &'static str,
+    ) -> OperationSignature<'_, Self, Type, 1, 0, 1, 1, 0> {
+        self.define_operation(
+            ident,
+            op_ident,
+            ["T"],
+            [],
+            [("self", Ownership::Owned(Pretype::SelfBining))],
+            [("other", Ownership::Owned(Pretype::GenericBinding(0)))],
+            [],
+        )
+    }
+
+    fn items(&self) -> Items {
+        #![allow(non_snake_case)]
+        let mut items = Items::default();
+
+        let structure_map: std::collections::BTreeMap<_, _> = Space::iter(self.dim)
+            .map(|space| {
+                (
+                    space,
+                    self.register_structure(
+                        &mut items,
+                        self.resolve_type(&Type::Space(space)).as_str(),
+                        space.iter_blades(self.dim),
+                        |_| Type::Base,
+                    ),
+                )
+            })
+            .collect();
+
+        let ABS = self.unary_operation("Abs", "abs");
+        let SQRT = self.unary_operation("Sqrt", "sqrt");
+        let FROM = self.unary_constructor_operation("From", "from");
+        let NEG = self.unary_operation("Neg", "neg");
+        let ADD = self.binary_operation("Add", "add");
+        let SUB = self.binary_operation("Sub", "sub");
+        let MUL = self.binary_operation("Mul", "mul");
+        let DIV = self.binary_operation("Div", "div");
+        let ADD_ASSIGN = self.binary_inplace_operation("AddAssign", "add_assign");
+        let SUB_ASSIGN = self.binary_inplace_operation("SubAssign", "sub_assign");
+        let MUL_ASSIGN = self.binary_inplace_operation("MulAssign", "mul_assign");
+        let DIV_ASSIGN = self.binary_inplace_operation("DivAssign", "div_assign");
+
+        let ZERO = self.nullary_constructor_operation("Zero", "zero");
+        let ONE = self.nullary_constructor_operation("One", "one");
+
+        let GRADE_INVOLUTION = self.unary_operation("GradeInvolution", "grade_involution");
+        let REVERSE = self.unary_operation("Reverse", "reverse");
+        let CONJUGATE = self.unary_operation("Conjugate", "conjugate");
+        let DUAL = self.unary_operation("Dual", "dual");
+        let UNDUAL = self.unary_operation("Undual", "undual");
+        let NORM_SQUARED = self.unary_operation("NormSquared", "norm_squared");
+        let NORM = self.unary_operation("Norm", "norm");
+        let INVERSE = self.unary_operation("Inverse", "inverse");
+        let NORMALIZED = self.unary_operation("Normalized", "normalized");
+        let NORMALIZE = self.unary_inplace_operation("Normalize", "normalize");
+
+        let GEOMETRIC_PRODUCT = self.binary_operation("GeometricProduct", "geometric_product");
+        let SCALAR_PRODUCT = self.binary_operation("ScalarProduct", "scalar_product");
+        let LEFT_INNER_PRODUCT = self.binary_operation("LeftInnerProduct", "left_inner_product");
+        let RIGHT_INNER_PRODUCT = self.binary_operation("RightInnerProduct", "right_inner_product");
+        let INNER_PRODUCT = self.binary_operation("InnerProduct", "inner_product");
+        let OUTER_PRODUCT = self.binary_operation("OuterProduct", "outer_product");
+        let REGRESSIVE_PRODUCT = self.binary_operation("RegressiveProduct", "regressive_product");
+        let COMMUTATOR = self.binary_operation("Commutator", "commutator");
+        let ANTICOMMUTATOR = self.binary_operation("Anticommutator", "anticommutator");
+        let TRANSFORM = self.binary_operation("Transform", "transform");
+        let PROJECT = self.binary_operation("Project", "project");
+        let REJECT = self.binary_operation("Reject", "reject");
+
+        for (type_0, type_1) in Space::iter(self.dim)
+            .map(Type::Space)
+            .cartesian_product(Space::iter(self.dim).map(Type::Space))
+            .chain(
+                Space::iter(self.dim)
+                    .map(Type::Space)
+                    .zip(std::iter::repeat(Type::Base)),
+            )
+            .chain(std::iter::repeat(Type::Base).zip(Space::iter(self.dim).map(Type::Space)))
+        {
+            let space = {
+                let space_0 = Space::from(type_0);
+                let space_1 = Space::from(type_1);
+                if space_0 == space_1 {
+                    space_0
+                } else if space_0 == Space::null() {
+                    space_1
+                } else if space_1 == Space::null() {
+                    space_0
+                } else {
+                    Space::SaturatedVector {
+                        even: space_0.contains_even_grade() || space_1.contains_even_grade(),
+                        odd: space_0.contains_odd_grade() || space_1.contains_odd_grade(),
+                    }
+                }
+            };
+            let r#type = Type::Space(space);
+            ADD.register_implementation(
+                &mut items,
+                type_0,
+                [type_1],
+                [r#type],
+                |[symbol_0], [symbol_1]| {
+                    structure_map[&space].construct(|&blade| {
+                        match (
+                            match type_0 {
+                                Type::Base => (blade == Blade::zero()).then(|| symbol_0.into()),
+                                Type::Space(space_0) => space_0.contains_blade(blade).then(|| {
+                                    structure_map[&space_0].access(symbol_0.into(), &blade)
+                                }),
+                            },
+                            match type_1 {
+                                Type::Base => (blade == Blade::zero()).then(|| symbol_1.into()),
+                                Type::Space(space_1) => space_1.contains_blade(blade).then(|| {
+                                    structure_map[&space_1].access(symbol_1.into(), &blade)
+                                }),
+                            },
+                        ) {
+                            (Some(expr_0), Some(expr_1)) => expr_0 + expr_1,
+                            (Some(expr_0), None) => expr_0,
+                            (None, Some(expr_1)) => expr_1,
+                            (None, None) => 0.into(),
+                        }
+                    })
+                },
+            );
+            SUB.register_implementation(
+                &mut items,
+                type_0,
+                [type_1],
+                [r#type],
+                |[symbol_0], [symbol_1]| {
+                    structure_map[&space].construct(|&blade| {
+                        match (
+                            match type_0 {
+                                Type::Base => (blade == Blade::zero()).then(|| symbol_0.into()),
+                                Type::Space(space_0) => space_0.contains_blade(blade).then(|| {
+                                    structure_map[&space_0].access(symbol_0.into(), &blade)
+                                }),
+                            },
+                            match type_1 {
+                                Type::Base => (blade == Blade::zero()).then(|| symbol_1.into()),
+                                Type::Space(space_1) => space_1.contains_blade(blade).then(|| {
+                                    structure_map[&space_1].access(symbol_1.into(), &blade)
+                                }),
+                            },
+                        ) {
+                            (Some(expr_0), Some(expr_1)) => expr_0 - expr_1,
+                            (Some(expr_0), None) => expr_0,
+                            (None, Some(expr_1)) => -expr_1,
+                            (None, None) => 0.into(),
+                        }
+                    })
+                },
+            );
+            if r#type == type_0 {
+                ADD_ASSIGN.register_implementation(
+                    &mut items,
+                    type_0,
+                    [type_1],
+                    [],
+                    |[symbol_0], [symbol_1]| {
+                        Space::from(type_1)
+                            .iter_blades(self.dim)
+                            .map(|blade| {
+                                structure_map[&space]
+                                    .access(symbol_0.into(), &blade)
+                                    .add_assign(match type_1 {
+                                        Type::Base => symbol_1.into(),
+                                        Type::Space(space_1) => {
+                                            structure_map[&space_1].access(symbol_1.into(), &blade)
+                                        }
+                                    })
+                            })
+                            .collect_vec()
+                    },
+                );
+                SUB_ASSIGN.register_implementation(
+                    &mut items,
+                    type_0,
+                    [type_1],
+                    [],
+                    |[symbol_0], [symbol_1]| {
+                        Space::from(type_1)
+                            .iter_blades(self.dim)
+                            .map(|blade| {
+                                structure_map[&space]
+                                    .access(symbol_0.into(), &blade)
+                                    .sub_assign(match type_1 {
+                                        Type::Base => symbol_1.into(),
+                                        Type::Space(space_1) => {
+                                            structure_map[&space_1].access(symbol_1.into(), &blade)
+                                        }
+                                    })
+                            })
+                            .collect_vec()
+                    },
+                );
+            }
+        }
+        for (space_0, space_1) in
+            Space::iter(self.dim).zip(std::iter::repeat(Space::GradedVector { grade: 0 }))
+        {
+            let space = if space_0 == space_1 {
+                space_0
+            } else {
+                Space::SaturatedVector {
+                    even: space_0.contains_even_grade() || space_1.contains_even_grade(),
+                    odd: space_0.contains_odd_grade() || space_1.contains_odd_grade(),
+                }
+            };
+            ADD.register_implementation(
+                &mut items,
+                Type::Space(space_0),
+                [Type::Base],
+                [Type::Space(space)],
+                |[symbol_0], [symbol_1]| {
+                    structure_map[&space].construct(|&blade| {
+                        match (
+                            space_0
+                                .contains_blade(blade)
+                                .then(|| structure_map[&space_0].access(symbol_0.into(), &blade)),
+                            space_1.contains_blade(blade).then(|| symbol_1.into()),
+                        ) {
+                            (Some(expr_0), Some(expr_1)) => expr_0 + expr_1,
+                            (Some(expr_0), None) => expr_0,
+                            (None, Some(expr_1)) => expr_1,
+                            (None, None) => 0.into(),
+                        }
+                    })
+                },
+            )
+        }
+        for (space_0, space_1) in
+            std::iter::repeat(Space::GradedVector { grade: 0 }).zip(Space::iter(self.dim))
+        {
+            let space = if space_0 == space_1 {
+                space_0
+            } else {
+                Space::SaturatedVector {
+                    even: space_0.contains_even_grade() || space_1.contains_even_grade(),
+                    odd: space_0.contains_odd_grade() || space_1.contains_odd_grade(),
+                }
+            };
+            ADD.register_implementation(
+                &mut items,
+                Type::Base,
+                [Type::Space(space_1)],
+                [Type::Space(space)],
+                |[symbol_0], [symbol_1]| {
+                    structure_map[&space].construct(|&blade| {
+                        match (
+                            space_0.contains_blade(blade).then(|| symbol_0.into()),
+                            space_1
+                                .contains_blade(blade)
+                                .then(|| structure_map[&space_1].access(symbol_1.into(), &blade)),
+                        ) {
+                            (Some(expr_0), Some(expr_1)) => expr_0 + expr_1,
+                            (Some(expr_0), None) => expr_0,
+                            (None, Some(expr_1)) => expr_1,
+                            (None, None) => 0.into(),
+                        }
+                    })
+                },
+            )
+        }
+
+        for space_0 in Space::iter(self.dim) {
+            ZERO.register_implementation(&mut items, Type::Space(space_0), [], [], |[], []| {
+                structure_map[&space_0].construct(|_| 0.into())
+            });
+        }
+        for space_0 in Space::iter(self.dim).filter(|space| space.contains_blade(Blade::zero())) {
+            ONE.register_implementation(&mut items, Type::Space(space_0), [], [], |[], []| {
+                structure_map[&space_0].construct(|&blade| {
+                    if blade == Blade::zero() {
+                        match self.blade_intrinsic_signs[blade.generator_bits] {
+                            Sign::Pos => 1.into(),
+                            Sign::Neg => (-1).into(),
+                        }
+                    } else {
+                        0.into()
+                    }
+                })
+            });
+        }
+
+        let unary_multinomial_operations: [(_, fn([Space; 1], usize) -> Type, _); _] = [
             (
-                "GradeInvolution",
-                "grade_involution",
+                &GRADE_INVOLUTION,
                 |[space_0], _| Type::Space(space_0),
                 self.multinomial([0], |[blade_0], _| Some(Sign::from(blade_0.grade()))),
             ),
             (
-                "Reverse",
-                "reverse",
+                &REVERSE,
                 |[space_0], _| Type::Space(space_0),
                 self.multinomial([0], |[blade_0], _| Some(Sign::from(blade_0.grade() >> 1))),
             ),
             (
-                "Conjugate",
-                "conjugate",
+                &CONJUGATE,
                 |[space_0], _| Type::Space(space_0),
                 self.multinomial([0], |[blade_0], _| {
                     Some(Sign::from((blade_0.grade() + 1) >> 1))
                 }),
             ),
             (
-                "Dual",
-                "dual",
+                &DUAL,
                 |[space_0], dim| Type::Space(space_0.dual(dim)),
                 self.multinomial([0], |[blade_0], dim| {
                     Some(blade_0.dual(dim).parity(blade_0))
@@ -505,8 +819,7 @@ impl GeometricAlgebra {
                 .dual(self.dim),
             ),
             (
-                "Undual",
-                "undual",
+                &UNDUAL,
                 |[space_0], dim| Type::Space(space_0.dual(dim)),
                 self.multinomial([0], |[blade_0], dim| {
                     Some(blade_0.parity(blade_0.dual(dim)))
@@ -514,42 +827,121 @@ impl GeometricAlgebra {
                 .dual(self.dim),
             ),
             (
-                "NormSquared",
-                "norm_squared",
+                &NORM_SQUARED,
                 |_, _| Type::Base,
                 self.multinomial([0, 0], |_, _| Some(Sign::Pos)),
             ),
-        ]
-    }
+        ];
+        for (operation, space_fn, multinomial) in unary_multinomial_operations {
+            for space_0 in Space::iter(self.dim) {
+                let r#type = space_fn([space_0], self.dim);
+                operation.register_implementation(
+                    &mut items,
+                    Type::Space(space_0),
+                    [],
+                    [r#type],
+                    |[symbol_0], []| match r#type {
+                        Type::Base => multinomial.blade_expr(
+                            &structure_map,
+                            Blade::zero(),
+                            [space_0],
+                            [symbol_0],
+                        ),
+                        Type::Space(space) => {
+                            multinomial.expr(&structure_map, space, [space_0], [symbol_0])
+                        }
+                    },
+                );
+            }
+        }
 
-    fn binary_multinomial_operations(
-        &self,
-    ) -> [(
-        &'static str,
-        &'static str,
-        fn([Space; 2], usize) -> Type,
-        Multinomial,
-    ); 12] {
-        [
+        for space_0 in Space::iter(self.dim) {
+            NORM.register_implementation(
+                &mut items,
+                Type::Space(space_0),
+                [],
+                [Type::Base],
+                |[symbol_0], []| {
+                    SQRT.call(
+                        Type::Base,
+                        [],
+                        ABS.call(
+                            Type::Base,
+                            [],
+                            NORM_SQUARED.call(Type::Space(space_0), [], symbol_0.into(), []),
+                            [],
+                        ),
+                        [],
+                    )
+                },
+            );
+        }
+        for space_0 in Space::iter(self.dim) {
+            INVERSE.register_implementation(
+                &mut items,
+                Type::Space(space_0),
+                [],
+                [Type::Space(space_0)],
+                |[symbol_0], []| {
+                    DIV.call(
+                        Type::Space(space_0),
+                        [Type::Base],
+                        REVERSE.call(Type::Space(space_0), [], symbol_0.into(), []),
+                        [NORM_SQUARED.call(Type::Space(space_0), [], symbol_0.into(), [])],
+                    )
+                },
+            );
+        }
+        for space_0 in Space::iter(self.dim) {
+            NORMALIZED.register_implementation(
+                &mut items,
+                Type::Space(space_0),
+                [],
+                [Type::Space(space_0)],
+                |[symbol_0], []| {
+                    DIV.call(
+                        Type::Space(space_0),
+                        [Type::Base],
+                        REVERSE.call(Type::Space(space_0), [], symbol_0.into(), []),
+                        [NORM.call(Type::Space(space_0), [], symbol_0.into(), [])],
+                    )
+                },
+            );
+        }
+        for space_0 in Space::iter(self.dim) {
+            NORMALIZE.register_implementation(
+                &mut items,
+                Type::Space(space_0),
+                [],
+                [],
+                |[symbol_0], []| {
+                    Vec::from([DIV_ASSIGN.call(
+                        Type::Space(space_0),
+                        [Type::Base],
+                        REVERSE.call(Type::Space(space_0), [], symbol_0.into(), []),
+                        [NORM.call(Type::Space(space_0), [], symbol_0.into(), [])],
+                    )])
+                },
+            );
+        }
+
+        let binary_multinomial_operations: [(_, fn([Space; 2], usize) -> Type, _); _] = [
             (
-                "GeometricProduct",
-                "geometric_product",
+                &GEOMETRIC_PRODUCT,
                 |[space_0, space_1], _| Type::Space(space_0.product_space(space_1)),
                 self.multinomial([0, 1], |[blade_0, blade_1], _| {
                     Some(blade_0.parity(blade_1))
                 }),
             ),
             (
-                "ScalarProduct",
-                "scalar_product",
+                &SCALAR_PRODUCT,
                 |_, _| Type::Base,
                 self.multinomial([0, 1], |[blade_0, blade_1], _| {
                     (blade_0 ^ blade_1 == Blade::zero()).then(|| blade_0.parity(blade_1))
                 }),
             ),
             (
-                "LeftInnerProduct",
-                "left_inner_product",
+                &LEFT_INNER_PRODUCT,
                 |[space_0, space_1], _| {
                     Type::Space(match [space_0, space_1] {
                         [Space::GradedVector { grade: grade_0 }, Space::GradedVector { grade: grade_1 }] => {
@@ -566,8 +958,7 @@ impl GeometricAlgebra {
                 }),
             ),
             (
-                "RightInnerProduct",
-                "right_inner_product",
+                &RIGHT_INNER_PRODUCT,
                 |[space_0, space_1], _| {
                     Type::Space(match [space_0, space_1] {
                         [Space::GradedVector { grade: grade_0 }, Space::GradedVector { grade: grade_1 }] => {
@@ -584,8 +975,7 @@ impl GeometricAlgebra {
                 }),
             ),
             (
-                "InnerProduct",
-                "inner_product",
+                &INNER_PRODUCT,
                 |[space_0, space_1], _| {
                     Type::Space(match [space_0, space_1] {
                         [Space::GradedVector { grade: grade_0 }, Space::GradedVector { grade: grade_1 }] => {
@@ -602,8 +992,7 @@ impl GeometricAlgebra {
                 }),
             ),
             (
-                "OuterProduct",
-                "outer_product",
+                &OUTER_PRODUCT,
                 |[space_0, space_1], dim| {
                     Type::Space(match [space_0, space_1] {
                         [Space::GradedVector { grade: grade_0 }, Space::GradedVector { grade: grade_1 }] => {
@@ -620,18 +1009,17 @@ impl GeometricAlgebra {
                 }),
             ),
             (
-                "RegressiveProduct",
-                "regressive_product",
+                &REGRESSIVE_PRODUCT,
                 |[space_0, space_1], dim| {
                     Type::Space(match [space_0.dual(dim), space_1.dual(dim)] {
-                        [Space::GradedVector { grade: grade_0 }, Space::GradedVector { grade: grade_1 }] => {
-                            Some(grade_0 + grade_1)
-                                .filter(|&grade| grade <= dim)
-                                .map(|grade| Space::GradedVector { grade })
-                                .unwrap_or_else(Space::null)
-                        }
-                        [space_0, space_1] => space_0.product_space(space_1),
-                    }.dual(dim))
+                    [Space::GradedVector { grade: grade_0 }, Space::GradedVector { grade: grade_1 }] => {
+                        Some(grade_0 + grade_1)
+                            .filter(|&grade| grade <= dim)
+                            .map(|grade| Space::GradedVector { grade })
+                            .unwrap_or_else(Space::null)
+                    }
+                    [space_0, space_1] => space_0.product_space(space_1),
+                }.dual(dim))
                 },
                 self.multinomial([0, 1], |[blade_0, blade_1], dim| {
                     {
@@ -642,8 +1030,7 @@ impl GeometricAlgebra {
                 .dual(self.dim),
             ),
             (
-                "Commutator",
-                "commutator",
+                &COMMUTATOR,
                 |[space_0, space_1], _| Type::Space(space_0.product_space(space_1)),
                 self.multinomial([0, 1], |[blade_0, blade_1], _| {
                     match (blade_0.parity(blade_1), blade_1.parity(blade_0)) {
@@ -655,8 +1042,7 @@ impl GeometricAlgebra {
                 }),
             ),
             (
-                "Anticommutator",
-                "anticommutator",
+                &ANTICOMMUTATOR,
                 |[space_0, space_1], _| Type::Space(space_0.product_space(space_1)),
                 self.multinomial([0, 1], |[blade_0, blade_1], _| {
                     match (blade_0.parity(blade_1), blade_1.parity(blade_0)) {
@@ -668,8 +1054,7 @@ impl GeometricAlgebra {
                 }),
             ),
             (
-                "Transform",
-                "transform",
+                &TRANSFORM,
                 |[space_0, space_1], _| {
                     Type::Space(space_1.product_space(space_0).product_space(space_1))
                 },
@@ -683,8 +1068,7 @@ impl GeometricAlgebra {
                 }),
             ),
             (
-                "Project",
-                "project",
+                &PROJECT,
                 |[space_0, space_1], _| {
                     Type::Space(match [space_0, space_1] {
                         [Space::GradedVector { grade: grade_0 }, Space::GradedVector { grade: grade_1 }] => {
@@ -711,8 +1095,7 @@ impl GeometricAlgebra {
                 }),
             ),
             (
-                "Reject",
-                "reject",
+                &REJECT,
                 |[space_0, space_1], dim| {
                     Type::Space(match [space_0, space_1] {
                         [Space::GradedVector { grade: grade_0 }, Space::GradedVector { grade: grade_1 }] => {
@@ -737,199 +1120,33 @@ impl GeometricAlgebra {
                         })
                 }),
             ),
-        ]
-    }
-
-    fn items(&self) -> Items {
-        let mut items = Items::default();
-
-        let structure_map = Space::iter(self.dim)
-            .map(|space| {
-                (
-                    space,
-                    self.register_structure(
-                        &mut items,
-                        self.resolve_type(&Type::Space(space)).as_str(),
-                        space.iter_blades(self.dim),
-                        |_| Type::Base,
-                    ),
+        ];
+        for (operation, space_fn, multinomial) in binary_multinomial_operations {
+            for (space_0, space_1) in Space::iter(self.dim).cartesian_product(Space::iter(self.dim))
+            {
+                let r#type = space_fn([space_0, space_1], self.dim);
+                operation.register_implementation(
+                    &mut items,
+                    Type::Space(space_0),
+                    [Type::Space(space_1)],
+                    [r#type],
+                    |[symbol_0], [symbol_1]| match r#type {
+                        Type::Base => multinomial.blade_expr(
+                            &structure_map,
+                            Blade::zero(),
+                            [space_0, space_1],
+                            [symbol_0, symbol_1],
+                        ),
+                        Type::Space(space) => multinomial.expr(
+                            &structure_map,
+                            space,
+                            [space_0, space_1],
+                            [symbol_0, symbol_1],
+                        ),
+                    },
                 )
-            })
-            .collect();
-
-        // for (ident, op_ident, space_fn, multinomial) in self.binary_multinomial_operations() {
-        //     self.register_operation(
-        //         &mut items,
-        //         ident,
-        //         op_ident,
-        //         ["T"],
-        //         ["Output"],
-        //         [("self", Ownership::Owned(Pretype::SelfBining))],
-        //         [("other", Ownership::Owned(Pretype::GenericBinding(0)))],
-        //         [Pretype::AssociateBinding(0)],
-        //         |[symbol_0], [symbol_1]| {
-        //             let structure_map = &structure_map;
-        //             let multinomial = &multinomial;
-        //             Space::iter(self.dim)
-        //                 .cartesian_product(Space::iter(self.dim))
-        //                 .map(move |(space_0, space_1)| {
-        //                     let space = space_fn([space_0, space_1], self.dim);
-        //                     (
-        //                         Type::Space(space_0),
-        //                         [Type::Space(space_1)],
-        //                         [Type::Space(space)],
-        //                         self.multinomial_expr(
-        //                             structure_map,
-        //                             multinomial,
-        //                             space,
-        //                             [space_0, space_1],
-        //                             [symbol_0, symbol_1],
-        //                         ),
-        //                     )
-        //                 })
-        //         },
-        //     );
-        // }
-
-        for (ident, op_ident, space_fn, multinomial) in self.unary_multinomial_operations() {
-            self.register_operation(
-                &mut items,
-                ident,
-                op_ident,
-                [],
-                ["Output"],
-                [("self", Ownership::Owned(Pretype::SelfBining))],
-                [],
-                [Pretype::AssociateBinding(0)],
-                |[symbol_0], []| {
-                    let structure_map = &structure_map;
-                    Space::iter(self.dim).map(move |space_0| {
-                        let r#type = space_fn([space_0], self.dim);
-                        (
-                            Type::Space(space_0),
-                            [],
-                            [r#type],
-                            match r#type {
-                                Type::Base => multinomial.blade_expr(
-                                    structure_map,
-                                    Blade::zero(),
-                                    [space_0],
-                                    [symbol_0],
-                                ),
-                                Type::Space(space) => {
-                                    multinomial.expr(structure_map, space, [space_0], [symbol_0])
-                                }
-                            },
-                        )
-                    })
-                },
-            );
+            }
         }
-
-        for (ident, op_ident, space_fn, multinomial) in self.binary_multinomial_operations() {
-            self.register_operation(
-                &mut items,
-                ident,
-                op_ident,
-                ["T"],
-                ["Output"],
-                [("self", Ownership::Owned(Pretype::SelfBining))],
-                [("other", Ownership::Owned(Pretype::GenericBinding(0)))],
-                [Pretype::AssociateBinding(0)],
-                |[symbol_0], [symbol_1]| {
-                    let structure_map = &structure_map;
-                    Space::iter(self.dim)
-                        .cartesian_product(Space::iter(self.dim))
-                        .map(move |(space_0, space_1)| {
-                            let r#type = space_fn([space_0, space_1], self.dim);
-                            (
-                                Type::Space(space_0),
-                                [Type::Space(space_1)],
-                                [r#type],
-                                match r#type {
-                                    Type::Base => multinomial.blade_expr(
-                                        structure_map,
-                                        Blade::zero(),
-                                        [space_0, space_1],
-                                        [symbol_0, symbol_1],
-                                    ),
-                                    Type::Space(space) => multinomial.expr(
-                                        structure_map,
-                                        space,
-                                        [space_0, space_1],
-                                        [symbol_0, symbol_1],
-                                    ),
-                                },
-                            )
-                        })
-                },
-            );
-        }
-
-        // let unary_signature = OperationSignature {
-        //     generics: [],
-        //     associates: ["Output"],
-        //     self_param_item: [("self", Ownership::Owned(Pretype::<Space>::SelfBining))],
-        //     param_items: [],
-        //     return_pretype: [Pretype::AssociateBinding(0)],
-        // };
-        // let binary_signature = OperationSignature {
-        //     generics: ["T"],
-        //     associates: ["Output"],
-        //     self_param_item: [("self", Ownership::Owned(Pretype::SelfBining))],
-        //     param_items: [("other", Ownership::Owned(Pretype::GenericBinding(0)))],
-        //     return_pretype: [Pretype::AssociateBinding(0)],
-        // };
-
-        // let mut add_product_operation_general =
-        //     |ident, op_ident, space_fn: fn([Space; 2], usize) -> Space, multinomial| {
-        //         self.register_operation(
-        //             &mut items,
-        //             ident,
-        //             op_ident,
-        //             ["T"],
-        //             ["Output"],
-        //             [("self", Ownership::Owned(Pretype::SelfBining))],
-        //             [("other", Ownership::Owned(Pretype::GenericBinding(0)))],
-        //             [Pretype::AssociateBinding(0)],
-        //             |[symbol_0], [symbol_1]| {
-        //                 let structure_map = &structure_map;
-        //                 let multinomial = &multinomial;
-        //                 Space::iter(self.dim)
-        //                     .cartesian_product(Space::iter(self.dim))
-        //                     .map(move |(space_0, space_1)| {
-        //                         let space = space_fn([space_0, space_1], self.dim);
-        //                         (
-        //                             Type::Space(space_0),
-        //                             [Type::Space(space_1)],
-        //                             [Type::Space(space)],
-        //                             self.multinomial_expr(
-        //                                 structure_map,
-        //                                 multinomial,
-        //                                 space,
-        //                                 [space_0, space_1],
-        //                                 [symbol_0, symbol_1],
-        //                             ),
-        //                         )
-        //                     })
-        //             },
-        //         )
-        //     };
-        // let mut add_product_operation =
-        //     |ident, op_ident, space_fn: fn([Space; 2], usize) -> Space, term_sign| {
-        //         add_product_operation_general(
-        //             ident,
-        //             op_ident,
-        //             space_fn,
-        //             self.multinomial([0, 1], term_sign),
-        //         )
-        //     };
-        // struct BinaryProduct {
-        //     ident: &'static str,
-        //     op_ident: &'static str,
-        //     space_fn: fn([Space; 2], usize) -> Space,
-        //     multinomial: Multinomial,
-        // }
 
         items
     }
