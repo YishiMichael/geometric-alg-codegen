@@ -26,15 +26,14 @@ impl<T> Ownership<T> {
     }
 }
 
-pub enum Pretype<Type> {
+pub enum Pretype {
     SelfBining,
     GenericBinding(usize),
     AssociateBinding(usize),
-    Fixed(Type),
 }
 
-impl<Type> Pretype<Type> {
-    fn eval_type<'t, const GENERICS: usize, const ASSOCIATES: usize>(
+impl Pretype {
+    fn eval_type<'t, Type, const GENERICS: usize, const ASSOCIATES: usize>(
         &'t self,
         self_type: &'t Type,
         generic_types: [&'t Type; GENERICS],
@@ -44,7 +43,6 @@ impl<Type> Pretype<Type> {
             Self::SelfBining => self_type,
             Self::GenericBinding(index) => generic_types[*index],
             Self::AssociateBinding(index) => associate_types[*index],
-            Self::Fixed(r#type) => r#type,
         }
     }
 }
@@ -127,6 +125,7 @@ pub trait Resolve: Sized {
         signature
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn define_operation<
         const GENERICS: usize,
         const ASSOCIATES: usize,
@@ -139,10 +138,10 @@ pub trait Resolve: Sized {
         op_ident: &'static str,
         generics: [&'static str; GENERICS],
         associates: [&'static str; ASSOCIATES],
-        self_param_item: [(&'static str, Ownership<Pretype<Self::Type>>); SELF],
-        param_items: [(&'static str, Ownership<Pretype<Self::Type>>); PARAMS],
-        return_pretype: [Pretype<Self::Type>; RETURN],
-    ) -> OperationSignature<'_, Self, Self::Type, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN> {
+        self_param_item: [(&'static str, Ownership<Pretype>); SELF],
+        param_items: [(&'static str, Ownership<Pretype>); PARAMS],
+        return_pretype: [Pretype; RETURN],
+    ) -> OperationSignature<'_, Self, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN> {
         OperationSignature {
             resolver: self,
             ident: Symbol::from(ident),
@@ -193,7 +192,6 @@ where
 pub struct OperationSignature<
     'r,
     Resolver,
-    Type,
     const GENERICS: usize,
     const ASSOCIATES: usize,
     const SELF: usize,
@@ -205,29 +203,28 @@ pub struct OperationSignature<
     op_ident: Symbol,
     generics: [Symbol; GENERICS],
     associates: [Symbol; ASSOCIATES],
-    self_param_item: [(Symbol, Ownership<Pretype<Type>>); SELF],
-    param_items: [(Symbol, Ownership<Pretype<Type>>); PARAMS],
-    return_pretype: [Pretype<Type>; RETURN],
+    self_param_item: [(Symbol, Ownership<Pretype>); SELF],
+    param_items: [(Symbol, Ownership<Pretype>); PARAMS],
+    return_pretype: [Pretype; RETURN],
 }
 
 impl<
         Resolver,
-        Type,
         const GENERICS: usize,
         const ASSOCIATES: usize,
         const SELF: usize,
         const PARAMS: usize,
         const RETURN: usize,
-    > OperationSignature<'_, Resolver, Type, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
+    > OperationSignature<'_, Resolver, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
 where
-    Resolver: Resolve<Type = Type>,
+    Resolver: Resolve,
 {
     pub fn register_implementation<Body>(
         &self,
         items: &mut Items,
-        self_type: Type,
-        generic_types: [Type; GENERICS],
-        associate_types: [Type; ASSOCIATES],
+        self_type: Resolver::Type,
+        generic_types: [Resolver::Type; GENERICS],
+        associate_types: [Resolver::Type; ASSOCIATES],
         implementor: impl FnOnce([Symbol; SELF], [Symbol; PARAMS]) -> Body,
     ) where
         Body: Into<ImplementationBody>,
@@ -302,10 +299,9 @@ where
     }
 }
 
-impl<Resolver, Type, const ASSOCIATES: usize>
-    OperationSignature<'_, Resolver, Type, 0, ASSOCIATES, 1, 0, 1>
+impl<Resolver, const ASSOCIATES: usize> OperationSignature<'_, Resolver, 0, ASSOCIATES, 1, 0, 1>
 where
-    Resolver: Resolve<Type = Type>,
+    Resolver: Resolve,
 {
     pub fn call_builtin(&self, self_expr: Expr) -> Expr {
         ExprRepr::CallBuiltin {
@@ -317,15 +313,15 @@ where
     }
 }
 
-impl<Resolver, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
-    OperationSignature<'_, Resolver, Type, GENERICS, ASSOCIATES, 0, PARAMS, 1>
+impl<Resolver, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
+    OperationSignature<'_, Resolver, GENERICS, ASSOCIATES, 0, PARAMS, 1>
 where
-    Resolver: Resolve<Type = Type>,
+    Resolver: Resolve,
 {
     pub fn call(
         &self,
-        self_type: Type,
-        generic_types: [Type; GENERICS],
+        self_type: Resolver::Type,
+        generic_types: [Resolver::Type; GENERICS],
         param_exprs: [Expr; PARAMS],
     ) -> Expr {
         ExprRepr::CallFunction {
@@ -341,15 +337,15 @@ where
     }
 }
 
-impl<Resolver, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
-    OperationSignature<'_, Resolver, Type, GENERICS, ASSOCIATES, 1, PARAMS, 1>
+impl<Resolver, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
+    OperationSignature<'_, Resolver, GENERICS, ASSOCIATES, 1, PARAMS, 1>
 where
-    Resolver: Resolve<Type = Type>,
+    Resolver: Resolve,
 {
     pub fn call(
         &self,
-        self_type: Type,
-        generic_types: [Type; GENERICS],
+        self_type: Resolver::Type,
+        generic_types: [Resolver::Type; GENERICS],
         self_expr: Expr,
         param_exprs: [Expr; PARAMS],
     ) -> Expr {
@@ -367,15 +363,15 @@ where
     }
 }
 
-impl<Resolver, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
-    OperationSignature<'_, Resolver, Type, GENERICS, ASSOCIATES, 1, PARAMS, 0>
+impl<Resolver, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
+    OperationSignature<'_, Resolver, GENERICS, ASSOCIATES, 1, PARAMS, 0>
 where
-    Resolver: Resolve<Type = Type>,
+    Resolver: Resolve,
 {
     pub fn call(
         &self,
-        self_type: Type,
-        generic_types: [Type; GENERICS],
+        self_type: Resolver::Type,
+        generic_types: [Resolver::Type; GENERICS],
         self_expr: Expr,
         param_exprs: [Expr; PARAMS],
     ) -> Stmt {

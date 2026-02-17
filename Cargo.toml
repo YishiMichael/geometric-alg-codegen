@@ -1,8 +1,39 @@
-[package]
-name = "geometric-alg-codegen"
+[workspace]
+resolver = "3"
+members = [
+    ".",
+    "geometric-alg",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
+authors = ["YishiMichael (GitHub)"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/YishiMichael/geometric-alg-codegen"
+repository = "https://github.com/YishiMichael/geometric-alg-codegen"
+keywords = []
+categories = []
 
-[dependencies]
-itertools = "0.14.0"
-symbol = "0.1.9"
+[package]
+name = "geometric-alg-codegen"
+description = "Generate Rust/GLSL/WGSL code for geometric algebra library"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+readme.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies.itertools]
+version = "0.14.0"
+
+[dependencies.symbol]
+version = "0.1.9"
+
+[[example]]
+name = "generate"

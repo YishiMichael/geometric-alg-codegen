@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 pub use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// Additive identity.
@@ -9,11 +10,6 @@ pub trait Zero {
 pub trait One {
     fn one() -> Self;
 }
-
-// Grade selection. -> From
-// pub trait Select<T> {
-//     fn select(self) -> T;
-// }
 
 /// Flip signs by `g % 2 = 1`
 pub trait GradeInvolution {

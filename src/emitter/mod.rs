@@ -1,4 +1,10 @@
-pub mod rust;
+mod glsl;
+mod rust;
+mod wgsl;
+
+pub use glsl::GLSLLang;
+pub use rust::RustLang;
+pub use wgsl::WGSLLang;
 
 use crate::ast::{Expr, ExprRepr, Implementation, Items, Stmt, StmtRepr, Structure};
 use std::io::Write;
@@ -6,28 +12,28 @@ use std::io::Write;
 pub trait EmitterTrait {
     fn emit_preamble(&mut self) -> std::io::Result<()>;
 
-    fn emit_structure(&mut self, _structure: Structure) -> std::io::Result<()>;
+    fn emit_structure(&mut self, _structure: &Structure) -> std::io::Result<()>;
 
-    fn emit_implementation(&mut self, _implementation: Implementation) -> std::io::Result<()>;
+    fn emit_implementation(&mut self, _implementation: &Implementation) -> std::io::Result<()>;
 
-    fn emit_expr_repr(&mut self, _expr_repr: ExprRepr) -> std::io::Result<()>;
+    fn emit_expr_repr(&mut self, _expr_repr: &ExprRepr) -> std::io::Result<()>;
 
-    fn emit_stmt_repr(&mut self, _stmt_repr: StmtRepr) -> std::io::Result<()>;
+    fn emit_stmt_repr(&mut self, _stmt_repr: &StmtRepr) -> std::io::Result<()>;
 
-    fn emit_expr(&mut self, expr: Expr) -> std::io::Result<()> {
-        self.emit_expr_repr(*expr.repr)
+    fn emit_expr(&mut self, expr: &Expr) -> std::io::Result<()> {
+        self.emit_expr_repr(&expr.repr)
     }
 
-    fn emit_stmt(&mut self, stmt: Stmt) -> std::io::Result<()> {
-        self.emit_stmt_repr(*stmt.repr)
+    fn emit_stmt(&mut self, stmt: &Stmt) -> std::io::Result<()> {
+        self.emit_stmt_repr(&stmt.repr)
     }
 
-    fn emit_items(&mut self, items: Items) -> std::io::Result<()> {
+    fn emit_items(&mut self, items: &Items) -> std::io::Result<()> {
         self.emit_preamble()?;
-        for structure in items.structures {
+        for structure in &items.structures {
             self.emit_structure(structure)?;
         }
-        for implementation in items.implementations {
+        for implementation in &items.implementations {
             self.emit_implementation(implementation)?;
         }
         Ok(())

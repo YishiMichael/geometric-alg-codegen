@@ -1,6 +1,4 @@
-use crate::ast::{
-    Expr, Items, OperationSignature, Ownership, Pretype, Resolve, Stmt, StructureSignature,
-};
+use crate::ast::{Expr, Items, Ownership, Pretype, Resolve, Stmt, StructureSignature};
 use itertools::Itertools;
 use symbol::Symbol;
 
@@ -389,7 +387,7 @@ impl GeometricAlgebra {
     }
 
     fn items(&self, idents: &GeometricAlgebraIdents) -> Items {
-        #![allow(non_snake_case)]
+        #![allow(non_snake_case, clippy::type_complexity)]
         let mut items = Items::default();
 
         let structure_map: std::collections::BTreeMap<_, _> = Space::iter(self.dim)
@@ -949,7 +947,7 @@ impl GeometricAlgebra {
                 |[space_0, space_1], _| {
                     Type::Space(space_1.product_space(space_0).product_space(space_1))
                 },
-                self.multinomial([1, 0, 1], |[blade_0, blade_1, blade_2], dim| {
+                self.multinomial([1, 0, 1], |[blade_0, blade_1, blade_2], _| {
                     Some(
                         blade_0.parity(blade_1)
                             ^ blade_0.parity(blade_2)
@@ -968,7 +966,7 @@ impl GeometricAlgebra {
                                 .map(|grade| Space::GradedVector { grade })
                                 .unwrap_or_else(Space::null)
                         }
-                        [space_0, space_1] => Space::SaturatedVector {
+                        [space_0, _] => Space::SaturatedVector {
                             even: space_0.contains_even_grade(),
                             odd: space_0.contains_odd_grade(),
                         },
@@ -995,7 +993,7 @@ impl GeometricAlgebra {
                                 .map(|grade| Space::GradedVector { grade })
                                 .unwrap_or_else(Space::null)
                         }
-                        [space_0, space_1] => Space::SaturatedVector {
+                        [space_0, _] => Space::SaturatedVector {
                             even: space_0.contains_even_grade(),
                             odd: space_0.contains_odd_grade(),
                         },
@@ -1050,22 +1048,14 @@ pub struct GeometricAlgebraDimension {
 }
 
 impl GeometricAlgebraDimension {
-    pub fn new(
-        dim: usize,
-        blades: impl AsRef<str>,
-        // precision: impl AsRef<str>,
-        // graded_spaces: impl AsRef<str>,
-    ) -> Self {
-        let blades = blades.as_ref().split_whitespace().collect_vec();
+    pub fn new(dim: usize, blades: impl IntoIterator<Item = impl AsRef<str>>) -> Self {
+        let blades = blades.into_iter().collect_vec();
         assert_eq!(blades.len(), 1 << dim);
-        // let graded_spaces = graded_spaces.as_ref().split_whitespace().collect_vec();
-        // assert_eq!(graded_spaces.len(), dim + 1);
-
         let (blade_idents, blade_intrinsic_signs): (Vec<_>, Vec<_>) = blades
             .into_iter()
-            .map(|name| match name.strip_prefix('-') {
-                None => (name, Sign::Pos),
-                Some(name) => (name, Sign::Neg),
+            .map(|name| match name.as_ref().strip_prefix('-') {
+                None => (Symbol::from(name), Sign::Pos),
+                Some(name) => (Symbol::from(name), Sign::Neg),
             })
             .unzip();
 
@@ -1088,7 +1078,7 @@ impl GeometricAlgebraDimension {
             dim,
             blade_intrinsic_signs,
             idents: GeometricAlgebraIdents {
-                blade_idents: blade_idents.into_iter().map(Symbol::from).collect(),
+                blade_idents,
                 precision: Symbol::from("f32"),
                 graded_spaces: (0..=dim)
                     .map(|index| {
@@ -1145,87 +1135,3 @@ impl GeometricAlgebraDimension {
         algebra.items(&self.idents)
     }
 }
-
-// struct GeometricAlgebraMeta {
-//     name: &'static str,
-//     signs: &'static str,
-//     blades: &'static str,
-// }
-
-// impl From<&GeometricAlgebraMeta> for GeometricAlgebra {
-//     fn from(value: &GeometricAlgebraMeta) -> Self {
-//         let generator_squares = value
-//             .signs
-//             .split_whitespace()
-//             .map(|sign| match sign {
-//                 "+" => 1,
-//                 "-" => -1,
-//                 "0" => 0,
-//                 _ => unreachable!(),
-//             })
-//             .collect_vec();
-//         let (blade_idents, blade_intrinsic_signs) = value
-//             .blades
-//             .split_whitespace()
-//             .map(|name| match name.strip_prefix('-') {
-//                 None => (Symbol::from(name), Sign::Pos),
-//                 Some(name) => (Symbol::from(name), Sign::Neg),
-//             })
-//             .unzip();
-//         Self {
-//             name: Symbol::from(value.name),
-//             dim: generator_squares.len(),
-//             generator_squares,
-//             blade_idents,
-//             blade_intrinsic_signs,
-//         }
-//     }
-// }
-
-const ALGEBRAS: &[GeometricAlgebraMeta] = &[
-    GeometricAlgebraMeta {
-        name: "epga1d",
-        signs: "- +",
-        blades: "s e0 e1 e01",
-    },
-    GeometricAlgebraMeta {
-        name: "ppga1d",
-        signs: "0 +",
-        blades: "s e0 e1 e01",
-    },
-    GeometricAlgebraMeta {
-        name: "hpga1d",
-        signs: "+ +",
-        blades: "s e0 e1 e01",
-    },
-    GeometricAlgebraMeta {
-        name: "epga2d",
-        signs: "- + +",
-        blades: "s e0 e1 e01 e2 -e20 e12 e012",
-    },
-    GeometricAlgebraMeta {
-        name: "ppga2d",
-        signs: "0 + +",
-        blades: "s e0 e1 e01 e2 -e20 e12 e012",
-    },
-    GeometricAlgebraMeta {
-        name: "hpga2d",
-        signs: "+ + +",
-        blades: "s e0 e1 e01 e2 -e20 e12 e012",
-    },
-    GeometricAlgebraMeta {
-        name: "epga3d",
-        signs: "- + + +",
-        blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
-    },
-    GeometricAlgebraMeta {
-        name: "ppga3d",
-        signs: "0 + + +",
-        blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
-    },
-    GeometricAlgebraMeta {
-        name: "hpga3d",
-        signs: "+ + + +",
-        blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
-    },
-];

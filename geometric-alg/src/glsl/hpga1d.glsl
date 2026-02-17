@@ -1,0 +1,5755 @@
+// Automatically generated
+#define f32 float
+#define f64 double
+
+struct Scalar {
+    s: f32,
+}
+
+struct Vector {
+    e0: f32,
+    e1: f32,
+}
+
+struct Bivector {
+    e01: f32,
+}
+
+struct Null {
+    _phantom: f32,
+}
+
+struct OddMultivector {
+    e0: f32,
+    e1: f32,
+}
+
+struct EvenMultivector {
+    s: f32,
+    e01: f32,
+}
+
+struct Multivector {
+    s: f32,
+    e0: f32,
+    e1: f32,
+    e01: f32,
+}
+
+Vector vector_from_scalar(Scalar value) {
+    return Vector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Bivector bivector_from_scalar(Scalar value) {
+    return Bivector {
+        e01: 0.0,
+    };
+}
+
+Null null_from_scalar(Scalar value) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_from_scalar(Scalar value) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_from_scalar(Scalar value) {
+    return EvenMultivector {
+        s: value.s,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_from_scalar(Scalar value) {
+    return Multivector {
+        s: value.s,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Scalar scalar_from_vector(Vector value) {
+    return Scalar {
+        s: 0.0,
+    };
+}
+
+Bivector bivector_from_vector(Vector value) {
+    return Bivector {
+        e01: 0.0,
+    };
+}
+
+Null null_from_vector(Vector value) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_from_vector(Vector value) {
+    return OddMultivector {
+        e0: value.e0,
+        e1: value.e1,
+    };
+}
+
+EvenMultivector evenmultivector_from_vector(Vector value) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_from_vector(Vector value) {
+    return Multivector {
+        s: 0.0,
+        e0: value.e0,
+        e1: value.e1,
+        e01: 0.0,
+    };
+}
+
+Scalar scalar_from_bivector(Bivector value) {
+    return Scalar {
+        s: 0.0,
+    };
+}
+
+Vector vector_from_bivector(Bivector value) {
+    return Vector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Null null_from_bivector(Bivector value) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_from_bivector(Bivector value) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_from_bivector(Bivector value) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: value.e01,
+    };
+}
+
+Multivector multivector_from_bivector(Bivector value) {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: value.e01,
+    };
+}
+
+Scalar scalar_from_null(Null value) {
+    return Scalar {
+        s: 0.0,
+    };
+}
+
+Vector vector_from_null(Null value) {
+    return Vector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Bivector bivector_from_null(Null value) {
+    return Bivector {
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_from_null(Null value) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_from_null(Null value) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_from_null(Null value) {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Scalar scalar_from_oddmultivector(OddMultivector value) {
+    return Scalar {
+        s: 0.0,
+    };
+}
+
+Vector vector_from_oddmultivector(OddMultivector value) {
+    return Vector {
+        e0: value.e0,
+        e1: value.e1,
+    };
+}
+
+Bivector bivector_from_oddmultivector(OddMultivector value) {
+    return Bivector {
+        e01: 0.0,
+    };
+}
+
+Null null_from_oddmultivector(OddMultivector value) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_from_oddmultivector(OddMultivector value) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_from_oddmultivector(OddMultivector value) {
+    return Multivector {
+        s: 0.0,
+        e0: value.e0,
+        e1: value.e1,
+        e01: 0.0,
+    };
+}
+
+Scalar scalar_from_evenmultivector(EvenMultivector value) {
+    return Scalar {
+        s: value.s,
+    };
+}
+
+Vector vector_from_evenmultivector(EvenMultivector value) {
+    return Vector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Bivector bivector_from_evenmultivector(EvenMultivector value) {
+    return Bivector {
+        e01: value.e01,
+    };
+}
+
+Null null_from_evenmultivector(EvenMultivector value) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_from_evenmultivector(EvenMultivector value) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Multivector multivector_from_evenmultivector(EvenMultivector value) {
+    return Multivector {
+        s: value.s,
+        e0: 0.0,
+        e1: 0.0,
+        e01: value.e01,
+    };
+}
+
+Scalar scalar_from_multivector(Multivector value) {
+    return Scalar {
+        s: value.s,
+    };
+}
+
+Vector vector_from_multivector(Multivector value) {
+    return Vector {
+        e0: value.e0,
+        e1: value.e1,
+    };
+}
+
+Bivector bivector_from_multivector(Multivector value) {
+    return Bivector {
+        e01: value.e01,
+    };
+}
+
+Null null_from_multivector(Multivector value) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_from_multivector(Multivector value) {
+    return OddMultivector {
+        e0: value.e0,
+        e1: value.e1,
+    };
+}
+
+EvenMultivector evenmultivector_from_multivector(Multivector value) {
+    return EvenMultivector {
+        s: value.s,
+        e01: value.e01,
+    };
+}
+
+Scalar scalar_from_f32(f32 value) {
+    return Scalar {
+        s: value,
+    };
+}
+
+Vector vector_from_f32(f32 value) {
+    return Vector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Bivector bivector_from_f32(f32 value) {
+    return Bivector {
+        e01: 0.0,
+    };
+}
+
+Null null_from_f32(f32 value) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_from_f32(f32 value) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_from_f32(f32 value) {
+    return EvenMultivector {
+        s: value,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_from_f32(f32 value) {
+    return Multivector {
+        s: value,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+f32 f32_from_scalar(Scalar value) {
+    return value.s;
+}
+
+f32 f32_from_vector(Vector value) {
+    return 0.0;
+}
+
+f32 f32_from_bivector(Bivector value) {
+    return 0.0;
+}
+
+f32 f32_from_null(Null value) {
+    return 0.0;
+}
+
+f32 f32_from_oddmultivector(OddMultivector value) {
+    return 0.0;
+}
+
+f32 f32_from_evenmultivector(EvenMultivector value) {
+    return value.s;
+}
+
+f32 f32_from_multivector(Multivector value) {
+    return value.s;
+}
+
+Scalar scalar_neg(Scalar self) {
+    return Scalar {
+        s: -self.s,
+    };
+}
+
+Vector vector_neg(Vector self) {
+    return Vector {
+        e0: -self.e0,
+        e1: -self.e1,
+    };
+}
+
+Bivector bivector_neg(Bivector self) {
+    return Bivector {
+        e01: -self.e01,
+    };
+}
+
+Null null_neg(Null self) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_neg(OddMultivector self) {
+    return OddMultivector {
+        e0: -self.e0,
+        e1: -self.e1,
+    };
+}
+
+EvenMultivector evenmultivector_neg(EvenMultivector self) {
+    return EvenMultivector {
+        s: -self.s,
+        e01: -self.e01,
+    };
+}
+
+Multivector multivector_neg(Multivector self) {
+    return Multivector {
+        s: -self.s,
+        e0: -self.e0,
+        e1: -self.e1,
+        e01: -self.e01,
+    };
+}
+
+Scalar scalar_add_scalar(Scalar self, Scalar other) {
+    return Scalar {
+        s: self.s + other.s,
+    };
+}
+
+Scalar scalar_add_f32(Scalar self, f32 other) {
+    return Scalar {
+        s: self.s + other,
+    };
+}
+
+Scalar f32_add_scalar(f32 self, Scalar other) {
+    return Scalar {
+        s: self + other.s,
+    };
+}
+
+Vector vector_add_vector(Vector self, Vector other) {
+    return Vector {
+        e0: self.e0 + other.e0,
+        e1: self.e1 + other.e1,
+    };
+}
+
+Vector vector_add_f32(Vector self, f32 other) {
+    return Vector {
+        e0: self.e0 + other,
+        e1: self.e1 + other,
+    };
+}
+
+Vector f32_add_vector(f32 self, Vector other) {
+    return Vector {
+        e0: self + other.e0,
+        e1: self + other.e1,
+    };
+}
+
+Bivector bivector_add_bivector(Bivector self, Bivector other) {
+    return Bivector {
+        e01: self.e01 + other.e01,
+    };
+}
+
+Bivector bivector_add_f32(Bivector self, f32 other) {
+    return Bivector {
+        e01: self.e01 + other,
+    };
+}
+
+Bivector f32_add_bivector(f32 self, Bivector other) {
+    return Bivector {
+        e01: self + other.e01,
+    };
+}
+
+Null null_add_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_add_f32(Null self, f32 other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null f32_add_null(f32 self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_add_oddmultivector(OddMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 + other.e0,
+        e1: self.e1 + other.e1,
+    };
+}
+
+OddMultivector oddmultivector_add_f32(OddMultivector self, f32 other) {
+    return OddMultivector {
+        e0: self.e0 + other,
+        e1: self.e1 + other,
+    };
+}
+
+OddMultivector f32_add_oddmultivector(f32 self, OddMultivector other) {
+    return OddMultivector {
+        e0: self + other.e0,
+        e1: self + other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_add_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s + other.s,
+        e01: self.e01 + other.e01,
+    };
+}
+
+EvenMultivector evenmultivector_add_f32(EvenMultivector self, f32 other) {
+    return EvenMultivector {
+        s: self.s + other,
+        e01: self.e01 + other,
+    };
+}
+
+EvenMultivector f32_add_evenmultivector(f32 self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self + other.s,
+        e01: self + other.e01,
+    };
+}
+
+Multivector multivector_add_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s + other.s,
+        e0: self.e0 + other.e0,
+        e1: self.e1 + other.e1,
+        e01: self.e01 + other.e01,
+    };
+}
+
+Multivector multivector_add_f32(Multivector self, f32 other) {
+    return Multivector {
+        s: self.s + other,
+        e0: self.e0 + other,
+        e1: self.e1 + other,
+        e01: self.e01 + other,
+    };
+}
+
+Multivector f32_add_multivector(f32 self, Multivector other) {
+    return Multivector {
+        s: self + other.s,
+        e0: self + other.e0,
+        e1: self + other.e1,
+        e01: self + other.e01,
+    };
+}
+
+Scalar scalar_sub_scalar(Scalar self, Scalar other) {
+    return Scalar {
+        s: self.s - other.s,
+    };
+}
+
+Scalar scalar_sub_f32(Scalar self, f32 other) {
+    return Scalar {
+        s: self.s - other,
+    };
+}
+
+Scalar f32_sub_scalar(f32 self, Scalar other) {
+    return Scalar {
+        s: self - other.s,
+    };
+}
+
+Vector vector_sub_vector(Vector self, Vector other) {
+    return Vector {
+        e0: self.e0 - other.e0,
+        e1: self.e1 - other.e1,
+    };
+}
+
+Vector vector_sub_f32(Vector self, f32 other) {
+    return Vector {
+        e0: self.e0 - other,
+        e1: self.e1 - other,
+    };
+}
+
+Vector f32_sub_vector(f32 self, Vector other) {
+    return Vector {
+        e0: self - other.e0,
+        e1: self - other.e1,
+    };
+}
+
+Bivector bivector_sub_bivector(Bivector self, Bivector other) {
+    return Bivector {
+        e01: self.e01 - other.e01,
+    };
+}
+
+Bivector bivector_sub_f32(Bivector self, f32 other) {
+    return Bivector {
+        e01: self.e01 - other,
+    };
+}
+
+Bivector f32_sub_bivector(f32 self, Bivector other) {
+    return Bivector {
+        e01: self - other.e01,
+    };
+}
+
+Null null_sub_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_sub_f32(Null self, f32 other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null f32_sub_null(f32 self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_sub_oddmultivector(OddMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 - other.e0,
+        e1: self.e1 - other.e1,
+    };
+}
+
+OddMultivector oddmultivector_sub_f32(OddMultivector self, f32 other) {
+    return OddMultivector {
+        e0: self.e0 - other,
+        e1: self.e1 - other,
+    };
+}
+
+OddMultivector f32_sub_oddmultivector(f32 self, OddMultivector other) {
+    return OddMultivector {
+        e0: self - other.e0,
+        e1: self - other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_sub_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s - other.s,
+        e01: self.e01 - other.e01,
+    };
+}
+
+EvenMultivector evenmultivector_sub_f32(EvenMultivector self, f32 other) {
+    return EvenMultivector {
+        s: self.s - other,
+        e01: self.e01 - other,
+    };
+}
+
+EvenMultivector f32_sub_evenmultivector(f32 self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self - other.s,
+        e01: self - other.e01,
+    };
+}
+
+Multivector multivector_sub_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s - other.s,
+        e0: self.e0 - other.e0,
+        e1: self.e1 - other.e1,
+        e01: self.e01 - other.e01,
+    };
+}
+
+Multivector multivector_sub_f32(Multivector self, f32 other) {
+    return Multivector {
+        s: self.s - other,
+        e0: self.e0 - other,
+        e1: self.e1 - other,
+        e01: self.e01 - other,
+    };
+}
+
+Multivector f32_sub_multivector(f32 self, Multivector other) {
+    return Multivector {
+        s: self - other.s,
+        e0: self - other.e0,
+        e1: self - other.e1,
+        e01: self - other.e01,
+    };
+}
+
+Scalar scalar_mul_scalar(Scalar self, Scalar other) {
+    return Scalar {
+        s: self.s * other.s,
+    };
+}
+
+Scalar scalar_mul_f32(Scalar self, f32 other) {
+    return Scalar {
+        s: self.s * other,
+    };
+}
+
+Scalar f32_mul_scalar(f32 self, Scalar other) {
+    return Scalar {
+        s: self * other.s,
+    };
+}
+
+Vector vector_mul_vector(Vector self, Vector other) {
+    return Vector {
+        e0: self.e0 * other.e0,
+        e1: self.e1 * other.e1,
+    };
+}
+
+Vector vector_mul_f32(Vector self, f32 other) {
+    return Vector {
+        e0: self.e0 * other,
+        e1: self.e1 * other,
+    };
+}
+
+Vector f32_mul_vector(f32 self, Vector other) {
+    return Vector {
+        e0: self * other.e0,
+        e1: self * other.e1,
+    };
+}
+
+Bivector bivector_mul_bivector(Bivector self, Bivector other) {
+    return Bivector {
+        e01: self.e01 * other.e01,
+    };
+}
+
+Bivector bivector_mul_f32(Bivector self, f32 other) {
+    return Bivector {
+        e01: self.e01 * other,
+    };
+}
+
+Bivector f32_mul_bivector(f32 self, Bivector other) {
+    return Bivector {
+        e01: self * other.e01,
+    };
+}
+
+Null null_mul_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_mul_f32(Null self, f32 other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null f32_mul_null(f32 self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_mul_oddmultivector(OddMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0,
+        e1: self.e1 * other.e1,
+    };
+}
+
+OddMultivector oddmultivector_mul_f32(OddMultivector self, f32 other) {
+    return OddMultivector {
+        e0: self.e0 * other,
+        e1: self.e1 * other,
+    };
+}
+
+OddMultivector f32_mul_oddmultivector(f32 self, OddMultivector other) {
+    return OddMultivector {
+        e0: self * other.e0,
+        e1: self * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_mul_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.e01 * other.e01,
+    };
+}
+
+EvenMultivector evenmultivector_mul_f32(EvenMultivector self, f32 other) {
+    return EvenMultivector {
+        s: self.s * other,
+        e01: self.e01 * other,
+    };
+}
+
+EvenMultivector f32_mul_evenmultivector(f32 self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self * other.s,
+        e01: self * other.e01,
+    };
+}
+
+Multivector multivector_mul_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.e0 * other.e0,
+        e1: self.e1 * other.e1,
+        e01: self.e01 * other.e01,
+    };
+}
+
+Multivector multivector_mul_f32(Multivector self, f32 other) {
+    return Multivector {
+        s: self.s * other,
+        e0: self.e0 * other,
+        e1: self.e1 * other,
+        e01: self.e01 * other,
+    };
+}
+
+Multivector f32_mul_multivector(f32 self, Multivector other) {
+    return Multivector {
+        s: self * other.s,
+        e0: self * other.e0,
+        e1: self * other.e1,
+        e01: self * other.e01,
+    };
+}
+
+Scalar scalar_div_scalar(Scalar self, Scalar other) {
+    return Scalar {
+        s: self.s / other.s,
+    };
+}
+
+Scalar scalar_div_f32(Scalar self, f32 other) {
+    return Scalar {
+        s: self.s / other,
+    };
+}
+
+Scalar f32_div_scalar(f32 self, Scalar other) {
+    return Scalar {
+        s: self / other.s,
+    };
+}
+
+Vector vector_div_vector(Vector self, Vector other) {
+    return Vector {
+        e0: self.e0 / other.e0,
+        e1: self.e1 / other.e1,
+    };
+}
+
+Vector vector_div_f32(Vector self, f32 other) {
+    return Vector {
+        e0: self.e0 / other,
+        e1: self.e1 / other,
+    };
+}
+
+Vector f32_div_vector(f32 self, Vector other) {
+    return Vector {
+        e0: self / other.e0,
+        e1: self / other.e1,
+    };
+}
+
+Bivector bivector_div_bivector(Bivector self, Bivector other) {
+    return Bivector {
+        e01: self.e01 / other.e01,
+    };
+}
+
+Bivector bivector_div_f32(Bivector self, f32 other) {
+    return Bivector {
+        e01: self.e01 / other,
+    };
+}
+
+Bivector f32_div_bivector(f32 self, Bivector other) {
+    return Bivector {
+        e01: self / other.e01,
+    };
+}
+
+Null null_div_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_div_f32(Null self, f32 other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null f32_div_null(f32 self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_div_oddmultivector(OddMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 / other.e0,
+        e1: self.e1 / other.e1,
+    };
+}
+
+OddMultivector oddmultivector_div_f32(OddMultivector self, f32 other) {
+    return OddMultivector {
+        e0: self.e0 / other,
+        e1: self.e1 / other,
+    };
+}
+
+OddMultivector f32_div_oddmultivector(f32 self, OddMultivector other) {
+    return OddMultivector {
+        e0: self / other.e0,
+        e1: self / other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_div_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s / other.s,
+        e01: self.e01 / other.e01,
+    };
+}
+
+EvenMultivector evenmultivector_div_f32(EvenMultivector self, f32 other) {
+    return EvenMultivector {
+        s: self.s / other,
+        e01: self.e01 / other,
+    };
+}
+
+EvenMultivector f32_div_evenmultivector(f32 self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self / other.s,
+        e01: self / other.e01,
+    };
+}
+
+Multivector multivector_div_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s / other.s,
+        e0: self.e0 / other.e0,
+        e1: self.e1 / other.e1,
+        e01: self.e01 / other.e01,
+    };
+}
+
+Multivector multivector_div_f32(Multivector self, f32 other) {
+    return Multivector {
+        s: self.s / other,
+        e0: self.e0 / other,
+        e1: self.e1 / other,
+        e01: self.e01 / other,
+    };
+}
+
+Multivector f32_div_multivector(f32 self, Multivector other) {
+    return Multivector {
+        s: self / other.s,
+        e0: self / other.e0,
+        e1: self / other.e1,
+        e01: self / other.e01,
+    };
+}
+
+void scalar_add_assign_scalar(inout Scalar self, Scalar other) {
+    self.s += other.s;
+}
+
+void scalar_add_assign_f32(inout Scalar self, f32 other) {
+    self.s += other;
+}
+
+void vector_add_assign_vector(inout Vector self, Vector other) {
+    self.e0 += other.e0;
+    self.e1 += other.e1;
+}
+
+void vector_add_assign_f32(inout Vector self, f32 other) {
+    self.e0 += other;
+    self.e1 += other;
+}
+
+void bivector_add_assign_bivector(inout Bivector self, Bivector other) {
+    self.e01 += other.e01;
+}
+
+void bivector_add_assign_f32(inout Bivector self, f32 other) {
+    self.e01 += other;
+}
+
+void null_add_assign_null(inout Null self, Null other) {
+}
+
+void null_add_assign_f32(inout Null self, f32 other) {
+}
+
+void oddmultivector_add_assign_oddmultivector(inout OddMultivector self, OddMultivector other) {
+    self.e0 += other.e0;
+    self.e1 += other.e1;
+}
+
+void oddmultivector_add_assign_f32(inout OddMultivector self, f32 other) {
+    self.e0 += other;
+    self.e1 += other;
+}
+
+void evenmultivector_add_assign_evenmultivector(inout EvenMultivector self, EvenMultivector other) {
+    self.s += other.s;
+    self.e01 += other.e01;
+}
+
+void evenmultivector_add_assign_f32(inout EvenMultivector self, f32 other) {
+    self.s += other;
+    self.e01 += other;
+}
+
+void multivector_add_assign_multivector(inout Multivector self, Multivector other) {
+    self.s += other.s;
+    self.e0 += other.e0;
+    self.e1 += other.e1;
+    self.e01 += other.e01;
+}
+
+void multivector_add_assign_f32(inout Multivector self, f32 other) {
+    self.s += other;
+    self.e0 += other;
+    self.e1 += other;
+    self.e01 += other;
+}
+
+void scalar_sub_assign_scalar(inout Scalar self, Scalar other) {
+    self.s -= other.s;
+}
+
+void scalar_sub_assign_f32(inout Scalar self, f32 other) {
+    self.s -= other;
+}
+
+void vector_sub_assign_vector(inout Vector self, Vector other) {
+    self.e0 -= other.e0;
+    self.e1 -= other.e1;
+}
+
+void vector_sub_assign_f32(inout Vector self, f32 other) {
+    self.e0 -= other;
+    self.e1 -= other;
+}
+
+void bivector_sub_assign_bivector(inout Bivector self, Bivector other) {
+    self.e01 -= other.e01;
+}
+
+void bivector_sub_assign_f32(inout Bivector self, f32 other) {
+    self.e01 -= other;
+}
+
+void null_sub_assign_null(inout Null self, Null other) {
+}
+
+void null_sub_assign_f32(inout Null self, f32 other) {
+}
+
+void oddmultivector_sub_assign_oddmultivector(inout OddMultivector self, OddMultivector other) {
+    self.e0 -= other.e0;
+    self.e1 -= other.e1;
+}
+
+void oddmultivector_sub_assign_f32(inout OddMultivector self, f32 other) {
+    self.e0 -= other;
+    self.e1 -= other;
+}
+
+void evenmultivector_sub_assign_evenmultivector(inout EvenMultivector self, EvenMultivector other) {
+    self.s -= other.s;
+    self.e01 -= other.e01;
+}
+
+void evenmultivector_sub_assign_f32(inout EvenMultivector self, f32 other) {
+    self.s -= other;
+    self.e01 -= other;
+}
+
+void multivector_sub_assign_multivector(inout Multivector self, Multivector other) {
+    self.s -= other.s;
+    self.e0 -= other.e0;
+    self.e1 -= other.e1;
+    self.e01 -= other.e01;
+}
+
+void multivector_sub_assign_f32(inout Multivector self, f32 other) {
+    self.s -= other;
+    self.e0 -= other;
+    self.e1 -= other;
+    self.e01 -= other;
+}
+
+void scalar_mul_assign_scalar(inout Scalar self, Scalar other) {
+    self.s *= other.s;
+}
+
+void scalar_mul_assign_f32(inout Scalar self, f32 other) {
+    self.s *= other;
+}
+
+void vector_mul_assign_vector(inout Vector self, Vector other) {
+    self.e0 *= other.e0;
+    self.e1 *= other.e1;
+}
+
+void vector_mul_assign_f32(inout Vector self, f32 other) {
+    self.e0 *= other;
+    self.e1 *= other;
+}
+
+void bivector_mul_assign_bivector(inout Bivector self, Bivector other) {
+    self.e01 *= other.e01;
+}
+
+void bivector_mul_assign_f32(inout Bivector self, f32 other) {
+    self.e01 *= other;
+}
+
+void null_mul_assign_null(inout Null self, Null other) {
+}
+
+void null_mul_assign_f32(inout Null self, f32 other) {
+}
+
+void oddmultivector_mul_assign_oddmultivector(inout OddMultivector self, OddMultivector other) {
+    self.e0 *= other.e0;
+    self.e1 *= other.e1;
+}
+
+void oddmultivector_mul_assign_f32(inout OddMultivector self, f32 other) {
+    self.e0 *= other;
+    self.e1 *= other;
+}
+
+void evenmultivector_mul_assign_evenmultivector(inout EvenMultivector self, EvenMultivector other) {
+    self.s *= other.s;
+    self.e01 *= other.e01;
+}
+
+void evenmultivector_mul_assign_f32(inout EvenMultivector self, f32 other) {
+    self.s *= other;
+    self.e01 *= other;
+}
+
+void multivector_mul_assign_multivector(inout Multivector self, Multivector other) {
+    self.s *= other.s;
+    self.e0 *= other.e0;
+    self.e1 *= other.e1;
+    self.e01 *= other.e01;
+}
+
+void multivector_mul_assign_f32(inout Multivector self, f32 other) {
+    self.s *= other;
+    self.e0 *= other;
+    self.e1 *= other;
+    self.e01 *= other;
+}
+
+void scalar_div_assign_scalar(inout Scalar self, Scalar other) {
+    self.s /= other.s;
+}
+
+void scalar_div_assign_f32(inout Scalar self, f32 other) {
+    self.s /= other;
+}
+
+void vector_div_assign_vector(inout Vector self, Vector other) {
+    self.e0 /= other.e0;
+    self.e1 /= other.e1;
+}
+
+void vector_div_assign_f32(inout Vector self, f32 other) {
+    self.e0 /= other;
+    self.e1 /= other;
+}
+
+void bivector_div_assign_bivector(inout Bivector self, Bivector other) {
+    self.e01 /= other.e01;
+}
+
+void bivector_div_assign_f32(inout Bivector self, f32 other) {
+    self.e01 /= other;
+}
+
+void null_div_assign_null(inout Null self, Null other) {
+}
+
+void null_div_assign_f32(inout Null self, f32 other) {
+}
+
+void oddmultivector_div_assign_oddmultivector(inout OddMultivector self, OddMultivector other) {
+    self.e0 /= other.e0;
+    self.e1 /= other.e1;
+}
+
+void oddmultivector_div_assign_f32(inout OddMultivector self, f32 other) {
+    self.e0 /= other;
+    self.e1 /= other;
+}
+
+void evenmultivector_div_assign_evenmultivector(inout EvenMultivector self, EvenMultivector other) {
+    self.s /= other.s;
+    self.e01 /= other.e01;
+}
+
+void evenmultivector_div_assign_f32(inout EvenMultivector self, f32 other) {
+    self.s /= other;
+    self.e01 /= other;
+}
+
+void multivector_div_assign_multivector(inout Multivector self, Multivector other) {
+    self.s /= other.s;
+    self.e0 /= other.e0;
+    self.e1 /= other.e1;
+    self.e01 /= other.e01;
+}
+
+void multivector_div_assign_f32(inout Multivector self, f32 other) {
+    self.s /= other;
+    self.e0 /= other;
+    self.e1 /= other;
+    self.e01 /= other;
+}
+
+Scalar scalar_zero() {
+    return Scalar {
+        s: 0.0,
+    };
+}
+
+Vector vector_zero() {
+    return Vector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Bivector bivector_zero() {
+    return Bivector {
+        e01: 0.0,
+    };
+}
+
+Null null_zero() {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_zero() {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_zero() {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_zero() {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Scalar scalar_one() {
+    return Scalar {
+        s: 1.0,
+    };
+}
+
+EvenMultivector evenmultivector_one() {
+    return EvenMultivector {
+        s: 1.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_one() {
+    return Multivector {
+        s: 1.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Scalar scalar_grade_involution(Scalar self) {
+    return Scalar {
+        s: self.s,
+    };
+}
+
+Vector vector_grade_involution(Vector self) {
+    return Vector {
+        e0: -self.e0,
+        e1: -self.e1,
+    };
+}
+
+Bivector bivector_grade_involution(Bivector self) {
+    return Bivector {
+        e01: self.e01,
+    };
+}
+
+Null null_grade_involution(Null self) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_grade_involution(OddMultivector self) {
+    return OddMultivector {
+        e0: -self.e0,
+        e1: -self.e1,
+    };
+}
+
+EvenMultivector evenmultivector_grade_involution(EvenMultivector self) {
+    return EvenMultivector {
+        s: self.s,
+        e01: self.e01,
+    };
+}
+
+Multivector multivector_grade_involution(Multivector self) {
+    return Multivector {
+        s: self.s,
+        e0: -self.e0,
+        e1: -self.e1,
+        e01: self.e01,
+    };
+}
+
+Scalar scalar_reverse(Scalar self) {
+    return Scalar {
+        s: self.s,
+    };
+}
+
+Vector vector_reverse(Vector self) {
+    return Vector {
+        e0: self.e0,
+        e1: self.e1,
+    };
+}
+
+Bivector bivector_reverse(Bivector self) {
+    return Bivector {
+        e01: -self.e01,
+    };
+}
+
+Null null_reverse(Null self) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_reverse(OddMultivector self) {
+    return OddMultivector {
+        e0: self.e0,
+        e1: self.e1,
+    };
+}
+
+EvenMultivector evenmultivector_reverse(EvenMultivector self) {
+    return EvenMultivector {
+        s: self.s,
+        e01: -self.e01,
+    };
+}
+
+Multivector multivector_reverse(Multivector self) {
+    return Multivector {
+        s: self.s,
+        e0: self.e0,
+        e1: self.e1,
+        e01: -self.e01,
+    };
+}
+
+Scalar scalar_conjugate(Scalar self) {
+    return Scalar {
+        s: self.s,
+    };
+}
+
+Vector vector_conjugate(Vector self) {
+    return Vector {
+        e0: -self.e0,
+        e1: -self.e1,
+    };
+}
+
+Bivector bivector_conjugate(Bivector self) {
+    return Bivector {
+        e01: -self.e01,
+    };
+}
+
+Null null_conjugate(Null self) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_conjugate(OddMultivector self) {
+    return OddMultivector {
+        e0: -self.e0,
+        e1: -self.e1,
+    };
+}
+
+EvenMultivector evenmultivector_conjugate(EvenMultivector self) {
+    return EvenMultivector {
+        s: self.s,
+        e01: -self.e01,
+    };
+}
+
+Multivector multivector_conjugate(Multivector self) {
+    return Multivector {
+        s: self.s,
+        e0: -self.e0,
+        e1: -self.e1,
+        e01: -self.e01,
+    };
+}
+
+Bivector scalar_dual(Scalar self) {
+    return Bivector {
+        e01: self.s,
+    };
+}
+
+Vector vector_dual(Vector self) {
+    return Vector {
+        e0: self.e1,
+        e1: -self.e0,
+    };
+}
+
+Scalar bivector_dual(Bivector self) {
+    return Scalar {
+        s: self.e01,
+    };
+}
+
+Null null_dual(Null self) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_dual(OddMultivector self) {
+    return OddMultivector {
+        e0: self.e1,
+        e1: -self.e0,
+    };
+}
+
+EvenMultivector evenmultivector_dual(EvenMultivector self) {
+    return EvenMultivector {
+        s: self.e01,
+        e01: self.s,
+    };
+}
+
+Multivector multivector_dual(Multivector self) {
+    return Multivector {
+        s: self.e01,
+        e0: self.e1,
+        e1: -self.e0,
+        e01: self.s,
+    };
+}
+
+Bivector scalar_undual(Scalar self) {
+    return Bivector {
+        e01: self.s,
+    };
+}
+
+Vector vector_undual(Vector self) {
+    return Vector {
+        e0: -self.e1,
+        e1: self.e0,
+    };
+}
+
+Scalar bivector_undual(Bivector self) {
+    return Scalar {
+        s: self.e01,
+    };
+}
+
+Null null_undual(Null self) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_undual(OddMultivector self) {
+    return OddMultivector {
+        e0: -self.e1,
+        e1: self.e0,
+    };
+}
+
+EvenMultivector evenmultivector_undual(EvenMultivector self) {
+    return EvenMultivector {
+        s: self.e01,
+        e01: self.s,
+    };
+}
+
+Multivector multivector_undual(Multivector self) {
+    return Multivector {
+        s: self.e01,
+        e0: -self.e1,
+        e1: self.e0,
+        e01: self.s,
+    };
+}
+
+f32 scalar_norm_squared(Scalar self) {
+    return self.s * self.s;
+}
+
+f32 vector_norm_squared(Vector self) {
+    return self.e0 * self.e0 + self.e1 * self.e1;
+}
+
+f32 bivector_norm_squared(Bivector self) {
+    return self.e01 * self.e01;
+}
+
+f32 null_norm_squared(Null self) {
+    return 0.0;
+}
+
+f32 oddmultivector_norm_squared(OddMultivector self) {
+    return self.e0 * self.e0 + self.e1 * self.e1;
+}
+
+f32 evenmultivector_norm_squared(EvenMultivector self) {
+    return self.s * self.s + self.e01 * self.e01;
+}
+
+f32 multivector_norm_squared(Multivector self) {
+    return self.s * self.s + self.e0 * self.e0 + self.e1 * self.e1 + self.e01 * self.e01;
+}
+
+f32 scalar_norm(Scalar self) {
+    return sqrt(abs(scalar_norm_squared(self)));
+}
+
+f32 vector_norm(Vector self) {
+    return sqrt(abs(vector_norm_squared(self)));
+}
+
+f32 bivector_norm(Bivector self) {
+    return sqrt(abs(bivector_norm_squared(self)));
+}
+
+f32 null_norm(Null self) {
+    return sqrt(abs(null_norm_squared(self)));
+}
+
+f32 oddmultivector_norm(OddMultivector self) {
+    return sqrt(abs(oddmultivector_norm_squared(self)));
+}
+
+f32 evenmultivector_norm(EvenMultivector self) {
+    return sqrt(abs(evenmultivector_norm_squared(self)));
+}
+
+f32 multivector_norm(Multivector self) {
+    return sqrt(abs(multivector_norm_squared(self)));
+}
+
+Scalar scalar_inverse(Scalar self) {
+    return scalar_div_f32(scalar_reverse(self), scalar_norm_squared(self));
+}
+
+Vector vector_inverse(Vector self) {
+    return vector_div_f32(vector_reverse(self), vector_norm_squared(self));
+}
+
+Bivector bivector_inverse(Bivector self) {
+    return bivector_div_f32(bivector_reverse(self), bivector_norm_squared(self));
+}
+
+Null null_inverse(Null self) {
+    return null_div_f32(null_reverse(self), null_norm_squared(self));
+}
+
+OddMultivector oddmultivector_inverse(OddMultivector self) {
+    return oddmultivector_div_f32(oddmultivector_reverse(self), oddmultivector_norm_squared(self));
+}
+
+EvenMultivector evenmultivector_inverse(EvenMultivector self) {
+    return evenmultivector_div_f32(evenmultivector_reverse(self), evenmultivector_norm_squared(self));
+}
+
+Multivector multivector_inverse(Multivector self) {
+    return multivector_div_f32(multivector_reverse(self), multivector_norm_squared(self));
+}
+
+Scalar scalar_normalized(Scalar self) {
+    return scalar_div_f32(self, scalar_norm(self));
+}
+
+Vector vector_normalized(Vector self) {
+    return vector_div_f32(self, vector_norm(self));
+}
+
+Bivector bivector_normalized(Bivector self) {
+    return bivector_div_f32(self, bivector_norm(self));
+}
+
+Null null_normalized(Null self) {
+    return null_div_f32(self, null_norm(self));
+}
+
+OddMultivector oddmultivector_normalized(OddMultivector self) {
+    return oddmultivector_div_f32(self, oddmultivector_norm(self));
+}
+
+EvenMultivector evenmultivector_normalized(EvenMultivector self) {
+    return evenmultivector_div_f32(self, evenmultivector_norm(self));
+}
+
+Multivector multivector_normalized(Multivector self) {
+    return multivector_div_f32(self, multivector_norm(self));
+}
+
+void scalar_normalize(inout Scalar self) {
+    scalar_div_assign_f32(self, scalar_norm(self));
+}
+
+void vector_normalize(inout Vector self) {
+    vector_div_assign_f32(self, vector_norm(self));
+}
+
+void bivector_normalize(inout Bivector self) {
+    bivector_div_assign_f32(self, bivector_norm(self));
+}
+
+void null_normalize(inout Null self) {
+    null_div_assign_f32(self, null_norm(self));
+}
+
+void oddmultivector_normalize(inout OddMultivector self) {
+    oddmultivector_div_assign_f32(self, oddmultivector_norm(self));
+}
+
+void evenmultivector_normalize(inout EvenMultivector self) {
+    evenmultivector_div_assign_f32(self, evenmultivector_norm(self));
+}
+
+void multivector_normalize(inout Multivector self) {
+    multivector_div_assign_f32(self, multivector_norm(self));
+}
+
+EvenMultivector scalar_geometric_product_scalar(Scalar self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: 0.0,
+    };
+}
+
+OddMultivector scalar_geometric_product_vector(Scalar self, Vector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector scalar_geometric_product_bivector(Scalar self, Bivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.s * other.e01,
+    };
+}
+
+Null scalar_geometric_product_null(Scalar self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector scalar_geometric_product_oddmultivector(Scalar self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector scalar_geometric_product_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.s * other.e01,
+    };
+}
+
+Multivector scalar_geometric_product_multivector(Scalar self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.s * other.e01,
+    };
+}
+
+OddMultivector vector_geometric_product_scalar(Vector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+EvenMultivector vector_geometric_product_vector(Vector self, Vector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector vector_geometric_product_bivector(Vector self, Bivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Null vector_geometric_product_null(Vector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector vector_geometric_product_oddmultivector(Vector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector vector_geometric_product_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+    };
+}
+
+Multivector vector_geometric_product_multivector(Vector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+EvenMultivector bivector_geometric_product_scalar(Bivector self, Scalar other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e01 * other.s,
+    };
+}
+
+OddMultivector bivector_geometric_product_vector(Bivector self, Vector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector bivector_geometric_product_bivector(Bivector self, Bivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Null bivector_geometric_product_null(Bivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector bivector_geometric_product_oddmultivector(Bivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector bivector_geometric_product_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector bivector_geometric_product_multivector(Bivector self, Multivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: self.e01 * other.s,
+    };
+}
+
+Null null_geometric_product_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_geometric_product_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_geometric_product_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_geometric_product_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_geometric_product_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_geometric_product_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_geometric_product_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_geometric_product_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+EvenMultivector oddmultivector_geometric_product_vector(OddMultivector self, Vector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector oddmultivector_geometric_product_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Null oddmultivector_geometric_product_null(OddMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_geometric_product_oddmultivector(OddMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector oddmultivector_geometric_product_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+    };
+}
+
+Multivector oddmultivector_geometric_product_multivector(OddMultivector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_geometric_product_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+OddMultivector evenmultivector_geometric_product_vector(EvenMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_geometric_product_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Null evenmultivector_geometric_product_null(EvenMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_geometric_product_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_geometric_product_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector evenmultivector_geometric_product_multivector(EvenMultivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector multivector_geometric_product_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector multivector_geometric_product_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+Multivector multivector_geometric_product_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Null multivector_geometric_product_null(Multivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Multivector multivector_geometric_product_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+Multivector multivector_geometric_product_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector multivector_geometric_product_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01,
+        e0: self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e01 * other.e1,
+        e1: self.s * other.e1 + self.e0 * other.e01 + self.e1 * other.s - self.e01 * other.e0,
+        e01: self.s * other.e01 + self.e0 * other.e1 - self.e1 * other.e0 + self.e01 * other.s,
+    };
+}
+
+f32 scalar_scalar_product_scalar(Scalar self, Scalar other) {
+    return self.s * other.s;
+}
+
+f32 scalar_scalar_product_vector(Scalar self, Vector other) {
+    return 0.0;
+}
+
+f32 scalar_scalar_product_bivector(Scalar self, Bivector other) {
+    return 0.0;
+}
+
+f32 scalar_scalar_product_null(Scalar self, Null other) {
+    return 0.0;
+}
+
+f32 scalar_scalar_product_oddmultivector(Scalar self, OddMultivector other) {
+    return 0.0;
+}
+
+f32 scalar_scalar_product_evenmultivector(Scalar self, EvenMultivector other) {
+    return self.s * other.s;
+}
+
+f32 scalar_scalar_product_multivector(Scalar self, Multivector other) {
+    return self.s * other.s;
+}
+
+f32 vector_scalar_product_scalar(Vector self, Scalar other) {
+    return 0.0;
+}
+
+f32 vector_scalar_product_vector(Vector self, Vector other) {
+    return self.e0 * other.e0 + self.e1 * other.e1;
+}
+
+f32 vector_scalar_product_bivector(Vector self, Bivector other) {
+    return 0.0;
+}
+
+f32 vector_scalar_product_null(Vector self, Null other) {
+    return 0.0;
+}
+
+f32 vector_scalar_product_oddmultivector(Vector self, OddMultivector other) {
+    return self.e0 * other.e0 + self.e1 * other.e1;
+}
+
+f32 vector_scalar_product_evenmultivector(Vector self, EvenMultivector other) {
+    return 0.0;
+}
+
+f32 vector_scalar_product_multivector(Vector self, Multivector other) {
+    return self.e0 * other.e0 + self.e1 * other.e1;
+}
+
+f32 bivector_scalar_product_scalar(Bivector self, Scalar other) {
+    return 0.0;
+}
+
+f32 bivector_scalar_product_vector(Bivector self, Vector other) {
+    return 0.0;
+}
+
+f32 bivector_scalar_product_bivector(Bivector self, Bivector other) {
+    return -self.e01 * other.e01;
+}
+
+f32 bivector_scalar_product_null(Bivector self, Null other) {
+    return 0.0;
+}
+
+f32 bivector_scalar_product_oddmultivector(Bivector self, OddMultivector other) {
+    return 0.0;
+}
+
+f32 bivector_scalar_product_evenmultivector(Bivector self, EvenMultivector other) {
+    return -self.e01 * other.e01;
+}
+
+f32 bivector_scalar_product_multivector(Bivector self, Multivector other) {
+    return -self.e01 * other.e01;
+}
+
+f32 null_scalar_product_scalar(Null self, Scalar other) {
+    return 0.0;
+}
+
+f32 null_scalar_product_vector(Null self, Vector other) {
+    return 0.0;
+}
+
+f32 null_scalar_product_bivector(Null self, Bivector other) {
+    return 0.0;
+}
+
+f32 null_scalar_product_null(Null self, Null other) {
+    return 0.0;
+}
+
+f32 null_scalar_product_oddmultivector(Null self, OddMultivector other) {
+    return 0.0;
+}
+
+f32 null_scalar_product_evenmultivector(Null self, EvenMultivector other) {
+    return 0.0;
+}
+
+f32 null_scalar_product_multivector(Null self, Multivector other) {
+    return 0.0;
+}
+
+f32 oddmultivector_scalar_product_scalar(OddMultivector self, Scalar other) {
+    return 0.0;
+}
+
+f32 oddmultivector_scalar_product_vector(OddMultivector self, Vector other) {
+    return self.e0 * other.e0 + self.e1 * other.e1;
+}
+
+f32 oddmultivector_scalar_product_bivector(OddMultivector self, Bivector other) {
+    return 0.0;
+}
+
+f32 oddmultivector_scalar_product_null(OddMultivector self, Null other) {
+    return 0.0;
+}
+
+f32 oddmultivector_scalar_product_oddmultivector(OddMultivector self, OddMultivector other) {
+    return self.e0 * other.e0 + self.e1 * other.e1;
+}
+
+f32 oddmultivector_scalar_product_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return 0.0;
+}
+
+f32 oddmultivector_scalar_product_multivector(OddMultivector self, Multivector other) {
+    return self.e0 * other.e0 + self.e1 * other.e1;
+}
+
+f32 evenmultivector_scalar_product_scalar(EvenMultivector self, Scalar other) {
+    return self.s * other.s;
+}
+
+f32 evenmultivector_scalar_product_vector(EvenMultivector self, Vector other) {
+    return 0.0;
+}
+
+f32 evenmultivector_scalar_product_bivector(EvenMultivector self, Bivector other) {
+    return -self.e01 * other.e01;
+}
+
+f32 evenmultivector_scalar_product_null(EvenMultivector self, Null other) {
+    return 0.0;
+}
+
+f32 evenmultivector_scalar_product_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return 0.0;
+}
+
+f32 evenmultivector_scalar_product_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return self.s * other.s - self.e01 * other.e01;
+}
+
+f32 evenmultivector_scalar_product_multivector(EvenMultivector self, Multivector other) {
+    return self.s * other.s - self.e01 * other.e01;
+}
+
+f32 multivector_scalar_product_scalar(Multivector self, Scalar other) {
+    return self.s * other.s;
+}
+
+f32 multivector_scalar_product_vector(Multivector self, Vector other) {
+    return self.e0 * other.e0 + self.e1 * other.e1;
+}
+
+f32 multivector_scalar_product_bivector(Multivector self, Bivector other) {
+    return -self.e01 * other.e01;
+}
+
+f32 multivector_scalar_product_null(Multivector self, Null other) {
+    return 0.0;
+}
+
+f32 multivector_scalar_product_oddmultivector(Multivector self, OddMultivector other) {
+    return self.e0 * other.e0 + self.e1 * other.e1;
+}
+
+f32 multivector_scalar_product_evenmultivector(Multivector self, EvenMultivector other) {
+    return self.s * other.s - self.e01 * other.e01;
+}
+
+f32 multivector_scalar_product_multivector(Multivector self, Multivector other) {
+    return self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01;
+}
+
+Scalar scalar_left_inner_product_scalar(Scalar self, Scalar other) {
+    return Scalar {
+        s: self.s * other.s,
+    };
+}
+
+Vector scalar_left_inner_product_vector(Scalar self, Vector other) {
+    return Vector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+Bivector scalar_left_inner_product_bivector(Scalar self, Bivector other) {
+    return Bivector {
+        e01: self.s * other.e01,
+    };
+}
+
+Null scalar_left_inner_product_null(Scalar self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector scalar_left_inner_product_oddmultivector(Scalar self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector scalar_left_inner_product_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.s * other.e01,
+    };
+}
+
+Multivector scalar_left_inner_product_multivector(Scalar self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.s * other.e01,
+    };
+}
+
+Null vector_left_inner_product_scalar(Vector self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Scalar vector_left_inner_product_vector(Vector self, Vector other) {
+    return Scalar {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+    };
+}
+
+Vector vector_left_inner_product_bivector(Vector self, Bivector other) {
+    return Vector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Null vector_left_inner_product_null(Vector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector vector_left_inner_product_oddmultivector(Vector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector vector_left_inner_product_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Multivector vector_left_inner_product_multivector(Vector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Null bivector_left_inner_product_scalar(Bivector self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null bivector_left_inner_product_vector(Bivector self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Scalar bivector_left_inner_product_bivector(Bivector self, Bivector other) {
+    return Scalar {
+        s: -self.e01 * other.e01,
+    };
+}
+
+Null bivector_left_inner_product_null(Bivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector bivector_left_inner_product_oddmultivector(Bivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector bivector_left_inner_product_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Multivector bivector_left_inner_product_multivector(Bivector self, Multivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Null null_left_inner_product_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_left_inner_product_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_left_inner_product_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_left_inner_product_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_left_inner_product_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_left_inner_product_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_left_inner_product_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_left_inner_product_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_left_inner_product_vector(OddMultivector self, Vector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_left_inner_product_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Null oddmultivector_left_inner_product_null(OddMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_left_inner_product_oddmultivector(OddMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_left_inner_product_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Multivector oddmultivector_left_inner_product_multivector(OddMultivector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_left_inner_product_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_left_inner_product_vector(EvenMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_left_inner_product_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Null evenmultivector_left_inner_product_null(EvenMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_left_inner_product_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_left_inner_product_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Multivector evenmultivector_left_inner_product_multivector(EvenMultivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.s * other.e01,
+    };
+}
+
+Multivector multivector_left_inner_product_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_left_inner_product_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_left_inner_product_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Null multivector_left_inner_product_null(Multivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Multivector multivector_left_inner_product_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_left_inner_product_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Multivector multivector_left_inner_product_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01,
+        e0: self.s * other.e0 - self.e1 * other.e01,
+        e1: self.s * other.e1 + self.e0 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Scalar scalar_right_inner_product_scalar(Scalar self, Scalar other) {
+    return Scalar {
+        s: self.s * other.s,
+    };
+}
+
+Null scalar_right_inner_product_vector(Scalar self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null scalar_right_inner_product_bivector(Scalar self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null scalar_right_inner_product_null(Scalar self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector scalar_right_inner_product_oddmultivector(Scalar self, OddMultivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector scalar_right_inner_product_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: 0.0,
+    };
+}
+
+Multivector scalar_right_inner_product_multivector(Scalar self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Vector vector_right_inner_product_scalar(Vector self, Scalar other) {
+    return Vector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+Scalar vector_right_inner_product_vector(Vector self, Vector other) {
+    return Scalar {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+    };
+}
+
+Null vector_right_inner_product_bivector(Vector self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null vector_right_inner_product_null(Vector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector vector_right_inner_product_oddmultivector(Vector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector vector_right_inner_product_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+Multivector vector_right_inner_product_multivector(Vector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: 0.0,
+    };
+}
+
+Bivector bivector_right_inner_product_scalar(Bivector self, Scalar other) {
+    return Bivector {
+        e01: self.e01 * other.s,
+    };
+}
+
+Vector bivector_right_inner_product_vector(Bivector self, Vector other) {
+    return Vector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+Scalar bivector_right_inner_product_bivector(Bivector self, Bivector other) {
+    return Scalar {
+        s: -self.e01 * other.e01,
+    };
+}
+
+Null bivector_right_inner_product_null(Bivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector bivector_right_inner_product_oddmultivector(Bivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector bivector_right_inner_product_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector bivector_right_inner_product_multivector(Bivector self, Multivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: self.e01 * other.s,
+    };
+}
+
+Null null_right_inner_product_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_right_inner_product_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_right_inner_product_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_right_inner_product_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_right_inner_product_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_right_inner_product_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_right_inner_product_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_right_inner_product_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+EvenMultivector oddmultivector_right_inner_product_vector(OddMultivector self, Vector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_right_inner_product_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Null oddmultivector_right_inner_product_null(OddMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_right_inner_product_oddmultivector(OddMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_right_inner_product_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+Multivector oddmultivector_right_inner_product_multivector(OddMultivector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_right_inner_product_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+OddMultivector evenmultivector_right_inner_product_vector(EvenMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_right_inner_product_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Null evenmultivector_right_inner_product_null(EvenMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_right_inner_product_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_right_inner_product_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector evenmultivector_right_inner_product_multivector(EvenMultivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector multivector_right_inner_product_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector multivector_right_inner_product_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_right_inner_product_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Null multivector_right_inner_product_null(Multivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Multivector multivector_right_inner_product_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_right_inner_product_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector multivector_right_inner_product_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01,
+        e0: self.e0 * other.s + self.e01 * other.e1,
+        e1: self.e1 * other.s - self.e01 * other.e0,
+        e01: self.e01 * other.s,
+    };
+}
+
+Scalar scalar_inner_product_scalar(Scalar self, Scalar other) {
+    return Scalar {
+        s: self.s * other.s,
+    };
+}
+
+Vector scalar_inner_product_vector(Scalar self, Vector other) {
+    return Vector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+Bivector scalar_inner_product_bivector(Scalar self, Bivector other) {
+    return Bivector {
+        e01: self.s * other.e01,
+    };
+}
+
+Null scalar_inner_product_null(Scalar self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector scalar_inner_product_oddmultivector(Scalar self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector scalar_inner_product_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.s * other.e01,
+    };
+}
+
+Multivector scalar_inner_product_multivector(Scalar self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.s * other.e01,
+    };
+}
+
+Vector vector_inner_product_scalar(Vector self, Scalar other) {
+    return Vector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+Scalar vector_inner_product_vector(Vector self, Vector other) {
+    return Scalar {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+    };
+}
+
+Vector vector_inner_product_bivector(Vector self, Bivector other) {
+    return Vector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Null vector_inner_product_null(Vector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector vector_inner_product_oddmultivector(Vector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector vector_inner_product_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+    };
+}
+
+Multivector vector_inner_product_multivector(Vector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+        e01: 0.0,
+    };
+}
+
+Bivector bivector_inner_product_scalar(Bivector self, Scalar other) {
+    return Bivector {
+        e01: self.e01 * other.s,
+    };
+}
+
+Vector bivector_inner_product_vector(Bivector self, Vector other) {
+    return Vector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+Scalar bivector_inner_product_bivector(Bivector self, Bivector other) {
+    return Scalar {
+        s: -self.e01 * other.e01,
+    };
+}
+
+Null bivector_inner_product_null(Bivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector bivector_inner_product_oddmultivector(Bivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector bivector_inner_product_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector bivector_inner_product_multivector(Bivector self, Multivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: self.e01 * other.s,
+    };
+}
+
+Null null_inner_product_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_inner_product_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_inner_product_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_inner_product_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_inner_product_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_inner_product_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_inner_product_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_inner_product_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+EvenMultivector oddmultivector_inner_product_vector(OddMultivector self, Vector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_inner_product_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Null oddmultivector_inner_product_null(OddMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_inner_product_oddmultivector(OddMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_inner_product_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+    };
+}
+
+Multivector oddmultivector_inner_product_multivector(OddMultivector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_inner_product_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+OddMultivector evenmultivector_inner_product_vector(EvenMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_inner_product_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Null evenmultivector_inner_product_null(EvenMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_inner_product_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_inner_product_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector evenmultivector_inner_product_multivector(EvenMultivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector multivector_inner_product_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector multivector_inner_product_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_inner_product_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Null multivector_inner_product_null(Multivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Multivector multivector_inner_product_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.s * other.e0 + self.e01 * other.e1,
+        e1: self.s * other.e1 - self.e01 * other.e0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_inner_product_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: self.e0 * other.s - self.e1 * other.e01,
+        e1: self.e0 * other.e01 + self.e1 * other.s,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector multivector_inner_product_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01,
+        e0: self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e01 * other.e1,
+        e1: self.s * other.e1 + self.e0 * other.e01 + self.e1 * other.s - self.e01 * other.e0,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Scalar scalar_outer_product_scalar(Scalar self, Scalar other) {
+    return Scalar {
+        s: self.s * other.s,
+    };
+}
+
+Vector scalar_outer_product_vector(Scalar self, Vector other) {
+    return Vector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+Bivector scalar_outer_product_bivector(Scalar self, Bivector other) {
+    return Bivector {
+        e01: self.s * other.e01,
+    };
+}
+
+Null scalar_outer_product_null(Scalar self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector scalar_outer_product_oddmultivector(Scalar self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector scalar_outer_product_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.s * other.e01,
+    };
+}
+
+Multivector scalar_outer_product_multivector(Scalar self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.s * other.e01,
+    };
+}
+
+Vector vector_outer_product_scalar(Vector self, Scalar other) {
+    return Vector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+Bivector vector_outer_product_vector(Vector self, Vector other) {
+    return Bivector {
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+Null vector_outer_product_bivector(Vector self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null vector_outer_product_null(Vector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector vector_outer_product_oddmultivector(Vector self, OddMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector vector_outer_product_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+Multivector vector_outer_product_multivector(Vector self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+Bivector bivector_outer_product_scalar(Bivector self, Scalar other) {
+    return Bivector {
+        e01: self.e01 * other.s,
+    };
+}
+
+Null bivector_outer_product_vector(Bivector self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null bivector_outer_product_bivector(Bivector self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null bivector_outer_product_null(Bivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector bivector_outer_product_oddmultivector(Bivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector bivector_outer_product_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector bivector_outer_product_multivector(Bivector self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: self.e01 * other.s,
+    };
+}
+
+Null null_outer_product_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_outer_product_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_outer_product_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_outer_product_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_outer_product_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_outer_product_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_outer_product_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_outer_product_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+EvenMultivector oddmultivector_outer_product_vector(OddMultivector self, Vector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector oddmultivector_outer_product_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Null oddmultivector_outer_product_null(OddMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_outer_product_oddmultivector(OddMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector oddmultivector_outer_product_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+Multivector oddmultivector_outer_product_multivector(OddMultivector self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_outer_product_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+OddMultivector evenmultivector_outer_product_vector(EvenMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_outer_product_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.s * other.e01,
+    };
+}
+
+Null evenmultivector_outer_product_null(EvenMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_outer_product_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_outer_product_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector evenmultivector_outer_product_multivector(EvenMultivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector multivector_outer_product_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector multivector_outer_product_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: 0.0,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+Multivector multivector_outer_product_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: self.s * other.e01,
+    };
+}
+
+Null multivector_outer_product_null(Multivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Multivector multivector_outer_product_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+Multivector multivector_outer_product_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector multivector_outer_product_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.s * other.e0 + self.e0 * other.s,
+        e1: self.s * other.e1 + self.e1 * other.s,
+        e01: self.s * other.e01 + self.e0 * other.e1 - self.e1 * other.e0 + self.e01 * other.s,
+    };
+}
+
+Null scalar_regressive_product_scalar(Scalar self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null scalar_regressive_product_vector(Scalar self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Scalar scalar_regressive_product_bivector(Scalar self, Bivector other) {
+    return Scalar {
+        s: self.s * other.e01,
+    };
+}
+
+Null scalar_regressive_product_null(Scalar self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector scalar_regressive_product_oddmultivector(Scalar self, OddMultivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector scalar_regressive_product_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.e01,
+        e01: 0.0,
+    };
+}
+
+Multivector scalar_regressive_product_multivector(Scalar self, Multivector other) {
+    return Multivector {
+        s: self.s * other.e01,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Null vector_regressive_product_scalar(Vector self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Scalar vector_regressive_product_vector(Vector self, Vector other) {
+    return Scalar {
+        s: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+Vector vector_regressive_product_bivector(Vector self, Bivector other) {
+    return Vector {
+        e0: self.e0 * other.e01,
+        e1: self.e1 * other.e01,
+    };
+}
+
+Null vector_regressive_product_null(Vector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector vector_regressive_product_oddmultivector(Vector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e1 - self.e1 * other.e0,
+        e01: 0.0,
+    };
+}
+
+OddMultivector vector_regressive_product_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e01,
+        e1: self.e1 * other.e01,
+    };
+}
+
+Multivector vector_regressive_product_multivector(Vector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e1 - self.e1 * other.e0,
+        e0: self.e0 * other.e01,
+        e1: self.e1 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Scalar bivector_regressive_product_scalar(Bivector self, Scalar other) {
+    return Scalar {
+        s: self.e01 * other.s,
+    };
+}
+
+Vector bivector_regressive_product_vector(Bivector self, Vector other) {
+    return Vector {
+        e0: self.e01 * other.e0,
+        e1: self.e01 * other.e1,
+    };
+}
+
+Bivector bivector_regressive_product_bivector(Bivector self, Bivector other) {
+    return Bivector {
+        e01: self.e01 * other.e01,
+    };
+}
+
+Null bivector_regressive_product_null(Bivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector bivector_regressive_product_oddmultivector(Bivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e0,
+        e1: self.e01 * other.e1,
+    };
+}
+
+EvenMultivector bivector_regressive_product_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.e01 * other.s,
+        e01: self.e01 * other.e01,
+    };
+}
+
+Multivector bivector_regressive_product_multivector(Bivector self, Multivector other) {
+    return Multivector {
+        s: self.e01 * other.s,
+        e0: self.e01 * other.e0,
+        e1: self.e01 * other.e1,
+        e01: self.e01 * other.e01,
+    };
+}
+
+Null null_regressive_product_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_regressive_product_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_regressive_product_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_regressive_product_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_regressive_product_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_regressive_product_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_regressive_product_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_regressive_product_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_regressive_product_vector(OddMultivector self, Vector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e1 - self.e1 * other.e0,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_regressive_product_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e01,
+        e1: self.e1 * other.e01,
+    };
+}
+
+Null oddmultivector_regressive_product_null(OddMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_regressive_product_oddmultivector(OddMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e1 - self.e1 * other.e0,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_regressive_product_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e01,
+        e1: self.e1 * other.e01,
+    };
+}
+
+Multivector oddmultivector_regressive_product_multivector(OddMultivector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e1 - self.e1 * other.e0,
+        e0: self.e0 * other.e01,
+        e1: self.e1 * other.e01,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_regressive_product_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.e01 * other.s,
+        e01: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_regressive_product_vector(EvenMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e0,
+        e1: self.e01 * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_regressive_product_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: self.s * other.e01,
+        e01: self.e01 * other.e01,
+    };
+}
+
+Null evenmultivector_regressive_product_null(EvenMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_regressive_product_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e0,
+        e1: self.e01 * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_regressive_product_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.e01 + self.e01 * other.s,
+        e01: self.e01 * other.e01,
+    };
+}
+
+Multivector evenmultivector_regressive_product_multivector(EvenMultivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.e01 + self.e01 * other.s,
+        e0: self.e01 * other.e0,
+        e1: self.e01 * other.e1,
+        e01: self.e01 * other.e01,
+    };
+}
+
+Multivector multivector_regressive_product_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.e01 * other.s,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_regressive_product_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: self.e0 * other.e1 - self.e1 * other.e0,
+        e0: self.e01 * other.e0,
+        e1: self.e01 * other.e1,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_regressive_product_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: self.s * other.e01,
+        e0: self.e0 * other.e01,
+        e1: self.e1 * other.e01,
+        e01: self.e01 * other.e01,
+    };
+}
+
+Null multivector_regressive_product_null(Multivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Multivector multivector_regressive_product_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: self.e0 * other.e1 - self.e1 * other.e0,
+        e0: self.e01 * other.e0,
+        e1: self.e01 * other.e1,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_regressive_product_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.e01 + self.e01 * other.s,
+        e0: self.e0 * other.e01,
+        e1: self.e1 * other.e01,
+        e01: self.e01 * other.e01,
+    };
+}
+
+Multivector multivector_regressive_product_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.e01 + self.e0 * other.e1 - self.e1 * other.e0 + self.e01 * other.s,
+        e0: self.e0 * other.e01 + self.e01 * other.e0,
+        e1: self.e1 * other.e01 + self.e01 * other.e1,
+        e01: self.e01 * other.e01,
+    };
+}
+
+EvenMultivector scalar_commutator_scalar(Scalar self, Scalar other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+OddMultivector scalar_commutator_vector(Scalar self, Vector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector scalar_commutator_bivector(Scalar self, Bivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Null scalar_commutator_null(Scalar self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector scalar_commutator_oddmultivector(Scalar self, OddMultivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector scalar_commutator_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector scalar_commutator_multivector(Scalar self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+OddMultivector vector_commutator_scalar(Vector self, Scalar other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector vector_commutator_vector(Vector self, Vector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector vector_commutator_bivector(Vector self, Bivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Null vector_commutator_null(Vector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector vector_commutator_oddmultivector(Vector self, OddMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector vector_commutator_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Multivector vector_commutator_multivector(Vector self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+EvenMultivector bivector_commutator_scalar(Bivector self, Scalar other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+OddMultivector bivector_commutator_vector(Bivector self, Vector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector bivector_commutator_bivector(Bivector self, Bivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Null bivector_commutator_null(Bivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector bivector_commutator_oddmultivector(Bivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector bivector_commutator_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector bivector_commutator_multivector(Bivector self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: 0.0,
+    };
+}
+
+Null null_commutator_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_commutator_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_commutator_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_commutator_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_commutator_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_commutator_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_commutator_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_commutator_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_commutator_vector(OddMultivector self, Vector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector oddmultivector_commutator_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Null oddmultivector_commutator_null(OddMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_commutator_oddmultivector(OddMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+OddMultivector oddmultivector_commutator_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+    };
+}
+
+Multivector oddmultivector_commutator_multivector(OddMultivector self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_commutator_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_commutator_vector(EvenMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_commutator_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Null evenmultivector_commutator_null(EvenMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_commutator_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_commutator_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector evenmultivector_commutator_multivector(EvenMultivector self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_commutator_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_commutator_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: 0.0,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+Multivector multivector_commutator_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Null multivector_commutator_null(Multivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Multivector multivector_commutator_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: self.e01 * other.e1,
+        e1: -self.e01 * other.e0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+Multivector multivector_commutator_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: -self.e1 * other.e01,
+        e1: self.e0 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_commutator_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: -self.e1 * other.e01 + self.e01 * other.e1,
+        e1: self.e0 * other.e01 - self.e01 * other.e0,
+        e01: self.e0 * other.e1 - self.e1 * other.e0,
+    };
+}
+
+EvenMultivector scalar_anticommutator_scalar(Scalar self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: 0.0,
+    };
+}
+
+OddMultivector scalar_anticommutator_vector(Scalar self, Vector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector scalar_anticommutator_bivector(Scalar self, Bivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.s * other.e01,
+    };
+}
+
+Null scalar_anticommutator_null(Scalar self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector scalar_anticommutator_oddmultivector(Scalar self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector scalar_anticommutator_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.s * other.e01,
+    };
+}
+
+Multivector scalar_anticommutator_multivector(Scalar self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.s * other.e01,
+    };
+}
+
+OddMultivector vector_anticommutator_scalar(Vector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+EvenMultivector vector_anticommutator_vector(Vector self, Vector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector vector_anticommutator_bivector(Vector self, Bivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Null vector_anticommutator_null(Vector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector vector_anticommutator_oddmultivector(Vector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector vector_anticommutator_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+Multivector vector_anticommutator_multivector(Vector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector bivector_anticommutator_scalar(Bivector self, Scalar other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e01 * other.s,
+    };
+}
+
+OddMultivector bivector_anticommutator_vector(Bivector self, Vector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector bivector_anticommutator_bivector(Bivector self, Bivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Null bivector_anticommutator_null(Bivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector bivector_anticommutator_oddmultivector(Bivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+EvenMultivector bivector_anticommutator_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector bivector_anticommutator_multivector(Bivector self, Multivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: 0.0,
+        e1: 0.0,
+        e01: self.e01 * other.s,
+    };
+}
+
+Null null_anticommutator_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_anticommutator_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_anticommutator_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_anticommutator_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_anticommutator_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_anticommutator_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_anticommutator_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_anticommutator_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+EvenMultivector oddmultivector_anticommutator_vector(OddMultivector self, Vector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_anticommutator_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+Null oddmultivector_anticommutator_null(OddMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector oddmultivector_anticommutator_oddmultivector(OddMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_anticommutator_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+    };
+}
+
+Multivector oddmultivector_anticommutator_multivector(OddMultivector self, Multivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_anticommutator_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+OddMultivector evenmultivector_anticommutator_vector(EvenMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_anticommutator_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.e01,
+        e01: self.s * other.e01,
+    };
+}
+
+Null evenmultivector_anticommutator_null(EvenMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector evenmultivector_anticommutator_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_anticommutator_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector evenmultivector_anticommutator_multivector(EvenMultivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector multivector_anticommutator_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.s * other.s,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.e01 * other.s,
+    };
+}
+
+Multivector multivector_anticommutator_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_anticommutator_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: -self.e01 * other.e01,
+        e0: 0.0,
+        e1: 0.0,
+        e01: self.s * other.e01,
+    };
+}
+
+Null multivector_anticommutator_null(Multivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Multivector multivector_anticommutator_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: self.e0 * other.e0 + self.e1 * other.e1,
+        e0: self.s * other.e0,
+        e1: self.s * other.e1,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_anticommutator_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.s - self.e01 * other.e01,
+        e0: self.e0 * other.s,
+        e1: self.e1 * other.s,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+Multivector multivector_anticommutator_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01,
+        e0: self.s * other.e0 + self.e0 * other.s,
+        e1: self.s * other.e1 + self.e1 * other.s,
+        e01: self.s * other.e01 + self.e01 * other.s,
+    };
+}
+
+EvenMultivector scalar_transform_scalar(Scalar self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector scalar_transform_vector(Scalar self, Vector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector scalar_transform_bivector(Scalar self, Bivector other) {
+    return EvenMultivector {
+        s: self.s * other.e01 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Null scalar_transform_null(Scalar self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector scalar_transform_oddmultivector(Scalar self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector scalar_transform_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+        e01: 0.0,
+    };
+}
+
+Multivector scalar_transform_multivector(Scalar self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01,
+        e0: 2.0 * self.s * other.s * other.e0 + 2.0 * self.s * other.e1 * other.e01,
+        e1: 2.0 * self.s * other.s * other.e1 - 2.0 * self.s * other.e0 * other.e01,
+        e01: 0.0,
+    };
+}
+
+OddMultivector vector_transform_scalar(Vector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s * other.s,
+        e1: self.e1 * other.s * other.s,
+    };
+}
+
+OddMultivector vector_transform_vector(Vector self, Vector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
+        e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+    };
+}
+
+OddMultivector vector_transform_bivector(Vector self, Bivector other) {
+    return OddMultivector {
+        e0: -self.e0 * other.e01 * other.e01,
+        e1: -self.e1 * other.e01 * other.e01,
+    };
+}
+
+Null vector_transform_null(Vector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector vector_transform_oddmultivector(Vector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
+        e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+    };
+}
+
+OddMultivector vector_transform_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s * other.s - self.e0 * other.e01 * other.e01 + 2.0 * self.e1 * other.s * other.e01,
+        e1: -2.0 * self.e0 * other.s * other.e01 + self.e1 * other.s * other.s - self.e1 * other.e01 * other.e01,
+    };
+}
+
+Multivector vector_transform_multivector(Vector self, Multivector other) {
+    return Multivector {
+        s: 2.0 * self.e0 * other.s * other.e0 - 2.0 * self.e0 * other.e1 * other.e01 + 2.0 * self.e1 * other.s * other.e1 + 2.0 * self.e1 * other.e0 * other.e01,
+        e0: self.e0 * other.s * other.s + self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e01 * other.e01 + 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1,
+        e1: -2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector bivector_transform_scalar(Bivector self, Scalar other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e01 * other.s * other.s,
+    };
+}
+
+EvenMultivector bivector_transform_vector(Bivector self, Vector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: -self.e01 * other.e0 * other.e0 - self.e01 * other.e1 * other.e1,
+    };
+}
+
+EvenMultivector bivector_transform_bivector(Bivector self, Bivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e01 * other.e01 * other.e01,
+    };
+}
+
+Null bivector_transform_null(Bivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector bivector_transform_oddmultivector(Bivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: -self.e01 * other.e0 * other.e0 - self.e01 * other.e1 * other.e1,
+    };
+}
+
+EvenMultivector bivector_transform_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: self.e01 * other.s * other.s + self.e01 * other.e01 * other.e01,
+    };
+}
+
+Multivector bivector_transform_multivector(Bivector self, Multivector other) {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: self.e01 * other.s * other.s - self.e01 * other.e0 * other.e0 - self.e01 * other.e1 * other.e1 + self.e01 * other.e01 * other.e01,
+    };
+}
+
+Null null_transform_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_transform_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_transform_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_transform_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_transform_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_transform_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_transform_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_transform_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s * other.s,
+        e1: self.e1 * other.s * other.s,
+    };
+}
+
+OddMultivector oddmultivector_transform_vector(OddMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
+        e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+    };
+}
+
+OddMultivector oddmultivector_transform_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: -self.e0 * other.e01 * other.e01,
+        e1: -self.e1 * other.e01 * other.e01,
+    };
+}
+
+Null oddmultivector_transform_null(OddMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_transform_oddmultivector(OddMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
+        e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+    };
+}
+
+OddMultivector oddmultivector_transform_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s * other.s - self.e0 * other.e01 * other.e01 + 2.0 * self.e1 * other.s * other.e01,
+        e1: -2.0 * self.e0 * other.s * other.e01 + self.e1 * other.s * other.s - self.e1 * other.e01 * other.e01,
+    };
+}
+
+Multivector oddmultivector_transform_multivector(OddMultivector self, Multivector other) {
+    return Multivector {
+        s: 2.0 * self.e0 * other.s * other.e0 - 2.0 * self.e0 * other.e1 * other.e01 + 2.0 * self.e1 * other.s * other.e1 + 2.0 * self.e1 * other.e0 * other.e01,
+        e0: self.e0 * other.s * other.s + self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e01 * other.e01 + 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1,
+        e1: -2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_transform_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s,
+        e01: self.e01 * other.s * other.s,
+    };
+}
+
+EvenMultivector evenmultivector_transform_vector(EvenMultivector self, Vector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: -self.e01 * other.e0 * other.e0 - self.e01 * other.e1 * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_transform_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: self.s * other.e01 * other.e01,
+        e01: self.e01 * other.e01 * other.e01,
+    };
+}
+
+Null evenmultivector_transform_null(EvenMultivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_transform_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: -self.e01 * other.e0 * other.e0 - self.e01 * other.e1 * other.e1,
+    };
+}
+
+EvenMultivector evenmultivector_transform_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+        e01: self.e01 * other.s * other.s + self.e01 * other.e01 * other.e01,
+    };
+}
+
+Multivector evenmultivector_transform_multivector(EvenMultivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01,
+        e0: 2.0 * self.s * other.s * other.e0 + 2.0 * self.s * other.e1 * other.e01,
+        e1: 2.0 * self.s * other.s * other.e1 - 2.0 * self.s * other.e0 * other.e01,
+        e01: self.e01 * other.s * other.s - self.e01 * other.e0 * other.e0 - self.e01 * other.e1 * other.e1 + self.e01 * other.e01 * other.e01,
+    };
+}
+
+Multivector multivector_transform_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.s * other.s * other.s,
+        e0: self.e0 * other.s * other.s,
+        e1: self.e1 * other.s * other.s,
+        e01: self.e01 * other.s * other.s,
+    };
+}
+
+Multivector multivector_transform_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e0: self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
+        e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+        e01: -self.e01 * other.e0 * other.e0 - self.e01 * other.e1 * other.e1,
+    };
+}
+
+Multivector multivector_transform_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: self.s * other.e01 * other.e01,
+        e0: -self.e0 * other.e01 * other.e01,
+        e1: -self.e1 * other.e01 * other.e01,
+        e01: self.e01 * other.e01 * other.e01,
+    };
+}
+
+Null multivector_transform_null(Multivector self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Multivector multivector_transform_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e0: self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
+        e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+        e01: -self.e01 * other.e0 * other.e0 - self.e01 * other.e1 * other.e1,
+    };
+}
+
+Multivector multivector_transform_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+        e0: self.e0 * other.s * other.s - self.e0 * other.e01 * other.e01 + 2.0 * self.e1 * other.s * other.e01,
+        e1: -2.0 * self.e0 * other.s * other.e01 + self.e1 * other.s * other.s - self.e1 * other.e01 * other.e01,
+        e01: self.e01 * other.s * other.s + self.e01 * other.e01 * other.e01,
+    };
+}
+
+Multivector multivector_transform_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + 2.0 * self.e0 * other.s * other.e0 - 2.0 * self.e0 * other.e1 * other.e01 + 2.0 * self.e1 * other.s * other.e1 + 2.0 * self.e1 * other.e0 * other.e01,
+        e0: 2.0 * self.s * other.s * other.e0 + 2.0 * self.s * other.e1 * other.e01 + self.e0 * other.s * other.s + self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e01 * other.e01 + 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1,
+        e1: 2.0 * self.s * other.s * other.e1 - 2.0 * self.s * other.e0 * other.e01 - 2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01,
+        e01: self.e01 * other.s * other.s - self.e01 * other.e0 * other.e0 - self.e01 * other.e1 * other.e1 + self.e01 * other.e01 * other.e01,
+    };
+}
+
+Null scalar_project_scalar(Scalar self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Scalar scalar_project_vector(Scalar self, Vector other) {
+    return Scalar {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+    };
+}
+
+Scalar scalar_project_bivector(Scalar self, Bivector other) {
+    return Scalar {
+        s: self.s * other.e01 * other.e01,
+    };
+}
+
+EvenMultivector scalar_project_null(Scalar self, Null other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector scalar_project_oddmultivector(Scalar self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector scalar_project_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+        e01: -self.s * other.s * other.e01,
+    };
+}
+
+EvenMultivector scalar_project_multivector(Scalar self, Multivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01,
+        e01: -self.s * other.s * other.e01,
+    };
+}
+
+Null vector_project_scalar(Vector self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null vector_project_vector(Vector self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Vector vector_project_bivector(Vector self, Bivector other) {
+    return Vector {
+        e0: self.e0 * other.e01 * other.e01,
+        e1: self.e1 * other.e01 * other.e01,
+    };
+}
+
+OddMultivector vector_project_null(Vector self, Null other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+OddMultivector vector_project_oddmultivector(Vector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0 * other.e0 + self.e1 * other.e0 * other.e1,
+        e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+    };
+}
+
+OddMultivector vector_project_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e01 * other.e01,
+        e1: self.e1 * other.e01 * other.e01,
+    };
+}
+
+OddMultivector vector_project_multivector(Vector self, Multivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e1 * other.e0 * other.e1,
+        e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01,
+    };
+}
+
+Null bivector_project_scalar(Bivector self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null bivector_project_vector(Bivector self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null bivector_project_bivector(Bivector self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector bivector_project_null(Bivector self, Null other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector bivector_project_oddmultivector(Bivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector bivector_project_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.s * other.e01,
+        e01: self.e01 * other.e01 * other.e01,
+    };
+}
+
+EvenMultivector bivector_project_multivector(Bivector self, Multivector other) {
+    return EvenMultivector {
+        s: -self.e01 * other.s * other.e01,
+        e01: self.e01 * other.e01 * other.e01,
+    };
+}
+
+Null null_project_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_project_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_project_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_project_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_project_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_project_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_project_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_project_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_project_vector(OddMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0 * other.e0 + self.e1 * other.e0 * other.e1,
+        e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+    };
+}
+
+OddMultivector oddmultivector_project_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e01 * other.e01,
+        e1: self.e1 * other.e01 * other.e01,
+    };
+}
+
+OddMultivector oddmultivector_project_null(OddMultivector self, Null other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_project_oddmultivector(OddMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0 * other.e0 + self.e1 * other.e0 * other.e1,
+        e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+    };
+}
+
+OddMultivector oddmultivector_project_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e01 * other.e01,
+        e1: self.e1 * other.e01 * other.e01,
+    };
+}
+
+OddMultivector oddmultivector_project_multivector(OddMultivector self, Multivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e1 * other.e0 * other.e1,
+        e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01,
+    };
+}
+
+EvenMultivector evenmultivector_project_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_project_vector(EvenMultivector self, Vector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_project_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: self.s * other.e01 * other.e01,
+        e01: self.e01 * other.e01 * other.e01,
+    };
+}
+
+EvenMultivector evenmultivector_project_null(EvenMultivector self, Null other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_project_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_project_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e01 * other.e01 - self.e01 * other.s * other.e01,
+        e01: -self.s * other.s * other.e01 + self.e01 * other.e01 * other.e01,
+    };
+}
+
+EvenMultivector evenmultivector_project_multivector(EvenMultivector self, Multivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.e01 * other.s * other.e01,
+        e01: -self.s * other.s * other.e01 + self.e01 * other.e01 * other.e01,
+    };
+}
+
+Multivector multivector_project_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.s * other.s * other.s,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_project_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e0: self.e0 * other.e0 * other.e0 + self.e1 * other.e0 * other.e1,
+        e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_project_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: self.s * other.e01 * other.e01,
+        e0: self.e0 * other.e01 * other.e01,
+        e1: self.e1 * other.e01 * other.e01,
+        e01: self.e01 * other.e01 * other.e01,
+    };
+}
+
+Multivector multivector_project_null(Multivector self, Null other) {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_project_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e0: self.e0 * other.e0 * other.e0 + self.e1 * other.e0 * other.e1,
+        e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_project_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.s * other.s + self.s * other.e01 * other.e01 - self.e01 * other.s * other.e01,
+        e0: self.e0 * other.e01 * other.e01,
+        e1: self.e1 * other.e01 * other.e01,
+        e01: -self.s * other.s * other.e01 + self.e01 * other.e01 * other.e01,
+    };
+}
+
+Multivector multivector_project_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.e0 * other.s * other.e0 + self.e0 * other.e1 * other.e01 + self.e1 * other.s * other.e1 - self.e1 * other.e0 * other.e01 - self.e01 * other.s * other.e01,
+        e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 + self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e1 * other.e0 * other.e1 - self.e01 * other.e0 * other.e01,
+        e1: self.s * other.s * other.e1 - self.s * other.e0 * other.e01 + self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 - self.e01 * other.e1 * other.e01,
+        e01: -self.s * other.s * other.e01 - self.e0 * other.e0 * other.e01 - self.e1 * other.e1 * other.e01 + self.e01 * other.e01 * other.e01,
+    };
+}
+
+Scalar scalar_reject_scalar(Scalar self, Scalar other) {
+    return Scalar {
+        s: self.s * other.s * other.s,
+    };
+}
+
+Scalar scalar_reject_vector(Scalar self, Vector other) {
+    return Scalar {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+    };
+}
+
+Scalar scalar_reject_bivector(Scalar self, Bivector other) {
+    return Scalar {
+        s: self.s * other.e01 * other.e01,
+    };
+}
+
+EvenMultivector scalar_reject_null(Scalar self, Null other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector scalar_reject_oddmultivector(Scalar self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector scalar_reject_evenmultivector(Scalar self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+        e01: self.s * other.s * other.e01,
+    };
+}
+
+EvenMultivector scalar_reject_multivector(Scalar self, Multivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01,
+        e01: self.s * other.s * other.e01,
+    };
+}
+
+Vector vector_reject_scalar(Vector self, Scalar other) {
+    return Vector {
+        e0: self.e0 * other.s * other.s,
+        e1: self.e1 * other.s * other.s,
+    };
+}
+
+Vector vector_reject_vector(Vector self, Vector other) {
+    return Vector {
+        e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
+        e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+    };
+}
+
+Null vector_reject_bivector(Vector self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector vector_reject_null(Vector self, Null other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+OddMultivector vector_reject_oddmultivector(Vector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
+        e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+    };
+}
+
+OddMultivector vector_reject_evenmultivector(Vector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s * other.s,
+        e1: self.e1 * other.s * other.s,
+    };
+}
+
+OddMultivector vector_reject_multivector(Vector self, Multivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
+        e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0,
+    };
+}
+
+Bivector bivector_reject_scalar(Bivector self, Scalar other) {
+    return Bivector {
+        e01: self.e01 * other.s * other.s,
+    };
+}
+
+Null bivector_reject_vector(Bivector self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null bivector_reject_bivector(Bivector self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+EvenMultivector bivector_reject_null(Bivector self, Null other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector bivector_reject_oddmultivector(Bivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector bivector_reject_evenmultivector(Bivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.e01 * other.s * other.e01,
+        e01: self.e01 * other.s * other.s,
+    };
+}
+
+EvenMultivector bivector_reject_multivector(Bivector self, Multivector other) {
+    return EvenMultivector {
+        s: self.e01 * other.s * other.e01,
+        e01: self.e01 * other.s * other.s,
+    };
+}
+
+Null null_reject_scalar(Null self, Scalar other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_reject_vector(Null self, Vector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_reject_bivector(Null self, Bivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_reject_null(Null self, Null other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_reject_oddmultivector(Null self, OddMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_reject_evenmultivector(Null self, EvenMultivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+Null null_reject_multivector(Null self, Multivector other) {
+    return Null {
+        _phantom: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_reject_scalar(OddMultivector self, Scalar other) {
+    return OddMultivector {
+        e0: self.e0 * other.s * other.s,
+        e1: self.e1 * other.s * other.s,
+    };
+}
+
+OddMultivector oddmultivector_reject_vector(OddMultivector self, Vector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
+        e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+    };
+}
+
+OddMultivector oddmultivector_reject_bivector(OddMultivector self, Bivector other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_reject_null(OddMultivector self, Null other) {
+    return OddMultivector {
+        e0: 0.0,
+        e1: 0.0,
+    };
+}
+
+OddMultivector oddmultivector_reject_oddmultivector(OddMultivector self, OddMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
+        e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+    };
+}
+
+OddMultivector oddmultivector_reject_evenmultivector(OddMultivector self, EvenMultivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s * other.s,
+        e1: self.e1 * other.s * other.s,
+    };
+}
+
+OddMultivector oddmultivector_reject_multivector(OddMultivector self, Multivector other) {
+    return OddMultivector {
+        e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
+        e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0,
+    };
+}
+
+EvenMultivector evenmultivector_reject_scalar(EvenMultivector self, Scalar other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s,
+        e01: self.e01 * other.s * other.s,
+    };
+}
+
+EvenMultivector evenmultivector_reject_vector(EvenMultivector self, Vector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_reject_bivector(EvenMultivector self, Bivector other) {
+    return EvenMultivector {
+        s: self.s * other.e01 * other.e01,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_reject_null(EvenMultivector self, Null other) {
+    return EvenMultivector {
+        s: 0.0,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_reject_oddmultivector(EvenMultivector self, OddMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e01: 0.0,
+    };
+}
+
+EvenMultivector evenmultivector_reject_evenmultivector(EvenMultivector self, EvenMultivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e01 * other.e01 + self.e01 * other.s * other.e01,
+        e01: self.s * other.s * other.e01 + self.e01 * other.s * other.s,
+    };
+}
+
+EvenMultivector evenmultivector_reject_multivector(EvenMultivector self, Multivector other) {
+    return EvenMultivector {
+        s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.e01 * other.s * other.e01,
+        e01: self.s * other.s * other.e01 + self.e01 * other.s * other.s,
+    };
+}
+
+Multivector multivector_reject_scalar(Multivector self, Scalar other) {
+    return Multivector {
+        s: self.s * other.s * other.s,
+        e0: self.e0 * other.s * other.s,
+        e1: self.e1 * other.s * other.s,
+        e01: self.e01 * other.s * other.s,
+    };
+}
+
+Multivector multivector_reject_vector(Multivector self, Vector other) {
+    return Multivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
+        e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_reject_bivector(Multivector self, Bivector other) {
+    return Multivector {
+        s: self.s * other.e01 * other.e01,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_reject_null(Multivector self, Null other) {
+    return Multivector {
+        s: 0.0,
+        e0: 0.0,
+        e1: 0.0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_reject_oddmultivector(Multivector self, OddMultivector other) {
+    return Multivector {
+        s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+        e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
+        e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+        e01: 0.0,
+    };
+}
+
+Multivector multivector_reject_evenmultivector(Multivector self, EvenMultivector other) {
+    return Multivector {
+        s: self.s * other.s * other.s + self.s * other.e01 * other.e01 + self.e01 * other.s * other.e01,
+        e0: self.e0 * other.s * other.s,
+        e1: self.e1 * other.s * other.s,
+        e01: self.s * other.s * other.e01 + self.e01 * other.s * other.s,
+    };
+}
+
+Multivector multivector_reject_multivector(Multivector self, Multivector other) {
+    return Multivector {
+        s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.e0 * other.s * other.e0 + self.e0 * other.e1 * other.e01 + self.e1 * other.s * other.e1 - self.e1 * other.e0 * other.e01 + self.e01 * other.s * other.e01,
+        e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 + self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1 + self.e01 * other.s * other.e1,
+        e1: self.s * other.s * other.e1 - self.s * other.e0 * other.e01 - self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 - self.e01 * other.s * other.e0,
+        e01: self.s * other.s * other.e01 + self.e0 * other.s * other.e1 - self.e1 * other.s * other.e0 + self.e01 * other.s * other.s,
+    };
+}

@@ -2,40 +2,41 @@ use crate::ast::{ExprRepr, Implementation, Ownership, StmtRepr, Structure};
 use crate::emitter::{Emitter, EmitterTrait};
 use itertools::{Itertools, Position};
 use std::io::Write;
+use symbol::Symbol;
 
-pub struct RustLang;
+pub struct GLSLLang;
 
-impl<Buffer> EmitterTrait for Emitter<Buffer, RustLang>
+impl<Buffer> EmitterTrait for Emitter<Buffer, GLSLLang>
 where
     Buffer: Write,
 {
     fn emit_preamble(&mut self) -> std::io::Result<()> {
         write!(self, "// Automatically generated")?;
         self.newline()?;
-        write!(self, "use crate::traits::*;")?;
+        write!(self, "#define f32 float")?;
+        self.newline()?;
+        write!(self, "#define f64 double")?;
         self.newline()?;
         Ok(())
     }
 
     fn emit_structure(&mut self, Structure { ident, fields }: &Structure) -> std::io::Result<()> {
         self.newline()?;
-        write!(self, "#[derive(Clone, Copy, Debug, Default)]")?;
-        self.newline()?;
-        if fields.is_empty() {
-            write!(self, "pub struct {ident};")?;
-        } else {
-            write!(self, "pub struct {ident} {{")?;
-            {
-                self.indent();
-                for (field_ident, field_type) in fields {
-                    self.newline()?;
-                    write!(self, "pub {field_ident}: {field_type},")?;
-                }
-                self.dedent();
+        write!(self, "struct {ident} {{")?;
+        {
+            self.indent();
+            for (field_ident, field_type) in fields {
+                self.newline()?;
+                write!(self, "{field_ident}: {field_type},")?;
             }
-            self.newline()?;
-            write!(self, "}}")?;
+            if fields.is_empty() {
+                self.newline()?;
+                write!(self, "_phantom: f32,")?;
+            }
+            self.dedent();
         }
+        self.newline()?;
+        write!(self, "}}")?;
         self.newline()?;
         Ok(())
     }
@@ -43,11 +44,11 @@ where
     fn emit_implementation(
         &mut self,
         Implementation {
-            ident,
+            ident: _,
             op_ident,
             self_type,
             generic_items,
-            associate_items,
+            associate_items: _,
             self_param_item,
             param_items,
             return_type,
@@ -57,65 +58,35 @@ where
         self.newline()?;
         write!(
             self,
-            "impl {ident}{generics} for {self_type} {{",
-            generics = if generic_items.is_empty() {
-                String::new()
-            } else {
-                format!(
-                    "<{generics}>",
-                    generics = generic_items
-                        .iter()
-                        .map(|(_, generic_type)| generic_type.as_str())
-                        .join(", "),
-                )
-            },
+            "{return_type} {fn_ident}({params}) {{",
+            fn_ident = mangle(
+                op_ident,
+                self_type,
+                generic_items.iter().map(|(_, generic_type)| generic_type),
+            ),
+            params = self_param_item
+                .iter()
+                .chain(param_items)
+                .map(|(param_ident, param_type)| match param_type {
+                    Ownership::Owned(param_type) => format!("{param_type} {param_ident}"),
+                    Ownership::BorrowedMut(param_type) =>
+                        format!("inout {param_type} {param_ident}"),
+                })
+                .join(", "),
+            return_type = return_type.unwrap_or(Symbol::from("void")),
         )?;
         {
             self.indent();
-            for (associate_ident, associate_type) in associate_items {
+            for stmt in &body.stmts {
                 self.newline()?;
-                write!(self, "type {associate_ident} = {associate_type};")?;
+                self.emit_stmt(stmt)?;
             }
-            self.newline()?;
-            write!(
-                self,
-                "fn {op_ident}({params}){return_type} {{",
-                params =
-                    self_param_item
-                        .iter()
-                        .map(
-                            |(self_param_ident, self_param_type)| match self_param_type {
-                                Ownership::Owned(_) => format!("{self_param_ident}"),
-                                Ownership::BorrowedMut(_) => format!("&mut {self_param_ident}"),
-                            }
-                        )
-                        .chain(param_items.iter().map(
-                            |(param_ident, param_type)| match param_type {
-                                Ownership::Owned(param_type) =>
-                                    format!("{param_ident}: {param_type}"),
-                                Ownership::BorrowedMut(param_type) =>
-                                    format!("{param_ident}: &mut {param_type}"),
-                            }
-                        ))
-                        .join(", "),
-                return_type = return_type
-                    .map(|return_type| format!(" -> {return_type}"))
-                    .unwrap_or_default(),
-            )?;
-            {
-                self.indent();
-                for stmt in &body.stmts {
-                    self.newline()?;
-                    self.emit_stmt(stmt)?;
-                }
-                if let Some(expr) = body.expr.as_ref() {
-                    self.newline()?;
-                    self.emit_expr(expr)?;
-                }
-                self.dedent();
+            if let Some(expr) = body.expr.as_ref() {
+                self.newline()?;
+                write!(self, "return ")?;
+                self.emit_expr(expr)?;
+                write!(self, ";")?;
             }
-            self.newline()?;
-            write!(self, "}}")?;
             self.dedent();
         }
         self.newline()?;
@@ -133,23 +104,23 @@ where
                 write!(self, "{value}.0")?;
             }
             ExprRepr::Struct { ident, fields } => {
-                if fields.is_empty() {
-                    write!(self, "{ident}")?;
-                } else {
-                    write!(self, "{ident} {{")?;
-                    {
-                        self.indent();
-                        for (field_ident, field_expr) in fields {
-                            self.newline()?;
-                            write!(self, "{field_ident}: ")?;
-                            self.emit_expr(field_expr)?;
-                            write!(self, ",")?;
-                        }
-                        self.dedent();
+                write!(self, "{ident} {{")?;
+                {
+                    self.indent();
+                    for (field_ident, field_expr) in fields {
+                        self.newline()?;
+                        write!(self, "{field_ident}: ")?;
+                        self.emit_expr(field_expr)?;
+                        write!(self, ",")?;
                     }
-                    self.newline()?;
-                    write!(self, "}}")?;
+                    if fields.is_empty() {
+                        self.newline()?;
+                        write!(self, "_phantom: 0.0,")?;
+                    }
+                    self.dedent();
                 }
+                self.newline()?;
+                write!(self, "}}")?;
             }
             ExprRepr::Field { expr, ident } => {
                 self.emit_expr(expr)?;
@@ -160,17 +131,22 @@ where
                 op_ident,
                 self_expr,
             } => {
+                write!(self, "{op_ident}(")?;
                 self.emit_expr(self_expr)?;
-                write!(self, ".{op_ident}()")?;
+                write!(self, ")")?;
             }
             ExprRepr::CallFunction {
                 ident: _,
                 op_ident,
                 self_type,
-                generic_types: _,
+                generic_types,
                 param_exprs,
             } => {
-                write!(self, "{self_type}::{op_ident}(")?;
+                write!(
+                    self,
+                    "{fn_ident}(",
+                    fn_ident = mangle(op_ident, self_type, generic_types),
+                )?;
                 for (position, param_expr) in param_exprs.iter().with_position() {
                     self.emit_expr(param_expr)?;
                     if matches!(position, Position::First | Position::Middle) {
@@ -182,14 +158,20 @@ where
             ExprRepr::CallMethod {
                 ident: _,
                 op_ident,
-                self_type: _,
-                generic_types: _,
+                self_type,
+                generic_types,
                 self_expr,
                 param_exprs,
             } => {
-                self.emit_expr(self_expr)?;
-                write!(self, ".{op_ident}(")?;
-                for (position, param_expr) in param_exprs.iter().with_position() {
+                write!(
+                    self,
+                    "{fn_ident}(",
+                    fn_ident = mangle(op_ident, self_type, generic_types),
+                )?;
+                for (position, param_expr) in std::iter::once(self_expr)
+                    .chain(param_exprs.iter())
+                    .with_position()
+                {
                     self.emit_expr(param_expr)?;
                     if matches!(position, Position::First | Position::Middle) {
                         write!(self, ", ")?;
@@ -258,4 +240,16 @@ where
         }
         Ok(())
     }
+}
+
+fn mangle<'s>(
+    op_ident: &'s Symbol,
+    self_type: &'s Symbol,
+    generic_types: impl IntoIterator<Item = &'s Symbol>,
+) -> String {
+    [self_type, op_ident]
+        .into_iter()
+        .chain(generic_types)
+        .join("_")
+        .to_lowercase()
 }
