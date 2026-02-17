@@ -19,6 +19,8 @@ where
 
     fn emit_structure(&mut self, Structure { ident, fields }: Structure) -> std::io::Result<()> {
         self.newline()?;
+        write!(self, "#[derive(Clone, Copy, Debug, Default)]")?;
+        self.newline()?;
         if fields.is_empty() {
             write!(self, "pub struct {ident};")?;
         } else {
@@ -27,7 +29,7 @@ where
                 self.indent();
                 for (field_ident, field_type) in fields {
                     self.newline()?;
-                    write!(self, "{field_ident}: {field_type},")?;
+                    write!(self, "pub {field_ident}: {field_type},")?;
                 }
                 self.dedent();
             }
@@ -155,6 +157,14 @@ where
             ExprRepr::Field { expr, ident } => {
                 self.emit_expr(expr)?;
                 write!(self, ".{ident}")?;
+            }
+            ExprRepr::CallBuiltin {
+                ident: _,
+                op_ident,
+                self_expr,
+            } => {
+                self.emit_expr(self_expr)?;
+                write!(self, ".{op_ident}()")?;
             }
             ExprRepr::CallFunction {
                 ident: _,

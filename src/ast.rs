@@ -92,7 +92,7 @@ impl From<Expr> for ImplementationBody {
     }
 }
 
-pub trait ContextTrait: Sized {
+pub trait Resolve: Sized {
     type Component;
     type Type;
 
@@ -107,7 +107,7 @@ pub trait ContextTrait: Sized {
         field_type: impl Fn(&Self::Component) -> Self::Type,
     ) -> StructureSignature<'_, Self, Self::Component> {
         let signature = StructureSignature {
-            context: self,
+            resolver: self,
             ident: Symbol::from(ident),
             fields: fields.collect_vec(),
         };
@@ -144,7 +144,7 @@ pub trait ContextTrait: Sized {
         return_pretype: [Pretype<Self::Type>; RETURN],
     ) -> OperationSignature<'_, Self, Self::Type, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN> {
         OperationSignature {
-            context: self,
+            resolver: self,
             ident: Symbol::from(ident),
             op_ident: Symbol::from(op_ident),
             generics: generics.map(Symbol::from),
@@ -159,15 +159,15 @@ pub trait ContextTrait: Sized {
     }
 }
 
-pub struct StructureSignature<'ctx, Context, Component> {
-    context: &'ctx Context,
+pub struct StructureSignature<'r, Resolver, Component> {
+    resolver: &'r Resolver,
     ident: Symbol,
     fields: Vec<Component>,
 }
 
-impl<Context, Component> StructureSignature<'_, Context, Component>
+impl<Resolver, Component> StructureSignature<'_, Resolver, Component>
 where
-    Context: ContextTrait<Component = Component>,
+    Resolver: Resolve<Component = Component>,
 {
     pub fn construct(&self, field: impl Fn(&Component) -> Expr) -> Expr {
         ExprRepr::Struct {
@@ -175,7 +175,7 @@ where
             fields: self
                 .fields
                 .iter()
-                .map(|component| (self.context.resolve_component(component), field(component)))
+                .map(|component| (self.resolver.resolve_component(component), field(component)))
                 .collect(),
         }
         .into()
@@ -184,15 +184,15 @@ where
     pub fn access(&self, expr: Expr, component: &Component) -> Expr {
         ExprRepr::Field {
             expr,
-            ident: self.context.resolve_component(component),
+            ident: self.resolver.resolve_component(component),
         }
         .into()
     }
 }
 
 pub struct OperationSignature<
-    'ctx,
-    Context,
+    'r,
+    Resolver,
     Type,
     const GENERICS: usize,
     const ASSOCIATES: usize,
@@ -200,7 +200,7 @@ pub struct OperationSignature<
     const PARAMS: usize,
     const RETURN: usize,
 > {
-    context: &'ctx Context,
+    resolver: &'r Resolver,
     ident: Symbol,
     op_ident: Symbol,
     generics: [Symbol; GENERICS],
@@ -211,16 +211,16 @@ pub struct OperationSignature<
 }
 
 impl<
-        Context,
+        Resolver,
         Type,
         const GENERICS: usize,
         const ASSOCIATES: usize,
         const SELF: usize,
         const PARAMS: usize,
         const RETURN: usize,
-    > OperationSignature<'_, Context, Type, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
+    > OperationSignature<'_, Resolver, Type, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
 where
-    Context: ContextTrait<Type = Type>,
+    Resolver: Resolve<Type = Type>,
 {
     pub fn register_implementation<Body>(
         &self,
@@ -235,14 +235,14 @@ where
         items.implementations.push(Implementation {
             ident: self.ident,
             op_ident: self.op_ident,
-            self_type: self.context.resolve_type(&self_type),
+            self_type: self.resolver.resolve_type(&self_type),
             generic_items: self
                 .generics
                 .into_iter()
                 .zip_eq(
                     generic_types
                         .each_ref()
-                        .map(|r#type| self.context.resolve_type(r#type)),
+                        .map(|r#type| self.resolver.resolve_type(r#type)),
                 )
                 .collect(),
             associate_items: self
@@ -251,7 +251,7 @@ where
                 .zip_eq(
                     associate_types
                         .each_ref()
-                        .map(|r#type| self.context.resolve_type(r#type)),
+                        .map(|r#type| self.resolver.resolve_type(r#type)),
                 )
                 .collect(),
             self_param_item: self.self_param_item.first().map(
@@ -259,7 +259,7 @@ where
                     (
                         *self_param_ident,
                         self_param_pretype.as_ref().map(|self_param_pretype| {
-                            self.context.resolve_type(self_param_pretype.eval_type(
+                            self.resolver.resolve_type(self_param_pretype.eval_type(
                                 &self_type,
                                 generic_types.each_ref(),
                                 associate_types.each_ref(),
@@ -273,7 +273,7 @@ where
                     (
                         *param_ident,
                         param_pretype.as_ref().map(|param_pretype| {
-                            self.context.resolve_type(param_pretype.eval_type(
+                            self.resolver.resolve_type(param_pretype.eval_type(
                                 &self_type,
                                 generic_types.each_ref(),
                                 associate_types.each_ref(),
@@ -283,7 +283,7 @@ where
                 },
             )),
             return_type: self.return_pretype.first().map(|return_pretype| {
-                self.context.resolve_type(return_pretype.eval_type(
+                self.resolver.resolve_type(return_pretype.eval_type(
                     &self_type,
                     generic_types.each_ref(),
                     associate_types.each_ref(),
@@ -302,10 +302,25 @@ where
     }
 }
 
-impl<Context, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
-    OperationSignature<'_, Context, Type, GENERICS, ASSOCIATES, 0, PARAMS, 1>
+impl<Resolver, Type, const ASSOCIATES: usize>
+    OperationSignature<'_, Resolver, Type, 0, ASSOCIATES, 1, 0, 1>
 where
-    Context: ContextTrait<Type = Type>,
+    Resolver: Resolve<Type = Type>,
+{
+    pub fn call_builtin(&self, self_expr: Expr) -> Expr {
+        ExprRepr::CallBuiltin {
+            ident: self.ident,
+            op_ident: self.op_ident,
+            self_expr,
+        }
+        .into()
+    }
+}
+
+impl<Resolver, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
+    OperationSignature<'_, Resolver, Type, GENERICS, ASSOCIATES, 0, PARAMS, 1>
+where
+    Resolver: Resolve<Type = Type>,
 {
     pub fn call(
         &self,
@@ -316,9 +331,9 @@ where
         ExprRepr::CallFunction {
             ident: self.ident,
             op_ident: self.op_ident,
-            self_type: self.context.resolve_type(&self_type),
+            self_type: self.resolver.resolve_type(&self_type),
             generic_types: Vec::from(
-                generic_types.map(|r#type| self.context.resolve_type(&r#type)),
+                generic_types.map(|r#type| self.resolver.resolve_type(&r#type)),
             ),
             param_exprs: Vec::from(param_exprs),
         }
@@ -326,10 +341,10 @@ where
     }
 }
 
-impl<Context, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
-    OperationSignature<'_, Context, Type, GENERICS, ASSOCIATES, 1, PARAMS, 1>
+impl<Resolver, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
+    OperationSignature<'_, Resolver, Type, GENERICS, ASSOCIATES, 1, PARAMS, 1>
 where
-    Context: ContextTrait<Type = Type>,
+    Resolver: Resolve<Type = Type>,
 {
     pub fn call(
         &self,
@@ -341,9 +356,9 @@ where
         ExprRepr::CallMethod {
             ident: self.ident,
             op_ident: self.op_ident,
-            self_type: self.context.resolve_type(&self_type),
+            self_type: self.resolver.resolve_type(&self_type),
             generic_types: Vec::from(
-                generic_types.map(|r#type| self.context.resolve_type(&r#type)),
+                generic_types.map(|r#type| self.resolver.resolve_type(&r#type)),
             ),
             self_expr,
             param_exprs: Vec::from(param_exprs),
@@ -352,10 +367,10 @@ where
     }
 }
 
-impl<Context, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
-    OperationSignature<'_, Context, Type, GENERICS, ASSOCIATES, 1, PARAMS, 0>
+impl<Resolver, Type, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
+    OperationSignature<'_, Resolver, Type, GENERICS, ASSOCIATES, 1, PARAMS, 0>
 where
-    Context: ContextTrait<Type = Type>,
+    Resolver: Resolve<Type = Type>,
 {
     pub fn call(
         &self,
@@ -368,9 +383,9 @@ where
             expr: ExprRepr::CallMethod {
                 ident: self.ident,
                 op_ident: self.op_ident,
-                self_type: self.context.resolve_type(&self_type),
+                self_type: self.resolver.resolve_type(&self_type),
                 generic_types: Vec::from(
-                    generic_types.map(|r#type| self.context.resolve_type(&r#type)),
+                    generic_types.map(|r#type| self.resolver.resolve_type(&r#type)),
                 ),
                 self_expr,
                 param_exprs: Vec::from(param_exprs),
@@ -395,6 +410,11 @@ pub enum ExprRepr {
     Field {
         expr: Expr,
         ident: Symbol,
+    },
+    CallBuiltin {
+        ident: Symbol,
+        op_ident: Symbol,
+        self_expr: Expr,
     },
     CallFunction {
         ident: Symbol,
