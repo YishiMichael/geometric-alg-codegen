@@ -29,11 +29,11 @@ repository.workspace = true
 keywords.workspace = true
 categories.workspace = true
 
+[dependencies]
+strum = { version = "0.27.2", features = ["derive"] }
+
 [dependencies.itertools]
 version = "0.14.0"
-
-[dependencies.symbol]
-version = "0.1.9"
 
 [[example]]
 name = "generate"
