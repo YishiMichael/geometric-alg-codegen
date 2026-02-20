@@ -3204,10 +3204,10 @@ fn scalar_dual(self: Scalar) -> FourVector {
 
 fn vector_dual(self: Vector) -> Trivector {
     return Trivector {
-        e021: self.e3,
-        e013: -self.e2,
-        e032: self.e1,
-        e123: -self.e0,
+        e021: -self.e3,
+        e013: self.e2,
+        e032: -self.e1,
+        e123: self.e0,
     };
 }
 
@@ -3224,10 +3224,10 @@ fn bivector_dual(self: Bivector) -> Bivector {
 
 fn trivector_dual(self: Trivector) -> Vector {
     return Vector {
-        e0: self.e123,
-        e1: -self.e032,
-        e2: self.e013,
-        e3: -self.e021,
+        e0: -self.e123,
+        e1: self.e032,
+        e2: -self.e013,
+        e3: self.e021,
     };
 }
 
@@ -3245,14 +3245,14 @@ fn null_dual(self: Null) -> Null {
 
 fn oddmultivector_dual(self: OddMultivector) -> OddMultivector {
     return OddMultivector {
-        e0: self.e123,
-        e1: -self.e032,
-        e2: self.e013,
-        e021: self.e3,
-        e3: -self.e021,
-        e013: -self.e2,
-        e032: self.e1,
-        e123: -self.e0,
+        e0: -self.e123,
+        e1: self.e032,
+        e2: -self.e013,
+        e021: -self.e3,
+        e3: self.e021,
+        e013: self.e2,
+        e032: -self.e1,
+        e123: self.e0,
     };
 }
 
@@ -3272,20 +3272,20 @@ fn evenmultivector_dual(self: EvenMultivector) -> EvenMultivector {
 fn multivector_dual(self: Multivector) -> Multivector {
     return Multivector {
         s: self.e0123,
-        e0: self.e123,
-        e1: -self.e032,
+        e0: -self.e123,
+        e1: self.e032,
         e01: self.e23,
-        e2: self.e013,
+        e2: -self.e013,
         e02: -self.e31,
         e12: self.e03,
-        e021: self.e3,
-        e3: -self.e021,
+        e021: -self.e3,
+        e3: self.e021,
         e03: self.e12,
         e31: -self.e02,
-        e013: -self.e2,
+        e013: self.e2,
         e23: self.e01,
-        e032: self.e1,
-        e123: -self.e0,
+        e032: -self.e1,
+        e123: self.e0,
         e0123: self.s,
     };
 }
@@ -3298,10 +3298,10 @@ fn scalar_undual(self: Scalar) -> FourVector {
 
 fn vector_undual(self: Vector) -> Trivector {
     return Trivector {
-        e021: -self.e3,
-        e013: self.e2,
-        e032: -self.e1,
-        e123: self.e0,
+        e021: self.e3,
+        e013: -self.e2,
+        e032: self.e1,
+        e123: -self.e0,
     };
 }
 
@@ -3318,10 +3318,10 @@ fn bivector_undual(self: Bivector) -> Bivector {
 
 fn trivector_undual(self: Trivector) -> Vector {
     return Vector {
-        e0: -self.e123,
-        e1: self.e032,
-        e2: -self.e013,
-        e3: self.e021,
+        e0: self.e123,
+        e1: -self.e032,
+        e2: self.e013,
+        e3: -self.e021,
     };
 }
 
@@ -3339,14 +3339,14 @@ fn null_undual(self: Null) -> Null {
 
 fn oddmultivector_undual(self: OddMultivector) -> OddMultivector {
     return OddMultivector {
-        e0: -self.e123,
-        e1: self.e032,
-        e2: -self.e013,
-        e021: -self.e3,
-        e3: self.e021,
-        e013: self.e2,
-        e032: -self.e1,
-        e123: self.e0,
+        e0: self.e123,
+        e1: -self.e032,
+        e2: self.e013,
+        e021: self.e3,
+        e3: -self.e021,
+        e013: -self.e2,
+        e032: self.e1,
+        e123: -self.e0,
     };
 }
 
@@ -3366,20 +3366,20 @@ fn evenmultivector_undual(self: EvenMultivector) -> EvenMultivector {
 fn multivector_undual(self: Multivector) -> Multivector {
     return Multivector {
         s: self.e0123,
-        e0: -self.e123,
-        e1: self.e032,
+        e0: self.e123,
+        e1: -self.e032,
         e01: self.e23,
-        e2: -self.e013,
+        e2: self.e013,
         e02: -self.e31,
         e12: self.e03,
-        e021: -self.e3,
-        e3: self.e021,
+        e021: self.e3,
+        e3: -self.e021,
         e03: self.e12,
         e31: -self.e02,
-        e013: self.e2,
+        e013: -self.e2,
         e23: self.e01,
-        e032: -self.e1,
-        e123: self.e0,
+        e032: self.e1,
+        e123: -self.e0,
         e0123: self.s,
     };
 }
@@ -12697,9 +12697,9 @@ fn multivector_transform_multivector(self: Multivector, other: Multivector) -> M
     };
 }
 
-fn scalar_project_scalar(self: Scalar, other: Scalar) -> Null {
-    return Null {
-        _phantom: 0.0,
+fn scalar_project_scalar(self: Scalar, other: Scalar) -> Scalar {
+    return Scalar {
+        s: self.s * other.s * other.s,
     };
 }
 
@@ -12727,16 +12727,9 @@ fn scalar_project_fourvector(self: Scalar, other: FourVector) -> Scalar {
     };
 }
 
-fn scalar_project_null(self: Scalar, other: Null) -> EvenMultivector {
-    return EvenMultivector {
-        s: 0.0,
-        e01: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e23: 0.0,
-        e0123: 0.0,
+fn scalar_project_null(self: Scalar, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -12766,15 +12759,23 @@ fn scalar_project_evenmultivector(self: Scalar, other: EvenMultivector) -> EvenM
     };
 }
 
-fn scalar_project_multivector(self: Scalar, other: Multivector) -> EvenMultivector {
-    return EvenMultivector {
+fn scalar_project_multivector(self: Scalar, other: Multivector) -> Multivector {
+    return Multivector {
         s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.s * other.e2 * other.e2 + self.s * other.e02 * other.e02 + self.s * other.e12 * other.e12 + self.s * other.e021 * other.e021 + self.s * other.e3 * other.e3 + self.s * other.e03 * other.e03 + self.s * other.e31 * other.e31 + self.s * other.e013 * other.e013 + self.s * other.e23 * other.e23 + self.s * other.e032 * other.e032 + self.s * other.e123 * other.e123 + self.s * other.e0123 * other.e0123,
+        e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 + self.s * other.e2 * other.e02 - self.s * other.e12 * other.e021 + self.s * other.e3 * other.e03 - self.s * other.e31 * other.e013 - self.s * other.e23 * other.e032 + self.s * other.e123 * other.e0123,
+        e1: self.s * other.s * other.e1 - self.s * other.e0 * other.e01 + self.s * other.e2 * other.e12 + self.s * other.e02 * other.e021 - self.s * other.e3 * other.e31 - self.s * other.e03 * other.e013 + self.s * other.e23 * other.e123 + self.s * other.e032 * other.e0123,
         e01: -self.s * other.s * other.e01 + self.s * other.e2 * other.e021 - self.s * other.e3 * other.e013 - self.s * other.e23 * other.e0123,
+        e2: self.s * other.s * other.e2 - self.s * other.e0 * other.e02 - self.s * other.e1 * other.e12 - self.s * other.e01 * other.e021 + self.s * other.e3 * other.e23 + self.s * other.e03 * other.e032 + self.s * other.e31 * other.e123 + self.s * other.e013 * other.e0123,
         e02: -self.s * other.s * other.e02 - self.s * other.e1 * other.e021 + self.s * other.e3 * other.e032 - self.s * other.e31 * other.e0123,
         e12: -self.s * other.s * other.e12 + self.s * other.e0 * other.e021 - self.s * other.e3 * other.e123 - self.s * other.e03 * other.e0123,
+        e021: -self.s * other.s * other.e021 + self.s * other.e3 * other.e0123,
+        e3: self.s * other.s * other.e3 - self.s * other.e0 * other.e03 + self.s * other.e1 * other.e31 + self.s * other.e01 * other.e013 - self.s * other.e2 * other.e23 - self.s * other.e02 * other.e032 + self.s * other.e12 * other.e123 + self.s * other.e021 * other.e0123,
         e03: -self.s * other.s * other.e03 + self.s * other.e1 * other.e013 - self.s * other.e2 * other.e032 - self.s * other.e12 * other.e0123,
         e31: -self.s * other.s * other.e31 + self.s * other.e0 * other.e013 - self.s * other.e2 * other.e123 - self.s * other.e02 * other.e0123,
+        e013: -self.s * other.s * other.e013 + self.s * other.e2 * other.e0123,
         e23: -self.s * other.s * other.e23 + self.s * other.e0 * other.e032 - self.s * other.e1 * other.e123 - self.s * other.e01 * other.e0123,
+        e032: -self.s * other.s * other.e032 + self.s * other.e1 * other.e0123,
+        e123: -self.s * other.s * other.e123 + self.s * other.e0 * other.e0123,
         e0123: self.s * other.s * other.e0123,
     };
 }
@@ -12785,9 +12786,12 @@ fn vector_project_scalar(self: Vector, other: Scalar) -> Null {
     };
 }
 
-fn vector_project_vector(self: Vector, other: Vector) -> Null {
-    return Null {
-        _phantom: 0.0,
+fn vector_project_vector(self: Vector, other: Vector) -> Vector {
+    return Vector {
+        e0: self.e0 * other.e0 * other.e0 + self.e1 * other.e0 * other.e1 + self.e2 * other.e0 * other.e2 + self.e3 * other.e0 * other.e3,
+        e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e2 * other.e1 * other.e2 + self.e3 * other.e1 * other.e3,
+        e2: self.e0 * other.e0 * other.e2 + self.e1 * other.e1 * other.e2 + self.e2 * other.e2 * other.e2 + self.e3 * other.e2 * other.e3,
+        e3: self.e0 * other.e0 * other.e3 + self.e1 * other.e1 * other.e3 + self.e2 * other.e2 * other.e3 + self.e3 * other.e3 * other.e3,
     };
 }
 
@@ -12818,16 +12822,9 @@ fn vector_project_fourvector(self: Vector, other: FourVector) -> Vector {
     };
 }
 
-fn vector_project_null(self: Vector, other: Null) -> OddMultivector {
-    return OddMultivector {
-        e0: 0.0,
-        e1: 0.0,
-        e2: 0.0,
-        e021: 0.0,
-        e3: 0.0,
-        e013: 0.0,
-        e032: 0.0,
-        e123: 0.0,
+fn vector_project_null(self: Vector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -12857,16 +12854,24 @@ fn vector_project_evenmultivector(self: Vector, other: EvenMultivector) -> OddMu
     };
 }
 
-fn vector_project_multivector(self: Vector, other: Multivector) -> OddMultivector {
-    return OddMultivector {
+fn vector_project_multivector(self: Vector, other: Multivector) -> Multivector {
+    return Multivector {
+        s: self.e0 * other.s * other.e0 + self.e0 * other.e1 * other.e01 + self.e0 * other.e2 * other.e02 - self.e0 * other.e12 * other.e021 + self.e0 * other.e3 * other.e03 - self.e0 * other.e31 * other.e013 - self.e0 * other.e23 * other.e032 + self.e0 * other.e123 * other.e0123 + self.e1 * other.s * other.e1 - self.e1 * other.e0 * other.e01 + self.e1 * other.e2 * other.e12 + self.e1 * other.e02 * other.e021 - self.e1 * other.e3 * other.e31 - self.e1 * other.e03 * other.e013 + self.e1 * other.e23 * other.e123 + self.e1 * other.e032 * other.e0123 + self.e2 * other.s * other.e2 - self.e2 * other.e0 * other.e02 - self.e2 * other.e1 * other.e12 - self.e2 * other.e01 * other.e021 + self.e2 * other.e3 * other.e23 + self.e2 * other.e03 * other.e032 + self.e2 * other.e31 * other.e123 + self.e2 * other.e013 * other.e0123 + self.e3 * other.s * other.e3 - self.e3 * other.e0 * other.e03 + self.e3 * other.e1 * other.e31 + self.e3 * other.e01 * other.e013 - self.e3 * other.e2 * other.e23 - self.e3 * other.e02 * other.e032 + self.e3 * other.e12 * other.e123 + self.e3 * other.e021 * other.e0123,
         e0: self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e0 * other.e02 * other.e02 + self.e0 * other.e021 * other.e021 + self.e0 * other.e03 * other.e03 + self.e0 * other.e013 * other.e013 + self.e0 * other.e032 * other.e032 + self.e0 * other.e0123 * other.e0123 + self.e1 * other.e0 * other.e1 + self.e1 * other.e02 * other.e12 - self.e1 * other.e03 * other.e31 - self.e1 * other.e032 * other.e123 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12 + self.e2 * other.e03 * other.e23 - self.e2 * other.e013 * other.e123 + self.e3 * other.e0 * other.e3 + self.e3 * other.e01 * other.e31 - self.e3 * other.e02 * other.e23 - self.e3 * other.e021 * other.e123,
         e1: self.e0 * other.e0 * other.e1 + self.e0 * other.e02 * other.e12 - self.e0 * other.e03 * other.e31 - self.e0 * other.e032 * other.e123 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e1 * other.e021 * other.e021 + self.e1 * other.e31 * other.e31 + self.e1 * other.e013 * other.e013 + self.e1 * other.e123 * other.e123 + self.e1 * other.e0123 * other.e0123 + self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e02 - self.e2 * other.e31 * other.e23 - self.e2 * other.e013 * other.e032 + self.e3 * other.e1 * other.e3 + self.e3 * other.e01 * other.e03 - self.e3 * other.e12 * other.e23 - self.e3 * other.e021 * other.e032,
+        e01: -self.e0 * other.e0 * other.e01 + self.e0 * other.e02 * other.e021 - self.e0 * other.e03 * other.e013 + self.e0 * other.e032 * other.e0123 - self.e1 * other.e1 * other.e01 + self.e1 * other.e12 * other.e021 + self.e1 * other.e31 * other.e013 - self.e1 * other.e123 * other.e0123 - self.e2 * other.e01 * other.e2 - self.e2 * other.e013 * other.e23 - self.e3 * other.e01 * other.e3 - self.e3 * other.e021 * other.e23,
         e2: self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 + self.e0 * other.e03 * other.e23 - self.e0 * other.e013 * other.e123 + self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e02 - self.e1 * other.e31 * other.e23 - self.e1 * other.e013 * other.e032 + self.e2 * other.e2 * other.e2 + self.e2 * other.e02 * other.e02 + self.e2 * other.e12 * other.e12 + self.e2 * other.e021 * other.e021 + self.e2 * other.e23 * other.e23 + self.e2 * other.e032 * other.e032 + self.e2 * other.e123 * other.e123 + self.e2 * other.e0123 * other.e0123 + self.e3 * other.e2 * other.e3 + self.e3 * other.e02 * other.e03 - self.e3 * other.e12 * other.e31 - self.e3 * other.e021 * other.e013,
+        e02: -self.e0 * other.e0 * other.e02 - self.e0 * other.e01 * other.e021 + self.e0 * other.e03 * other.e032 + self.e0 * other.e013 * other.e0123 - self.e1 * other.e1 * other.e02 - self.e1 * other.e31 * other.e032 - self.e2 * other.e2 * other.e02 + self.e2 * other.e12 * other.e021 + self.e2 * other.e23 * other.e032 - self.e2 * other.e123 * other.e0123 - self.e3 * other.e02 * other.e3 - self.e3 * other.e021 * other.e31,
+        e12: -self.e0 * other.e0 * other.e12 - self.e0 * other.e03 * other.e123 - self.e1 * other.e1 * other.e12 - self.e1 * other.e01 * other.e021 + self.e1 * other.e31 * other.e123 + self.e1 * other.e013 * other.e0123 - self.e2 * other.e2 * other.e12 - self.e2 * other.e02 * other.e021 - self.e2 * other.e23 * other.e123 - self.e2 * other.e032 * other.e0123 - self.e3 * other.e12 * other.e3 - self.e3 * other.e021 * other.e03,
         e021: -self.e0 * other.e0 * other.e021 + self.e0 * other.e03 * other.e0123 - self.e1 * other.e1 * other.e021 - self.e1 * other.e31 * other.e0123 - self.e2 * other.e2 * other.e021 + self.e2 * other.e23 * other.e0123 - self.e3 * other.e021 * other.e3,
         e3: self.e0 * other.e0 * other.e3 + self.e0 * other.e01 * other.e31 - self.e0 * other.e02 * other.e23 - self.e0 * other.e021 * other.e123 + self.e1 * other.e1 * other.e3 + self.e1 * other.e01 * other.e03 - self.e1 * other.e12 * other.e23 - self.e1 * other.e021 * other.e032 + self.e2 * other.e2 * other.e3 + self.e2 * other.e02 * other.e03 - self.e2 * other.e12 * other.e31 - self.e2 * other.e021 * other.e013 + self.e3 * other.e3 * other.e3 + self.e3 * other.e03 * other.e03 + self.e3 * other.e31 * other.e31 + self.e3 * other.e013 * other.e013 + self.e3 * other.e23 * other.e23 + self.e3 * other.e032 * other.e032 + self.e3 * other.e123 * other.e123 + self.e3 * other.e0123 * other.e0123,
+        e03: -self.e0 * other.e0 * other.e03 + self.e0 * other.e01 * other.e013 - self.e0 * other.e02 * other.e032 + self.e0 * other.e021 * other.e0123 - self.e1 * other.e1 * other.e03 - self.e1 * other.e12 * other.e032 - self.e2 * other.e2 * other.e03 - self.e2 * other.e12 * other.e013 - self.e3 * other.e3 * other.e03 + self.e3 * other.e31 * other.e013 + self.e3 * other.e23 * other.e032 - self.e3 * other.e123 * other.e0123,
+        e31: -self.e0 * other.e0 * other.e31 - self.e0 * other.e02 * other.e123 - self.e1 * other.e1 * other.e31 - self.e1 * other.e01 * other.e013 - self.e1 * other.e12 * other.e123 - self.e1 * other.e021 * other.e0123 - self.e2 * other.e2 * other.e31 - self.e2 * other.e02 * other.e013 - self.e3 * other.e3 * other.e31 - self.e3 * other.e03 * other.e013 + self.e3 * other.e23 * other.e123 + self.e3 * other.e032 * other.e0123,
         e013: -self.e0 * other.e0 * other.e013 + self.e0 * other.e02 * other.e0123 - self.e1 * other.e1 * other.e013 + self.e1 * other.e12 * other.e0123 - self.e2 * other.e2 * other.e013 - self.e3 * other.e3 * other.e013 - self.e3 * other.e23 * other.e0123,
+        e23: -self.e0 * other.e0 * other.e23 - self.e0 * other.e01 * other.e123 - self.e1 * other.e1 * other.e23 - self.e1 * other.e01 * other.e032 - self.e2 * other.e2 * other.e23 - self.e2 * other.e02 * other.e032 + self.e2 * other.e12 * other.e123 + self.e2 * other.e021 * other.e0123 - self.e3 * other.e3 * other.e23 - self.e3 * other.e03 * other.e032 - self.e3 * other.e31 * other.e123 - self.e3 * other.e013 * other.e0123,
         e032: -self.e0 * other.e0 * other.e032 + self.e0 * other.e01 * other.e0123 - self.e1 * other.e1 * other.e032 - self.e2 * other.e2 * other.e032 - self.e2 * other.e12 * other.e0123 - self.e3 * other.e3 * other.e032 + self.e3 * other.e31 * other.e0123,
         e123: -self.e0 * other.e0 * other.e123 - self.e1 * other.e1 * other.e123 - self.e1 * other.e01 * other.e0123 - self.e2 * other.e2 * other.e123 - self.e2 * other.e02 * other.e0123 - self.e3 * other.e3 * other.e123 - self.e3 * other.e03 * other.e0123,
+        e0123: self.e0 * other.e0 * other.e0123 + self.e1 * other.e1 * other.e0123 + self.e2 * other.e2 * other.e0123 + self.e3 * other.e3 * other.e0123,
     };
 }
 
@@ -12882,9 +12887,14 @@ fn bivector_project_vector(self: Bivector, other: Vector) -> Null {
     };
 }
 
-fn bivector_project_bivector(self: Bivector, other: Bivector) -> Null {
-    return Null {
-        _phantom: 0.0,
+fn bivector_project_bivector(self: Bivector, other: Bivector) -> Bivector {
+    return Bivector {
+        e01: self.e01 * other.e01 * other.e01 + self.e02 * other.e01 * other.e02 + self.e12 * other.e01 * other.e12 + self.e03 * other.e01 * other.e03 + self.e31 * other.e01 * other.e31 + self.e23 * other.e01 * other.e23,
+        e02: self.e01 * other.e01 * other.e02 + self.e02 * other.e02 * other.e02 + self.e12 * other.e02 * other.e12 + self.e03 * other.e02 * other.e03 + self.e31 * other.e02 * other.e31 + self.e23 * other.e02 * other.e23,
+        e12: self.e01 * other.e01 * other.e12 + self.e02 * other.e02 * other.e12 + self.e12 * other.e12 * other.e12 + self.e03 * other.e12 * other.e03 + self.e31 * other.e12 * other.e31 + self.e23 * other.e12 * other.e23,
+        e03: self.e01 * other.e01 * other.e03 + self.e02 * other.e02 * other.e03 + self.e12 * other.e12 * other.e03 + self.e03 * other.e03 * other.e03 + self.e31 * other.e03 * other.e31 + self.e23 * other.e03 * other.e23,
+        e31: self.e01 * other.e01 * other.e31 + self.e02 * other.e02 * other.e31 + self.e12 * other.e12 * other.e31 + self.e03 * other.e03 * other.e31 + self.e31 * other.e31 * other.e31 + self.e23 * other.e31 * other.e23,
+        e23: self.e01 * other.e01 * other.e23 + self.e02 * other.e02 * other.e23 + self.e12 * other.e12 * other.e23 + self.e03 * other.e03 * other.e23 + self.e31 * other.e31 * other.e23 + self.e23 * other.e23 * other.e23,
     };
 }
 
@@ -12910,16 +12920,9 @@ fn bivector_project_fourvector(self: Bivector, other: FourVector) -> Bivector {
     };
 }
 
-fn bivector_project_null(self: Bivector, other: Null) -> EvenMultivector {
-    return EvenMultivector {
-        s: 0.0,
-        e01: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e23: 0.0,
-        e0123: 0.0,
+fn bivector_project_null(self: Bivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -12949,15 +12952,23 @@ fn bivector_project_evenmultivector(self: Bivector, other: EvenMultivector) -> E
     };
 }
 
-fn bivector_project_multivector(self: Bivector, other: Multivector) -> EvenMultivector {
-    return EvenMultivector {
+fn bivector_project_multivector(self: Bivector, other: Multivector) -> Multivector {
+    return Multivector {
         s: -self.e01 * other.s * other.e01 + self.e01 * other.e2 * other.e021 - self.e01 * other.e3 * other.e013 - self.e01 * other.e23 * other.e0123 - self.e02 * other.s * other.e02 - self.e02 * other.e1 * other.e021 + self.e02 * other.e3 * other.e032 - self.e02 * other.e31 * other.e0123 - self.e12 * other.s * other.e12 + self.e12 * other.e0 * other.e021 - self.e12 * other.e3 * other.e123 - self.e12 * other.e03 * other.e0123 - self.e03 * other.s * other.e03 + self.e03 * other.e1 * other.e013 - self.e03 * other.e2 * other.e032 - self.e03 * other.e12 * other.e0123 - self.e31 * other.s * other.e31 + self.e31 * other.e0 * other.e013 - self.e31 * other.e2 * other.e123 - self.e31 * other.e02 * other.e0123 - self.e23 * other.s * other.e23 + self.e23 * other.e0 * other.e032 - self.e23 * other.e1 * other.e123 - self.e23 * other.e01 * other.e0123,
+        e0: -self.e01 * other.e0 * other.e01 + self.e01 * other.e02 * other.e021 - self.e01 * other.e03 * other.e013 + self.e01 * other.e032 * other.e0123 - self.e02 * other.e0 * other.e02 - self.e02 * other.e01 * other.e021 + self.e02 * other.e03 * other.e032 + self.e02 * other.e013 * other.e0123 - self.e12 * other.e0 * other.e12 - self.e12 * other.e03 * other.e123 - self.e03 * other.e0 * other.e03 + self.e03 * other.e01 * other.e013 - self.e03 * other.e02 * other.e032 + self.e03 * other.e021 * other.e0123 - self.e31 * other.e0 * other.e31 - self.e31 * other.e02 * other.e123 - self.e23 * other.e0 * other.e23 - self.e23 * other.e01 * other.e123,
+        e1: -self.e01 * other.e1 * other.e01 + self.e01 * other.e12 * other.e021 + self.e01 * other.e31 * other.e013 - self.e01 * other.e123 * other.e0123 - self.e02 * other.e1 * other.e02 - self.e02 * other.e31 * other.e032 - self.e12 * other.e1 * other.e12 - self.e12 * other.e01 * other.e021 + self.e12 * other.e31 * other.e123 + self.e12 * other.e013 * other.e0123 - self.e03 * other.e1 * other.e03 - self.e03 * other.e12 * other.e032 - self.e31 * other.e1 * other.e31 - self.e31 * other.e01 * other.e013 - self.e31 * other.e12 * other.e123 - self.e31 * other.e021 * other.e0123 - self.e23 * other.e1 * other.e23 - self.e23 * other.e01 * other.e032,
         e01: self.e01 * other.e01 * other.e01 + self.e01 * other.e021 * other.e021 + self.e01 * other.e013 * other.e013 + self.e01 * other.e0123 * other.e0123 + self.e02 * other.e01 * other.e02 - self.e02 * other.e013 * other.e032 + self.e12 * other.e01 * other.e12 + self.e12 * other.e013 * other.e123 + self.e03 * other.e01 * other.e03 - self.e03 * other.e021 * other.e032 + self.e31 * other.e01 * other.e31 - self.e31 * other.e021 * other.e123 + self.e23 * other.e01 * other.e23,
+        e2: -self.e01 * other.e01 * other.e2 - self.e01 * other.e013 * other.e23 - self.e02 * other.e2 * other.e02 + self.e02 * other.e12 * other.e021 + self.e02 * other.e23 * other.e032 - self.e02 * other.e123 * other.e0123 - self.e12 * other.e2 * other.e12 - self.e12 * other.e02 * other.e021 - self.e12 * other.e23 * other.e123 - self.e12 * other.e032 * other.e0123 - self.e03 * other.e2 * other.e03 - self.e03 * other.e12 * other.e013 - self.e31 * other.e2 * other.e31 - self.e31 * other.e02 * other.e013 - self.e23 * other.e2 * other.e23 - self.e23 * other.e02 * other.e032 + self.e23 * other.e12 * other.e123 + self.e23 * other.e021 * other.e0123,
         e02: self.e01 * other.e01 * other.e02 - self.e01 * other.e013 * other.e032 + self.e02 * other.e02 * other.e02 + self.e02 * other.e021 * other.e021 + self.e02 * other.e032 * other.e032 + self.e02 * other.e0123 * other.e0123 + self.e12 * other.e02 * other.e12 - self.e12 * other.e032 * other.e123 + self.e03 * other.e02 * other.e03 - self.e03 * other.e021 * other.e013 + self.e31 * other.e02 * other.e31 + self.e23 * other.e02 * other.e23 + self.e23 * other.e021 * other.e123,
         e12: self.e01 * other.e01 * other.e12 + self.e01 * other.e013 * other.e123 + self.e02 * other.e02 * other.e12 - self.e02 * other.e032 * other.e123 + self.e12 * other.e12 * other.e12 + self.e12 * other.e021 * other.e021 + self.e12 * other.e123 * other.e123 + self.e12 * other.e0123 * other.e0123 + self.e03 * other.e12 * other.e03 + self.e31 * other.e12 * other.e31 + self.e31 * other.e021 * other.e013 + self.e23 * other.e12 * other.e23 + self.e23 * other.e021 * other.e032,
+        e021: self.e01 * other.e01 * other.e021 - self.e01 * other.e013 * other.e0123 + self.e02 * other.e02 * other.e021 + self.e02 * other.e032 * other.e0123 + self.e12 * other.e12 * other.e021 - self.e12 * other.e123 * other.e0123 + self.e03 * other.e021 * other.e03 + self.e31 * other.e021 * other.e31 + self.e23 * other.e021 * other.e23,
+        e3: -self.e01 * other.e01 * other.e3 - self.e01 * other.e021 * other.e23 - self.e02 * other.e02 * other.e3 - self.e02 * other.e021 * other.e31 - self.e12 * other.e12 * other.e3 - self.e12 * other.e021 * other.e03 - self.e03 * other.e3 * other.e03 + self.e03 * other.e31 * other.e013 + self.e03 * other.e23 * other.e032 - self.e03 * other.e123 * other.e0123 - self.e31 * other.e3 * other.e31 - self.e31 * other.e03 * other.e013 + self.e31 * other.e23 * other.e123 + self.e31 * other.e032 * other.e0123 - self.e23 * other.e3 * other.e23 - self.e23 * other.e03 * other.e032 - self.e23 * other.e31 * other.e123 - self.e23 * other.e013 * other.e0123,
         e03: self.e01 * other.e01 * other.e03 - self.e01 * other.e021 * other.e032 + self.e02 * other.e02 * other.e03 - self.e02 * other.e021 * other.e013 + self.e12 * other.e12 * other.e03 + self.e03 * other.e03 * other.e03 + self.e03 * other.e013 * other.e013 + self.e03 * other.e032 * other.e032 + self.e03 * other.e0123 * other.e0123 + self.e31 * other.e03 * other.e31 + self.e31 * other.e032 * other.e123 + self.e23 * other.e03 * other.e23 - self.e23 * other.e013 * other.e123,
         e31: self.e01 * other.e01 * other.e31 - self.e01 * other.e021 * other.e123 + self.e02 * other.e02 * other.e31 + self.e12 * other.e12 * other.e31 + self.e12 * other.e021 * other.e013 + self.e03 * other.e03 * other.e31 + self.e03 * other.e032 * other.e123 + self.e31 * other.e31 * other.e31 + self.e31 * other.e013 * other.e013 + self.e31 * other.e123 * other.e123 + self.e31 * other.e0123 * other.e0123 + self.e23 * other.e31 * other.e23 + self.e23 * other.e013 * other.e032,
+        e013: self.e01 * other.e01 * other.e013 + self.e01 * other.e021 * other.e0123 + self.e02 * other.e02 * other.e013 + self.e12 * other.e12 * other.e013 + self.e03 * other.e03 * other.e013 - self.e03 * other.e032 * other.e0123 + self.e31 * other.e31 * other.e013 - self.e31 * other.e123 * other.e0123 + self.e23 * other.e013 * other.e23,
         e23: self.e01 * other.e01 * other.e23 + self.e02 * other.e02 * other.e23 + self.e02 * other.e021 * other.e123 + self.e12 * other.e12 * other.e23 + self.e12 * other.e021 * other.e032 + self.e03 * other.e03 * other.e23 - self.e03 * other.e013 * other.e123 + self.e31 * other.e31 * other.e23 + self.e31 * other.e013 * other.e032 + self.e23 * other.e23 * other.e23 + self.e23 * other.e032 * other.e032 + self.e23 * other.e123 * other.e123 + self.e23 * other.e0123 * other.e0123,
+        e032: self.e01 * other.e01 * other.e032 + self.e02 * other.e02 * other.e032 - self.e02 * other.e021 * other.e0123 + self.e12 * other.e12 * other.e032 + self.e03 * other.e03 * other.e032 + self.e03 * other.e013 * other.e0123 + self.e31 * other.e31 * other.e032 + self.e23 * other.e23 * other.e032 - self.e23 * other.e123 * other.e0123,
+        e123: self.e01 * other.e01 * other.e123 + self.e02 * other.e02 * other.e123 + self.e12 * other.e12 * other.e123 + self.e12 * other.e021 * other.e0123 + self.e03 * other.e03 * other.e123 + self.e31 * other.e31 * other.e123 + self.e31 * other.e013 * other.e0123 + self.e23 * other.e23 * other.e123 + self.e23 * other.e032 * other.e0123,
         e0123: -self.e01 * other.e01 * other.e0123 - self.e02 * other.e02 * other.e0123 - self.e12 * other.e12 * other.e0123 - self.e03 * other.e03 * other.e0123 - self.e31 * other.e31 * other.e0123 - self.e23 * other.e23 * other.e0123,
     };
 }
@@ -12980,9 +12991,12 @@ fn trivector_project_bivector(self: Trivector, other: Bivector) -> Null {
     };
 }
 
-fn trivector_project_trivector(self: Trivector, other: Trivector) -> Null {
-    return Null {
-        _phantom: 0.0,
+fn trivector_project_trivector(self: Trivector, other: Trivector) -> Trivector {
+    return Trivector {
+        e021: self.e021 * other.e021 * other.e021 + self.e013 * other.e021 * other.e013 + self.e032 * other.e021 * other.e032 + self.e123 * other.e021 * other.e123,
+        e013: self.e021 * other.e021 * other.e013 + self.e013 * other.e013 * other.e013 + self.e032 * other.e013 * other.e032 + self.e123 * other.e013 * other.e123,
+        e032: self.e021 * other.e021 * other.e032 + self.e013 * other.e013 * other.e032 + self.e032 * other.e032 * other.e032 + self.e123 * other.e032 * other.e123,
+        e123: self.e021 * other.e021 * other.e123 + self.e013 * other.e013 * other.e123 + self.e032 * other.e032 * other.e123 + self.e123 * other.e123 * other.e123,
     };
 }
 
@@ -12995,16 +13009,9 @@ fn trivector_project_fourvector(self: Trivector, other: FourVector) -> Trivector
     };
 }
 
-fn trivector_project_null(self: Trivector, other: Null) -> OddMultivector {
-    return OddMultivector {
-        e0: 0.0,
-        e1: 0.0,
-        e2: 0.0,
-        e021: 0.0,
-        e3: 0.0,
-        e013: 0.0,
-        e032: 0.0,
-        e123: 0.0,
+fn trivector_project_null(self: Trivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -13034,16 +13041,24 @@ fn trivector_project_evenmultivector(self: Trivector, other: EvenMultivector) ->
     };
 }
 
-fn trivector_project_multivector(self: Trivector, other: Multivector) -> OddMultivector {
-    return OddMultivector {
+fn trivector_project_multivector(self: Trivector, other: Multivector) -> Multivector {
+    return Multivector {
+        s: -self.e021 * other.s * other.e021 + self.e021 * other.e3 * other.e0123 - self.e013 * other.s * other.e013 + self.e013 * other.e2 * other.e0123 - self.e032 * other.s * other.e032 + self.e032 * other.e1 * other.e0123 - self.e123 * other.s * other.e123 + self.e123 * other.e0 * other.e0123,
         e0: -self.e021 * other.e0 * other.e021 + self.e021 * other.e03 * other.e0123 - self.e013 * other.e0 * other.e013 + self.e013 * other.e02 * other.e0123 - self.e032 * other.e0 * other.e032 + self.e032 * other.e01 * other.e0123 - self.e123 * other.e0 * other.e123,
         e1: -self.e021 * other.e1 * other.e021 - self.e021 * other.e31 * other.e0123 - self.e013 * other.e1 * other.e013 + self.e013 * other.e12 * other.e0123 - self.e032 * other.e1 * other.e032 - self.e123 * other.e1 * other.e123 - self.e123 * other.e01 * other.e0123,
+        e01: self.e021 * other.e01 * other.e021 - self.e021 * other.e013 * other.e0123 + self.e013 * other.e01 * other.e013 + self.e013 * other.e021 * other.e0123 + self.e032 * other.e01 * other.e032 + self.e123 * other.e01 * other.e123,
         e2: -self.e021 * other.e2 * other.e021 + self.e021 * other.e23 * other.e0123 - self.e013 * other.e2 * other.e013 - self.e032 * other.e2 * other.e032 - self.e032 * other.e12 * other.e0123 - self.e123 * other.e2 * other.e123 - self.e123 * other.e02 * other.e0123,
+        e02: self.e021 * other.e02 * other.e021 + self.e021 * other.e032 * other.e0123 + self.e013 * other.e02 * other.e013 + self.e032 * other.e02 * other.e032 - self.e032 * other.e021 * other.e0123 + self.e123 * other.e02 * other.e123,
+        e12: self.e021 * other.e12 * other.e021 - self.e021 * other.e123 * other.e0123 + self.e013 * other.e12 * other.e013 + self.e032 * other.e12 * other.e032 + self.e123 * other.e12 * other.e123 + self.e123 * other.e021 * other.e0123,
         e021: self.e021 * other.e021 * other.e021 + self.e021 * other.e0123 * other.e0123 + self.e013 * other.e021 * other.e013 + self.e032 * other.e021 * other.e032 + self.e123 * other.e021 * other.e123,
         e3: -self.e021 * other.e021 * other.e3 - self.e013 * other.e3 * other.e013 - self.e013 * other.e23 * other.e0123 - self.e032 * other.e3 * other.e032 + self.e032 * other.e31 * other.e0123 - self.e123 * other.e3 * other.e123 - self.e123 * other.e03 * other.e0123,
+        e03: self.e021 * other.e021 * other.e03 + self.e013 * other.e03 * other.e013 - self.e013 * other.e032 * other.e0123 + self.e032 * other.e03 * other.e032 + self.e032 * other.e013 * other.e0123 + self.e123 * other.e03 * other.e123,
+        e31: self.e021 * other.e021 * other.e31 + self.e013 * other.e31 * other.e013 - self.e013 * other.e123 * other.e0123 + self.e032 * other.e31 * other.e032 + self.e123 * other.e31 * other.e123 + self.e123 * other.e013 * other.e0123,
         e013: self.e021 * other.e021 * other.e013 + self.e013 * other.e013 * other.e013 + self.e013 * other.e0123 * other.e0123 + self.e032 * other.e013 * other.e032 + self.e123 * other.e013 * other.e123,
+        e23: self.e021 * other.e021 * other.e23 + self.e013 * other.e013 * other.e23 + self.e032 * other.e23 * other.e032 - self.e032 * other.e123 * other.e0123 + self.e123 * other.e23 * other.e123 + self.e123 * other.e032 * other.e0123,
         e032: self.e021 * other.e021 * other.e032 + self.e013 * other.e013 * other.e032 + self.e032 * other.e032 * other.e032 + self.e032 * other.e0123 * other.e0123 + self.e123 * other.e032 * other.e123,
         e123: self.e021 * other.e021 * other.e123 + self.e013 * other.e013 * other.e123 + self.e032 * other.e032 * other.e123 + self.e123 * other.e123 * other.e123 + self.e123 * other.e0123 * other.e0123,
+        e0123: -self.e021 * other.e021 * other.e0123 - self.e013 * other.e013 * other.e0123 - self.e032 * other.e032 * other.e0123 - self.e123 * other.e123 * other.e0123,
     };
 }
 
@@ -13071,22 +13086,15 @@ fn fourvector_project_trivector(self: FourVector, other: Trivector) -> Null {
     };
 }
 
-fn fourvector_project_fourvector(self: FourVector, other: FourVector) -> Null {
-    return Null {
-        _phantom: 0.0,
+fn fourvector_project_fourvector(self: FourVector, other: FourVector) -> FourVector {
+    return FourVector {
+        e0123: self.e0123 * other.e0123 * other.e0123,
     };
 }
 
-fn fourvector_project_null(self: FourVector, other: Null) -> EvenMultivector {
-    return EvenMultivector {
-        s: 0.0,
-        e01: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e23: 0.0,
-        e0123: 0.0,
+fn fourvector_project_null(self: FourVector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -13116,15 +13124,23 @@ fn fourvector_project_evenmultivector(self: FourVector, other: EvenMultivector) 
     };
 }
 
-fn fourvector_project_multivector(self: FourVector, other: Multivector) -> EvenMultivector {
-    return EvenMultivector {
+fn fourvector_project_multivector(self: FourVector, other: Multivector) -> Multivector {
+    return Multivector {
         s: self.e0123 * other.s * other.e0123,
+        e0: self.e0123 * other.e0 * other.e0123,
+        e1: self.e0123 * other.e1 * other.e0123,
         e01: -self.e0123 * other.e01 * other.e0123,
+        e2: self.e0123 * other.e2 * other.e0123,
         e02: -self.e0123 * other.e02 * other.e0123,
         e12: -self.e0123 * other.e12 * other.e0123,
+        e021: -self.e0123 * other.e021 * other.e0123,
+        e3: self.e0123 * other.e3 * other.e0123,
         e03: -self.e0123 * other.e03 * other.e0123,
         e31: -self.e0123 * other.e31 * other.e0123,
+        e013: -self.e0123 * other.e013 * other.e0123,
         e23: -self.e0123 * other.e23 * other.e0123,
+        e032: -self.e0123 * other.e032 * other.e0123,
+        e123: -self.e0123 * other.e123 * other.e0123,
         e0123: self.e0123 * other.e0123 * other.e0123,
     };
 }
@@ -13248,16 +13264,9 @@ fn oddmultivector_project_fourvector(self: OddMultivector, other: FourVector) ->
     };
 }
 
-fn oddmultivector_project_null(self: OddMultivector, other: Null) -> OddMultivector {
-    return OddMultivector {
-        e0: 0.0,
-        e1: 0.0,
-        e2: 0.0,
-        e021: 0.0,
-        e3: 0.0,
-        e013: 0.0,
-        e032: 0.0,
-        e123: 0.0,
+fn oddmultivector_project_null(self: OddMultivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -13287,16 +13296,24 @@ fn oddmultivector_project_evenmultivector(self: OddMultivector, other: EvenMulti
     };
 }
 
-fn oddmultivector_project_multivector(self: OddMultivector, other: Multivector) -> OddMultivector {
-    return OddMultivector {
+fn oddmultivector_project_multivector(self: OddMultivector, other: Multivector) -> Multivector {
+    return Multivector {
+        s: self.e0 * other.s * other.e0 + self.e0 * other.e1 * other.e01 + self.e0 * other.e2 * other.e02 - self.e0 * other.e12 * other.e021 + self.e0 * other.e3 * other.e03 - self.e0 * other.e31 * other.e013 - self.e0 * other.e23 * other.e032 + self.e0 * other.e123 * other.e0123 + self.e1 * other.s * other.e1 - self.e1 * other.e0 * other.e01 + self.e1 * other.e2 * other.e12 + self.e1 * other.e02 * other.e021 - self.e1 * other.e3 * other.e31 - self.e1 * other.e03 * other.e013 + self.e1 * other.e23 * other.e123 + self.e1 * other.e032 * other.e0123 + self.e2 * other.s * other.e2 - self.e2 * other.e0 * other.e02 - self.e2 * other.e1 * other.e12 - self.e2 * other.e01 * other.e021 + self.e2 * other.e3 * other.e23 + self.e2 * other.e03 * other.e032 + self.e2 * other.e31 * other.e123 + self.e2 * other.e013 * other.e0123 - self.e021 * other.s * other.e021 + self.e021 * other.e3 * other.e0123 + self.e3 * other.s * other.e3 - self.e3 * other.e0 * other.e03 + self.e3 * other.e1 * other.e31 + self.e3 * other.e01 * other.e013 - self.e3 * other.e2 * other.e23 - self.e3 * other.e02 * other.e032 + self.e3 * other.e12 * other.e123 + self.e3 * other.e021 * other.e0123 - self.e013 * other.s * other.e013 + self.e013 * other.e2 * other.e0123 - self.e032 * other.s * other.e032 + self.e032 * other.e1 * other.e0123 - self.e123 * other.s * other.e123 + self.e123 * other.e0 * other.e0123,
         e0: self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e0 * other.e02 * other.e02 + self.e0 * other.e021 * other.e021 + self.e0 * other.e03 * other.e03 + self.e0 * other.e013 * other.e013 + self.e0 * other.e032 * other.e032 + self.e0 * other.e0123 * other.e0123 + self.e1 * other.e0 * other.e1 + self.e1 * other.e02 * other.e12 - self.e1 * other.e03 * other.e31 - self.e1 * other.e032 * other.e123 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12 + self.e2 * other.e03 * other.e23 - self.e2 * other.e013 * other.e123 - self.e021 * other.e0 * other.e021 + self.e021 * other.e03 * other.e0123 + self.e3 * other.e0 * other.e3 + self.e3 * other.e01 * other.e31 - self.e3 * other.e02 * other.e23 - self.e3 * other.e021 * other.e123 - self.e013 * other.e0 * other.e013 + self.e013 * other.e02 * other.e0123 - self.e032 * other.e0 * other.e032 + self.e032 * other.e01 * other.e0123 - self.e123 * other.e0 * other.e123,
         e1: self.e0 * other.e0 * other.e1 + self.e0 * other.e02 * other.e12 - self.e0 * other.e03 * other.e31 - self.e0 * other.e032 * other.e123 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e1 * other.e021 * other.e021 + self.e1 * other.e31 * other.e31 + self.e1 * other.e013 * other.e013 + self.e1 * other.e123 * other.e123 + self.e1 * other.e0123 * other.e0123 + self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e02 - self.e2 * other.e31 * other.e23 - self.e2 * other.e013 * other.e032 - self.e021 * other.e1 * other.e021 - self.e021 * other.e31 * other.e0123 + self.e3 * other.e1 * other.e3 + self.e3 * other.e01 * other.e03 - self.e3 * other.e12 * other.e23 - self.e3 * other.e021 * other.e032 - self.e013 * other.e1 * other.e013 + self.e013 * other.e12 * other.e0123 - self.e032 * other.e1 * other.e032 - self.e123 * other.e1 * other.e123 - self.e123 * other.e01 * other.e0123,
+        e01: -self.e0 * other.e0 * other.e01 + self.e0 * other.e02 * other.e021 - self.e0 * other.e03 * other.e013 + self.e0 * other.e032 * other.e0123 - self.e1 * other.e1 * other.e01 + self.e1 * other.e12 * other.e021 + self.e1 * other.e31 * other.e013 - self.e1 * other.e123 * other.e0123 - self.e2 * other.e01 * other.e2 - self.e2 * other.e013 * other.e23 + self.e021 * other.e01 * other.e021 - self.e021 * other.e013 * other.e0123 - self.e3 * other.e01 * other.e3 - self.e3 * other.e021 * other.e23 + self.e013 * other.e01 * other.e013 + self.e013 * other.e021 * other.e0123 + self.e032 * other.e01 * other.e032 + self.e123 * other.e01 * other.e123,
         e2: self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 + self.e0 * other.e03 * other.e23 - self.e0 * other.e013 * other.e123 + self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e02 - self.e1 * other.e31 * other.e23 - self.e1 * other.e013 * other.e032 + self.e2 * other.e2 * other.e2 + self.e2 * other.e02 * other.e02 + self.e2 * other.e12 * other.e12 + self.e2 * other.e021 * other.e021 + self.e2 * other.e23 * other.e23 + self.e2 * other.e032 * other.e032 + self.e2 * other.e123 * other.e123 + self.e2 * other.e0123 * other.e0123 - self.e021 * other.e2 * other.e021 + self.e021 * other.e23 * other.e0123 + self.e3 * other.e2 * other.e3 + self.e3 * other.e02 * other.e03 - self.e3 * other.e12 * other.e31 - self.e3 * other.e021 * other.e013 - self.e013 * other.e2 * other.e013 - self.e032 * other.e2 * other.e032 - self.e032 * other.e12 * other.e0123 - self.e123 * other.e2 * other.e123 - self.e123 * other.e02 * other.e0123,
+        e02: -self.e0 * other.e0 * other.e02 - self.e0 * other.e01 * other.e021 + self.e0 * other.e03 * other.e032 + self.e0 * other.e013 * other.e0123 - self.e1 * other.e1 * other.e02 - self.e1 * other.e31 * other.e032 - self.e2 * other.e2 * other.e02 + self.e2 * other.e12 * other.e021 + self.e2 * other.e23 * other.e032 - self.e2 * other.e123 * other.e0123 + self.e021 * other.e02 * other.e021 + self.e021 * other.e032 * other.e0123 - self.e3 * other.e02 * other.e3 - self.e3 * other.e021 * other.e31 + self.e013 * other.e02 * other.e013 + self.e032 * other.e02 * other.e032 - self.e032 * other.e021 * other.e0123 + self.e123 * other.e02 * other.e123,
+        e12: -self.e0 * other.e0 * other.e12 - self.e0 * other.e03 * other.e123 - self.e1 * other.e1 * other.e12 - self.e1 * other.e01 * other.e021 + self.e1 * other.e31 * other.e123 + self.e1 * other.e013 * other.e0123 - self.e2 * other.e2 * other.e12 - self.e2 * other.e02 * other.e021 - self.e2 * other.e23 * other.e123 - self.e2 * other.e032 * other.e0123 + self.e021 * other.e12 * other.e021 - self.e021 * other.e123 * other.e0123 - self.e3 * other.e12 * other.e3 - self.e3 * other.e021 * other.e03 + self.e013 * other.e12 * other.e013 + self.e032 * other.e12 * other.e032 + self.e123 * other.e12 * other.e123 + self.e123 * other.e021 * other.e0123,
         e021: -self.e0 * other.e0 * other.e021 + self.e0 * other.e03 * other.e0123 - self.e1 * other.e1 * other.e021 - self.e1 * other.e31 * other.e0123 - self.e2 * other.e2 * other.e021 + self.e2 * other.e23 * other.e0123 + self.e021 * other.e021 * other.e021 + self.e021 * other.e0123 * other.e0123 - self.e3 * other.e021 * other.e3 + self.e013 * other.e021 * other.e013 + self.e032 * other.e021 * other.e032 + self.e123 * other.e021 * other.e123,
         e3: self.e0 * other.e0 * other.e3 + self.e0 * other.e01 * other.e31 - self.e0 * other.e02 * other.e23 - self.e0 * other.e021 * other.e123 + self.e1 * other.e1 * other.e3 + self.e1 * other.e01 * other.e03 - self.e1 * other.e12 * other.e23 - self.e1 * other.e021 * other.e032 + self.e2 * other.e2 * other.e3 + self.e2 * other.e02 * other.e03 - self.e2 * other.e12 * other.e31 - self.e2 * other.e021 * other.e013 - self.e021 * other.e021 * other.e3 + self.e3 * other.e3 * other.e3 + self.e3 * other.e03 * other.e03 + self.e3 * other.e31 * other.e31 + self.e3 * other.e013 * other.e013 + self.e3 * other.e23 * other.e23 + self.e3 * other.e032 * other.e032 + self.e3 * other.e123 * other.e123 + self.e3 * other.e0123 * other.e0123 - self.e013 * other.e3 * other.e013 - self.e013 * other.e23 * other.e0123 - self.e032 * other.e3 * other.e032 + self.e032 * other.e31 * other.e0123 - self.e123 * other.e3 * other.e123 - self.e123 * other.e03 * other.e0123,
+        e03: -self.e0 * other.e0 * other.e03 + self.e0 * other.e01 * other.e013 - self.e0 * other.e02 * other.e032 + self.e0 * other.e021 * other.e0123 - self.e1 * other.e1 * other.e03 - self.e1 * other.e12 * other.e032 - self.e2 * other.e2 * other.e03 - self.e2 * other.e12 * other.e013 + self.e021 * other.e021 * other.e03 - self.e3 * other.e3 * other.e03 + self.e3 * other.e31 * other.e013 + self.e3 * other.e23 * other.e032 - self.e3 * other.e123 * other.e0123 + self.e013 * other.e03 * other.e013 - self.e013 * other.e032 * other.e0123 + self.e032 * other.e03 * other.e032 + self.e032 * other.e013 * other.e0123 + self.e123 * other.e03 * other.e123,
+        e31: -self.e0 * other.e0 * other.e31 - self.e0 * other.e02 * other.e123 - self.e1 * other.e1 * other.e31 - self.e1 * other.e01 * other.e013 - self.e1 * other.e12 * other.e123 - self.e1 * other.e021 * other.e0123 - self.e2 * other.e2 * other.e31 - self.e2 * other.e02 * other.e013 + self.e021 * other.e021 * other.e31 - self.e3 * other.e3 * other.e31 - self.e3 * other.e03 * other.e013 + self.e3 * other.e23 * other.e123 + self.e3 * other.e032 * other.e0123 + self.e013 * other.e31 * other.e013 - self.e013 * other.e123 * other.e0123 + self.e032 * other.e31 * other.e032 + self.e123 * other.e31 * other.e123 + self.e123 * other.e013 * other.e0123,
         e013: -self.e0 * other.e0 * other.e013 + self.e0 * other.e02 * other.e0123 - self.e1 * other.e1 * other.e013 + self.e1 * other.e12 * other.e0123 - self.e2 * other.e2 * other.e013 + self.e021 * other.e021 * other.e013 - self.e3 * other.e3 * other.e013 - self.e3 * other.e23 * other.e0123 + self.e013 * other.e013 * other.e013 + self.e013 * other.e0123 * other.e0123 + self.e032 * other.e013 * other.e032 + self.e123 * other.e013 * other.e123,
+        e23: -self.e0 * other.e0 * other.e23 - self.e0 * other.e01 * other.e123 - self.e1 * other.e1 * other.e23 - self.e1 * other.e01 * other.e032 - self.e2 * other.e2 * other.e23 - self.e2 * other.e02 * other.e032 + self.e2 * other.e12 * other.e123 + self.e2 * other.e021 * other.e0123 + self.e021 * other.e021 * other.e23 - self.e3 * other.e3 * other.e23 - self.e3 * other.e03 * other.e032 - self.e3 * other.e31 * other.e123 - self.e3 * other.e013 * other.e0123 + self.e013 * other.e013 * other.e23 + self.e032 * other.e23 * other.e032 - self.e032 * other.e123 * other.e0123 + self.e123 * other.e23 * other.e123 + self.e123 * other.e032 * other.e0123,
         e032: -self.e0 * other.e0 * other.e032 + self.e0 * other.e01 * other.e0123 - self.e1 * other.e1 * other.e032 - self.e2 * other.e2 * other.e032 - self.e2 * other.e12 * other.e0123 + self.e021 * other.e021 * other.e032 - self.e3 * other.e3 * other.e032 + self.e3 * other.e31 * other.e0123 + self.e013 * other.e013 * other.e032 + self.e032 * other.e032 * other.e032 + self.e032 * other.e0123 * other.e0123 + self.e123 * other.e032 * other.e123,
         e123: -self.e0 * other.e0 * other.e123 - self.e1 * other.e1 * other.e123 - self.e1 * other.e01 * other.e0123 - self.e2 * other.e2 * other.e123 - self.e2 * other.e02 * other.e0123 + self.e021 * other.e021 * other.e123 - self.e3 * other.e3 * other.e123 - self.e3 * other.e03 * other.e0123 + self.e013 * other.e013 * other.e123 + self.e032 * other.e032 * other.e123 + self.e123 * other.e123 * other.e123 + self.e123 * other.e0123 * other.e0123,
+        e0123: self.e0 * other.e0 * other.e0123 + self.e1 * other.e1 * other.e0123 + self.e2 * other.e2 * other.e0123 - self.e021 * other.e021 * other.e0123 + self.e3 * other.e3 * other.e0123 - self.e013 * other.e013 * other.e0123 - self.e032 * other.e032 * other.e0123 - self.e123 * other.e123 * other.e0123,
     };
 }
 
@@ -13365,16 +13382,9 @@ fn evenmultivector_project_fourvector(self: EvenMultivector, other: FourVector) 
     };
 }
 
-fn evenmultivector_project_null(self: EvenMultivector, other: Null) -> EvenMultivector {
-    return EvenMultivector {
-        s: 0.0,
-        e01: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e23: 0.0,
-        e0123: 0.0,
+fn evenmultivector_project_null(self: EvenMultivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -13404,15 +13414,23 @@ fn evenmultivector_project_evenmultivector(self: EvenMultivector, other: EvenMul
     };
 }
 
-fn evenmultivector_project_multivector(self: EvenMultivector, other: Multivector) -> EvenMultivector {
-    return EvenMultivector {
+fn evenmultivector_project_multivector(self: EvenMultivector, other: Multivector) -> Multivector {
+    return Multivector {
         s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.s * other.e2 * other.e2 + self.s * other.e02 * other.e02 + self.s * other.e12 * other.e12 + self.s * other.e021 * other.e021 + self.s * other.e3 * other.e3 + self.s * other.e03 * other.e03 + self.s * other.e31 * other.e31 + self.s * other.e013 * other.e013 + self.s * other.e23 * other.e23 + self.s * other.e032 * other.e032 + self.s * other.e123 * other.e123 + self.s * other.e0123 * other.e0123 - self.e01 * other.s * other.e01 + self.e01 * other.e2 * other.e021 - self.e01 * other.e3 * other.e013 - self.e01 * other.e23 * other.e0123 - self.e02 * other.s * other.e02 - self.e02 * other.e1 * other.e021 + self.e02 * other.e3 * other.e032 - self.e02 * other.e31 * other.e0123 - self.e12 * other.s * other.e12 + self.e12 * other.e0 * other.e021 - self.e12 * other.e3 * other.e123 - self.e12 * other.e03 * other.e0123 - self.e03 * other.s * other.e03 + self.e03 * other.e1 * other.e013 - self.e03 * other.e2 * other.e032 - self.e03 * other.e12 * other.e0123 - self.e31 * other.s * other.e31 + self.e31 * other.e0 * other.e013 - self.e31 * other.e2 * other.e123 - self.e31 * other.e02 * other.e0123 - self.e23 * other.s * other.e23 + self.e23 * other.e0 * other.e032 - self.e23 * other.e1 * other.e123 - self.e23 * other.e01 * other.e0123 + self.e0123 * other.s * other.e0123,
+        e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 + self.s * other.e2 * other.e02 - self.s * other.e12 * other.e021 + self.s * other.e3 * other.e03 - self.s * other.e31 * other.e013 - self.s * other.e23 * other.e032 + self.s * other.e123 * other.e0123 - self.e01 * other.e0 * other.e01 + self.e01 * other.e02 * other.e021 - self.e01 * other.e03 * other.e013 + self.e01 * other.e032 * other.e0123 - self.e02 * other.e0 * other.e02 - self.e02 * other.e01 * other.e021 + self.e02 * other.e03 * other.e032 + self.e02 * other.e013 * other.e0123 - self.e12 * other.e0 * other.e12 - self.e12 * other.e03 * other.e123 - self.e03 * other.e0 * other.e03 + self.e03 * other.e01 * other.e013 - self.e03 * other.e02 * other.e032 + self.e03 * other.e021 * other.e0123 - self.e31 * other.e0 * other.e31 - self.e31 * other.e02 * other.e123 - self.e23 * other.e0 * other.e23 - self.e23 * other.e01 * other.e123 + self.e0123 * other.e0 * other.e0123,
+        e1: self.s * other.s * other.e1 - self.s * other.e0 * other.e01 + self.s * other.e2 * other.e12 + self.s * other.e02 * other.e021 - self.s * other.e3 * other.e31 - self.s * other.e03 * other.e013 + self.s * other.e23 * other.e123 + self.s * other.e032 * other.e0123 - self.e01 * other.e1 * other.e01 + self.e01 * other.e12 * other.e021 + self.e01 * other.e31 * other.e013 - self.e01 * other.e123 * other.e0123 - self.e02 * other.e1 * other.e02 - self.e02 * other.e31 * other.e032 - self.e12 * other.e1 * other.e12 - self.e12 * other.e01 * other.e021 + self.e12 * other.e31 * other.e123 + self.e12 * other.e013 * other.e0123 - self.e03 * other.e1 * other.e03 - self.e03 * other.e12 * other.e032 - self.e31 * other.e1 * other.e31 - self.e31 * other.e01 * other.e013 - self.e31 * other.e12 * other.e123 - self.e31 * other.e021 * other.e0123 - self.e23 * other.e1 * other.e23 - self.e23 * other.e01 * other.e032 + self.e0123 * other.e1 * other.e0123,
         e01: -self.s * other.s * other.e01 + self.s * other.e2 * other.e021 - self.s * other.e3 * other.e013 - self.s * other.e23 * other.e0123 + self.e01 * other.e01 * other.e01 + self.e01 * other.e021 * other.e021 + self.e01 * other.e013 * other.e013 + self.e01 * other.e0123 * other.e0123 + self.e02 * other.e01 * other.e02 - self.e02 * other.e013 * other.e032 + self.e12 * other.e01 * other.e12 + self.e12 * other.e013 * other.e123 + self.e03 * other.e01 * other.e03 - self.e03 * other.e021 * other.e032 + self.e31 * other.e01 * other.e31 - self.e31 * other.e021 * other.e123 + self.e23 * other.e01 * other.e23 - self.e0123 * other.e01 * other.e0123,
+        e2: self.s * other.s * other.e2 - self.s * other.e0 * other.e02 - self.s * other.e1 * other.e12 - self.s * other.e01 * other.e021 + self.s * other.e3 * other.e23 + self.s * other.e03 * other.e032 + self.s * other.e31 * other.e123 + self.s * other.e013 * other.e0123 - self.e01 * other.e01 * other.e2 - self.e01 * other.e013 * other.e23 - self.e02 * other.e2 * other.e02 + self.e02 * other.e12 * other.e021 + self.e02 * other.e23 * other.e032 - self.e02 * other.e123 * other.e0123 - self.e12 * other.e2 * other.e12 - self.e12 * other.e02 * other.e021 - self.e12 * other.e23 * other.e123 - self.e12 * other.e032 * other.e0123 - self.e03 * other.e2 * other.e03 - self.e03 * other.e12 * other.e013 - self.e31 * other.e2 * other.e31 - self.e31 * other.e02 * other.e013 - self.e23 * other.e2 * other.e23 - self.e23 * other.e02 * other.e032 + self.e23 * other.e12 * other.e123 + self.e23 * other.e021 * other.e0123 + self.e0123 * other.e2 * other.e0123,
         e02: -self.s * other.s * other.e02 - self.s * other.e1 * other.e021 + self.s * other.e3 * other.e032 - self.s * other.e31 * other.e0123 + self.e01 * other.e01 * other.e02 - self.e01 * other.e013 * other.e032 + self.e02 * other.e02 * other.e02 + self.e02 * other.e021 * other.e021 + self.e02 * other.e032 * other.e032 + self.e02 * other.e0123 * other.e0123 + self.e12 * other.e02 * other.e12 - self.e12 * other.e032 * other.e123 + self.e03 * other.e02 * other.e03 - self.e03 * other.e021 * other.e013 + self.e31 * other.e02 * other.e31 + self.e23 * other.e02 * other.e23 + self.e23 * other.e021 * other.e123 - self.e0123 * other.e02 * other.e0123,
         e12: -self.s * other.s * other.e12 + self.s * other.e0 * other.e021 - self.s * other.e3 * other.e123 - self.s * other.e03 * other.e0123 + self.e01 * other.e01 * other.e12 + self.e01 * other.e013 * other.e123 + self.e02 * other.e02 * other.e12 - self.e02 * other.e032 * other.e123 + self.e12 * other.e12 * other.e12 + self.e12 * other.e021 * other.e021 + self.e12 * other.e123 * other.e123 + self.e12 * other.e0123 * other.e0123 + self.e03 * other.e12 * other.e03 + self.e31 * other.e12 * other.e31 + self.e31 * other.e021 * other.e013 + self.e23 * other.e12 * other.e23 + self.e23 * other.e021 * other.e032 - self.e0123 * other.e12 * other.e0123,
+        e021: -self.s * other.s * other.e021 + self.s * other.e3 * other.e0123 + self.e01 * other.e01 * other.e021 - self.e01 * other.e013 * other.e0123 + self.e02 * other.e02 * other.e021 + self.e02 * other.e032 * other.e0123 + self.e12 * other.e12 * other.e021 - self.e12 * other.e123 * other.e0123 + self.e03 * other.e021 * other.e03 + self.e31 * other.e021 * other.e31 + self.e23 * other.e021 * other.e23 - self.e0123 * other.e021 * other.e0123,
+        e3: self.s * other.s * other.e3 - self.s * other.e0 * other.e03 + self.s * other.e1 * other.e31 + self.s * other.e01 * other.e013 - self.s * other.e2 * other.e23 - self.s * other.e02 * other.e032 + self.s * other.e12 * other.e123 + self.s * other.e021 * other.e0123 - self.e01 * other.e01 * other.e3 - self.e01 * other.e021 * other.e23 - self.e02 * other.e02 * other.e3 - self.e02 * other.e021 * other.e31 - self.e12 * other.e12 * other.e3 - self.e12 * other.e021 * other.e03 - self.e03 * other.e3 * other.e03 + self.e03 * other.e31 * other.e013 + self.e03 * other.e23 * other.e032 - self.e03 * other.e123 * other.e0123 - self.e31 * other.e3 * other.e31 - self.e31 * other.e03 * other.e013 + self.e31 * other.e23 * other.e123 + self.e31 * other.e032 * other.e0123 - self.e23 * other.e3 * other.e23 - self.e23 * other.e03 * other.e032 - self.e23 * other.e31 * other.e123 - self.e23 * other.e013 * other.e0123 + self.e0123 * other.e3 * other.e0123,
         e03: -self.s * other.s * other.e03 + self.s * other.e1 * other.e013 - self.s * other.e2 * other.e032 - self.s * other.e12 * other.e0123 + self.e01 * other.e01 * other.e03 - self.e01 * other.e021 * other.e032 + self.e02 * other.e02 * other.e03 - self.e02 * other.e021 * other.e013 + self.e12 * other.e12 * other.e03 + self.e03 * other.e03 * other.e03 + self.e03 * other.e013 * other.e013 + self.e03 * other.e032 * other.e032 + self.e03 * other.e0123 * other.e0123 + self.e31 * other.e03 * other.e31 + self.e31 * other.e032 * other.e123 + self.e23 * other.e03 * other.e23 - self.e23 * other.e013 * other.e123 - self.e0123 * other.e03 * other.e0123,
         e31: -self.s * other.s * other.e31 + self.s * other.e0 * other.e013 - self.s * other.e2 * other.e123 - self.s * other.e02 * other.e0123 + self.e01 * other.e01 * other.e31 - self.e01 * other.e021 * other.e123 + self.e02 * other.e02 * other.e31 + self.e12 * other.e12 * other.e31 + self.e12 * other.e021 * other.e013 + self.e03 * other.e03 * other.e31 + self.e03 * other.e032 * other.e123 + self.e31 * other.e31 * other.e31 + self.e31 * other.e013 * other.e013 + self.e31 * other.e123 * other.e123 + self.e31 * other.e0123 * other.e0123 + self.e23 * other.e31 * other.e23 + self.e23 * other.e013 * other.e032 - self.e0123 * other.e31 * other.e0123,
+        e013: -self.s * other.s * other.e013 + self.s * other.e2 * other.e0123 + self.e01 * other.e01 * other.e013 + self.e01 * other.e021 * other.e0123 + self.e02 * other.e02 * other.e013 + self.e12 * other.e12 * other.e013 + self.e03 * other.e03 * other.e013 - self.e03 * other.e032 * other.e0123 + self.e31 * other.e31 * other.e013 - self.e31 * other.e123 * other.e0123 + self.e23 * other.e013 * other.e23 - self.e0123 * other.e013 * other.e0123,
         e23: -self.s * other.s * other.e23 + self.s * other.e0 * other.e032 - self.s * other.e1 * other.e123 - self.s * other.e01 * other.e0123 + self.e01 * other.e01 * other.e23 + self.e02 * other.e02 * other.e23 + self.e02 * other.e021 * other.e123 + self.e12 * other.e12 * other.e23 + self.e12 * other.e021 * other.e032 + self.e03 * other.e03 * other.e23 - self.e03 * other.e013 * other.e123 + self.e31 * other.e31 * other.e23 + self.e31 * other.e013 * other.e032 + self.e23 * other.e23 * other.e23 + self.e23 * other.e032 * other.e032 + self.e23 * other.e123 * other.e123 + self.e23 * other.e0123 * other.e0123 - self.e0123 * other.e23 * other.e0123,
+        e032: -self.s * other.s * other.e032 + self.s * other.e1 * other.e0123 + self.e01 * other.e01 * other.e032 + self.e02 * other.e02 * other.e032 - self.e02 * other.e021 * other.e0123 + self.e12 * other.e12 * other.e032 + self.e03 * other.e03 * other.e032 + self.e03 * other.e013 * other.e0123 + self.e31 * other.e31 * other.e032 + self.e23 * other.e23 * other.e032 - self.e23 * other.e123 * other.e0123 - self.e0123 * other.e032 * other.e0123,
+        e123: -self.s * other.s * other.e123 + self.s * other.e0 * other.e0123 + self.e01 * other.e01 * other.e123 + self.e02 * other.e02 * other.e123 + self.e12 * other.e12 * other.e123 + self.e12 * other.e021 * other.e0123 + self.e03 * other.e03 * other.e123 + self.e31 * other.e31 * other.e123 + self.e31 * other.e013 * other.e0123 + self.e23 * other.e23 * other.e123 + self.e23 * other.e032 * other.e0123 - self.e0123 * other.e123 * other.e0123,
         e0123: self.s * other.s * other.e0123 - self.e01 * other.e01 * other.e0123 - self.e02 * other.e02 * other.e0123 - self.e12 * other.e12 * other.e0123 - self.e03 * other.e03 * other.e0123 - self.e31 * other.e31 * other.e0123 - self.e23 * other.e23 * other.e0123 + self.e0123 * other.e0123 * other.e0123,
     };
 }
@@ -13522,24 +13540,9 @@ fn multivector_project_fourvector(self: Multivector, other: FourVector) -> Multi
     };
 }
 
-fn multivector_project_null(self: Multivector, other: Null) -> Multivector {
-    return Multivector {
-        s: 0.0,
-        e0: 0.0,
-        e1: 0.0,
-        e01: 0.0,
-        e2: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e021: 0.0,
-        e3: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e013: 0.0,
-        e23: 0.0,
-        e032: 0.0,
-        e123: 0.0,
-        e0123: 0.0,
+fn multivector_project_null(self: Multivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -13636,16 +13639,9 @@ fn scalar_reject_fourvector(self: Scalar, other: FourVector) -> Scalar {
     };
 }
 
-fn scalar_reject_null(self: Scalar, other: Null) -> EvenMultivector {
-    return EvenMultivector {
-        s: 0.0,
-        e01: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e23: 0.0,
-        e0123: 0.0,
+fn scalar_reject_null(self: Scalar, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -13675,15 +13671,23 @@ fn scalar_reject_evenmultivector(self: Scalar, other: EvenMultivector) -> EvenMu
     };
 }
 
-fn scalar_reject_multivector(self: Scalar, other: Multivector) -> EvenMultivector {
-    return EvenMultivector {
+fn scalar_reject_multivector(self: Scalar, other: Multivector) -> Multivector {
+    return Multivector {
         s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.s * other.e2 * other.e2 + self.s * other.e02 * other.e02 + self.s * other.e12 * other.e12 + self.s * other.e021 * other.e021 + self.s * other.e3 * other.e3 + self.s * other.e03 * other.e03 + self.s * other.e31 * other.e31 + self.s * other.e013 * other.e013 + self.s * other.e23 * other.e23 + self.s * other.e032 * other.e032 + self.s * other.e123 * other.e123 + self.s * other.e0123 * other.e0123,
+        e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 + self.s * other.e2 * other.e02 - self.s * other.e12 * other.e021 + self.s * other.e3 * other.e03 - self.s * other.e31 * other.e013 - self.s * other.e23 * other.e032 + self.s * other.e123 * other.e0123,
+        e1: self.s * other.s * other.e1 - self.s * other.e0 * other.e01 + self.s * other.e2 * other.e12 + self.s * other.e02 * other.e021 - self.s * other.e3 * other.e31 - self.s * other.e03 * other.e013 + self.s * other.e23 * other.e123 + self.s * other.e032 * other.e0123,
         e01: self.s * other.s * other.e01 - self.s * other.e2 * other.e021 + self.s * other.e3 * other.e013 + self.s * other.e23 * other.e0123,
+        e2: self.s * other.s * other.e2 - self.s * other.e0 * other.e02 - self.s * other.e1 * other.e12 - self.s * other.e01 * other.e021 + self.s * other.e3 * other.e23 + self.s * other.e03 * other.e032 + self.s * other.e31 * other.e123 + self.s * other.e013 * other.e0123,
         e02: self.s * other.s * other.e02 + self.s * other.e1 * other.e021 - self.s * other.e3 * other.e032 + self.s * other.e31 * other.e0123,
         e12: self.s * other.s * other.e12 - self.s * other.e0 * other.e021 + self.s * other.e3 * other.e123 + self.s * other.e03 * other.e0123,
+        e021: self.s * other.s * other.e021 - self.s * other.e3 * other.e0123,
+        e3: self.s * other.s * other.e3 - self.s * other.e0 * other.e03 + self.s * other.e1 * other.e31 + self.s * other.e01 * other.e013 - self.s * other.e2 * other.e23 - self.s * other.e02 * other.e032 + self.s * other.e12 * other.e123 + self.s * other.e021 * other.e0123,
         e03: self.s * other.s * other.e03 - self.s * other.e1 * other.e013 + self.s * other.e2 * other.e032 + self.s * other.e12 * other.e0123,
         e31: self.s * other.s * other.e31 - self.s * other.e0 * other.e013 + self.s * other.e2 * other.e123 + self.s * other.e02 * other.e0123,
+        e013: self.s * other.s * other.e013 - self.s * other.e2 * other.e0123,
         e23: self.s * other.s * other.e23 - self.s * other.e0 * other.e032 + self.s * other.e1 * other.e123 + self.s * other.e01 * other.e0123,
+        e032: self.s * other.s * other.e032 - self.s * other.e1 * other.e0123,
+        e123: self.s * other.s * other.e123 - self.s * other.e0 * other.e0123,
         e0123: self.s * other.s * other.e0123,
     };
 }
@@ -13730,16 +13734,9 @@ fn vector_reject_fourvector(self: Vector, other: FourVector) -> Null {
     };
 }
 
-fn vector_reject_null(self: Vector, other: Null) -> OddMultivector {
-    return OddMultivector {
-        e0: 0.0,
-        e1: 0.0,
-        e2: 0.0,
-        e021: 0.0,
-        e3: 0.0,
-        e013: 0.0,
-        e032: 0.0,
-        e123: 0.0,
+fn vector_reject_null(self: Vector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -13769,16 +13766,24 @@ fn vector_reject_evenmultivector(self: Vector, other: EvenMultivector) -> OddMul
     };
 }
 
-fn vector_reject_multivector(self: Vector, other: Multivector) -> OddMultivector {
-    return OddMultivector {
+fn vector_reject_multivector(self: Vector, other: Multivector) -> Multivector {
+    return Multivector {
+        s: self.e0 * other.s * other.e0 + self.e0 * other.e1 * other.e01 + self.e0 * other.e2 * other.e02 - self.e0 * other.e12 * other.e021 + self.e0 * other.e3 * other.e03 - self.e0 * other.e31 * other.e013 - self.e0 * other.e23 * other.e032 + self.e0 * other.e123 * other.e0123 + self.e1 * other.s * other.e1 - self.e1 * other.e0 * other.e01 + self.e1 * other.e2 * other.e12 + self.e1 * other.e02 * other.e021 - self.e1 * other.e3 * other.e31 - self.e1 * other.e03 * other.e013 + self.e1 * other.e23 * other.e123 + self.e1 * other.e032 * other.e0123 + self.e2 * other.s * other.e2 - self.e2 * other.e0 * other.e02 - self.e2 * other.e1 * other.e12 - self.e2 * other.e01 * other.e021 + self.e2 * other.e3 * other.e23 + self.e2 * other.e03 * other.e032 + self.e2 * other.e31 * other.e123 + self.e2 * other.e013 * other.e0123 + self.e3 * other.s * other.e3 - self.e3 * other.e0 * other.e03 + self.e3 * other.e1 * other.e31 + self.e3 * other.e01 * other.e013 - self.e3 * other.e2 * other.e23 - self.e3 * other.e02 * other.e032 + self.e3 * other.e12 * other.e123 + self.e3 * other.e021 * other.e0123,
         e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 + self.e0 * other.e3 * other.e3 + self.e0 * other.e31 * other.e31 + self.e0 * other.e23 * other.e23 + self.e0 * other.e123 * other.e123 - self.e1 * other.e0 * other.e1 - self.e1 * other.e02 * other.e12 + self.e1 * other.e03 * other.e31 + self.e1 * other.e032 * other.e123 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12 - self.e2 * other.e03 * other.e23 + self.e2 * other.e013 * other.e123 - self.e3 * other.e0 * other.e3 - self.e3 * other.e01 * other.e31 + self.e3 * other.e02 * other.e23 + self.e3 * other.e021 * other.e123,
         e1: -self.e0 * other.e0 * other.e1 - self.e0 * other.e02 * other.e12 + self.e0 * other.e03 * other.e31 + self.e0 * other.e032 * other.e123 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 + self.e1 * other.e02 * other.e02 + self.e1 * other.e3 * other.e3 + self.e1 * other.e03 * other.e03 + self.e1 * other.e23 * other.e23 + self.e1 * other.e032 * other.e032 - self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e02 + self.e2 * other.e31 * other.e23 + self.e2 * other.e013 * other.e032 - self.e3 * other.e1 * other.e3 - self.e3 * other.e01 * other.e03 + self.e3 * other.e12 * other.e23 + self.e3 * other.e021 * other.e032,
+        e01: self.e0 * other.s * other.e1 + self.e0 * other.e2 * other.e12 - self.e0 * other.e3 * other.e31 + self.e0 * other.e23 * other.e123 - self.e1 * other.s * other.e0 - self.e1 * other.e2 * other.e02 - self.e1 * other.e3 * other.e03 + self.e1 * other.e23 * other.e032 + self.e2 * other.e01 * other.e2 + self.e2 * other.e013 * other.e23 + self.e3 * other.e01 * other.e3 + self.e3 * other.e021 * other.e23,
         e2: -self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 - self.e0 * other.e03 * other.e23 + self.e0 * other.e013 * other.e123 - self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e02 + self.e1 * other.e31 * other.e23 + self.e1 * other.e013 * other.e032 + self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01 + self.e2 * other.e3 * other.e3 + self.e2 * other.e03 * other.e03 + self.e2 * other.e31 * other.e31 + self.e2 * other.e013 * other.e013 - self.e3 * other.e2 * other.e3 - self.e3 * other.e02 * other.e03 + self.e3 * other.e12 * other.e31 + self.e3 * other.e021 * other.e013,
+        e02: self.e0 * other.s * other.e2 - self.e0 * other.e1 * other.e12 + self.e0 * other.e3 * other.e23 + self.e0 * other.e31 * other.e123 + self.e1 * other.e1 * other.e02 + self.e1 * other.e31 * other.e032 - self.e2 * other.s * other.e0 - self.e2 * other.e1 * other.e01 - self.e2 * other.e3 * other.e03 + self.e2 * other.e31 * other.e013 + self.e3 * other.e02 * other.e3 + self.e3 * other.e021 * other.e31,
+        e12: self.e0 * other.e0 * other.e12 + self.e0 * other.e03 * other.e123 + self.e1 * other.s * other.e2 - self.e1 * other.e0 * other.e02 + self.e1 * other.e3 * other.e23 + self.e1 * other.e03 * other.e032 - self.e2 * other.s * other.e1 + self.e2 * other.e0 * other.e01 + self.e2 * other.e3 * other.e31 + self.e2 * other.e03 * other.e013 + self.e3 * other.e12 * other.e3 + self.e3 * other.e021 * other.e03,
         e021: -self.e0 * other.s * other.e12 - self.e0 * other.e3 * other.e123 + self.e1 * other.s * other.e02 - self.e1 * other.e3 * other.e032 - self.e2 * other.s * other.e01 - self.e2 * other.e3 * other.e013 - self.e3 * other.e021 * other.e3,
         e3: -self.e0 * other.e0 * other.e3 - self.e0 * other.e01 * other.e31 + self.e0 * other.e02 * other.e23 + self.e0 * other.e021 * other.e123 - self.e1 * other.e1 * other.e3 - self.e1 * other.e01 * other.e03 + self.e1 * other.e12 * other.e23 + self.e1 * other.e021 * other.e032 - self.e2 * other.e2 * other.e3 - self.e2 * other.e02 * other.e03 + self.e2 * other.e12 * other.e31 + self.e2 * other.e021 * other.e013 + self.e3 * other.s * other.s + self.e3 * other.e0 * other.e0 + self.e3 * other.e1 * other.e1 + self.e3 * other.e01 * other.e01 + self.e3 * other.e2 * other.e2 + self.e3 * other.e02 * other.e02 + self.e3 * other.e12 * other.e12 + self.e3 * other.e021 * other.e021,
+        e03: self.e0 * other.s * other.e3 + self.e0 * other.e1 * other.e31 - self.e0 * other.e2 * other.e23 + self.e0 * other.e12 * other.e123 + self.e1 * other.e1 * other.e03 + self.e1 * other.e12 * other.e032 + self.e2 * other.e2 * other.e03 + self.e2 * other.e12 * other.e013 - self.e3 * other.s * other.e0 - self.e3 * other.e1 * other.e01 - self.e3 * other.e2 * other.e02 + self.e3 * other.e12 * other.e021,
+        e31: self.e0 * other.e0 * other.e31 + self.e0 * other.e02 * other.e123 - self.e1 * other.s * other.e3 + self.e1 * other.e0 * other.e03 + self.e1 * other.e2 * other.e23 + self.e1 * other.e02 * other.e032 + self.e2 * other.e2 * other.e31 + self.e2 * other.e02 * other.e013 + self.e3 * other.s * other.e1 - self.e3 * other.e0 * other.e01 + self.e3 * other.e2 * other.e12 + self.e3 * other.e02 * other.e021,
         e013: -self.e0 * other.s * other.e31 - self.e0 * other.e2 * other.e123 - self.e1 * other.s * other.e03 - self.e1 * other.e2 * other.e032 - self.e2 * other.e2 * other.e013 + self.e3 * other.s * other.e01 - self.e3 * other.e2 * other.e021,
+        e23: self.e0 * other.e0 * other.e23 + self.e0 * other.e01 * other.e123 + self.e1 * other.e1 * other.e23 + self.e1 * other.e01 * other.e032 + self.e2 * other.s * other.e3 - self.e2 * other.e0 * other.e03 + self.e2 * other.e1 * other.e31 + self.e2 * other.e01 * other.e013 - self.e3 * other.s * other.e2 + self.e3 * other.e0 * other.e02 + self.e3 * other.e1 * other.e12 + self.e3 * other.e01 * other.e021,
         e032: -self.e0 * other.s * other.e23 - self.e0 * other.e1 * other.e123 - self.e1 * other.e1 * other.e032 + self.e2 * other.s * other.e03 - self.e2 * other.e1 * other.e013 - self.e3 * other.s * other.e02 - self.e3 * other.e1 * other.e021,
         e123: -self.e0 * other.e0 * other.e123 + self.e1 * other.s * other.e23 - self.e1 * other.e0 * other.e032 + self.e2 * other.s * other.e31 - self.e2 * other.e0 * other.e013 + self.e3 * other.s * other.e12 - self.e3 * other.e0 * other.e021,
+        e0123: self.e0 * other.s * other.e123 + self.e1 * other.s * other.e032 + self.e2 * other.s * other.e013 + self.e3 * other.s * other.e021,
     };
 }
 
@@ -13827,16 +13832,9 @@ fn bivector_reject_fourvector(self: Bivector, other: FourVector) -> Null {
     };
 }
 
-fn bivector_reject_null(self: Bivector, other: Null) -> EvenMultivector {
-    return EvenMultivector {
-        s: 0.0,
-        e01: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e23: 0.0,
-        e0123: 0.0,
+fn bivector_reject_null(self: Bivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -13866,15 +13864,23 @@ fn bivector_reject_evenmultivector(self: Bivector, other: EvenMultivector) -> Ev
     };
 }
 
-fn bivector_reject_multivector(self: Bivector, other: Multivector) -> EvenMultivector {
-    return EvenMultivector {
+fn bivector_reject_multivector(self: Bivector, other: Multivector) -> Multivector {
+    return Multivector {
         s: self.e01 * other.s * other.e01 - self.e01 * other.e2 * other.e021 + self.e01 * other.e3 * other.e013 + self.e01 * other.e23 * other.e0123 + self.e02 * other.s * other.e02 + self.e02 * other.e1 * other.e021 - self.e02 * other.e3 * other.e032 + self.e02 * other.e31 * other.e0123 + self.e12 * other.s * other.e12 - self.e12 * other.e0 * other.e021 + self.e12 * other.e3 * other.e123 + self.e12 * other.e03 * other.e0123 + self.e03 * other.s * other.e03 - self.e03 * other.e1 * other.e013 + self.e03 * other.e2 * other.e032 + self.e03 * other.e12 * other.e0123 + self.e31 * other.s * other.e31 - self.e31 * other.e0 * other.e013 + self.e31 * other.e2 * other.e123 + self.e31 * other.e02 * other.e0123 + self.e23 * other.s * other.e23 - self.e23 * other.e0 * other.e032 + self.e23 * other.e1 * other.e123 + self.e23 * other.e01 * other.e0123,
+        e0: self.e01 * other.s * other.e1 + self.e01 * other.e2 * other.e12 - self.e01 * other.e3 * other.e31 + self.e01 * other.e23 * other.e123 + self.e02 * other.s * other.e2 - self.e02 * other.e1 * other.e12 + self.e02 * other.e3 * other.e23 + self.e02 * other.e31 * other.e123 + self.e12 * other.e0 * other.e12 + self.e12 * other.e03 * other.e123 + self.e03 * other.s * other.e3 + self.e03 * other.e1 * other.e31 - self.e03 * other.e2 * other.e23 + self.e03 * other.e12 * other.e123 + self.e31 * other.e0 * other.e31 + self.e31 * other.e02 * other.e123 + self.e23 * other.e0 * other.e23 + self.e23 * other.e01 * other.e123,
+        e1: -self.e01 * other.s * other.e0 - self.e01 * other.e2 * other.e02 - self.e01 * other.e3 * other.e03 + self.e01 * other.e23 * other.e032 + self.e02 * other.e1 * other.e02 + self.e02 * other.e31 * other.e032 + self.e12 * other.s * other.e2 - self.e12 * other.e0 * other.e02 + self.e12 * other.e3 * other.e23 + self.e12 * other.e03 * other.e032 + self.e03 * other.e1 * other.e03 + self.e03 * other.e12 * other.e032 - self.e31 * other.s * other.e3 + self.e31 * other.e0 * other.e03 + self.e31 * other.e2 * other.e23 + self.e31 * other.e02 * other.e032 + self.e23 * other.e1 * other.e23 + self.e23 * other.e01 * other.e032,
         e01: self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e01 * other.e3 * other.e3 + self.e01 * other.e23 * other.e23 - self.e02 * other.e1 * other.e2 + self.e02 * other.e31 * other.e23 + self.e12 * other.e0 * other.e2 + self.e12 * other.e03 * other.e23 - self.e03 * other.e1 * other.e3 + self.e03 * other.e12 * other.e23 - self.e31 * other.e0 * other.e3 + self.e31 * other.e02 * other.e23 + self.e23 * other.e01 * other.e23,
+        e2: self.e01 * other.e01 * other.e2 + self.e01 * other.e013 * other.e23 - self.e02 * other.s * other.e0 - self.e02 * other.e1 * other.e01 - self.e02 * other.e3 * other.e03 + self.e02 * other.e31 * other.e013 - self.e12 * other.s * other.e1 + self.e12 * other.e0 * other.e01 + self.e12 * other.e3 * other.e31 + self.e12 * other.e03 * other.e013 + self.e03 * other.e2 * other.e03 + self.e03 * other.e12 * other.e013 + self.e31 * other.e2 * other.e31 + self.e31 * other.e02 * other.e013 + self.e23 * other.s * other.e3 - self.e23 * other.e0 * other.e03 + self.e23 * other.e1 * other.e31 + self.e23 * other.e01 * other.e013,
         e02: -self.e01 * other.e1 * other.e2 + self.e01 * other.e31 * other.e23 + self.e02 * other.s * other.s + self.e02 * other.e1 * other.e1 + self.e02 * other.e3 * other.e3 + self.e02 * other.e31 * other.e31 - self.e12 * other.e0 * other.e1 + self.e12 * other.e03 * other.e31 - self.e03 * other.e2 * other.e3 + self.e03 * other.e12 * other.e31 + self.e31 * other.e02 * other.e31 + self.e23 * other.e0 * other.e3 + self.e23 * other.e01 * other.e31,
         e12: self.e01 * other.e0 * other.e2 + self.e01 * other.e03 * other.e23 - self.e02 * other.e0 * other.e1 + self.e02 * other.e03 * other.e31 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0 + self.e12 * other.e3 * other.e3 + self.e12 * other.e03 * other.e03 + self.e03 * other.e12 * other.e03 + self.e31 * other.e2 * other.e3 + self.e31 * other.e02 * other.e03 + self.e23 * other.e1 * other.e3 + self.e23 * other.e01 * other.e03,
+        e021: -self.e01 * other.s * other.e2 - self.e01 * other.e3 * other.e23 + self.e02 * other.s * other.e1 - self.e02 * other.e3 * other.e31 - self.e12 * other.s * other.e0 - self.e12 * other.e3 * other.e03 - self.e03 * other.e12 * other.e3 - self.e31 * other.e02 * other.e3 - self.e23 * other.e01 * other.e3,
+        e3: self.e01 * other.e01 * other.e3 + self.e01 * other.e021 * other.e23 + self.e02 * other.e02 * other.e3 + self.e02 * other.e021 * other.e31 + self.e12 * other.e12 * other.e3 + self.e12 * other.e021 * other.e03 - self.e03 * other.s * other.e0 - self.e03 * other.e1 * other.e01 - self.e03 * other.e2 * other.e02 + self.e03 * other.e12 * other.e021 + self.e31 * other.s * other.e1 - self.e31 * other.e0 * other.e01 + self.e31 * other.e2 * other.e12 + self.e31 * other.e02 * other.e021 - self.e23 * other.s * other.e2 + self.e23 * other.e0 * other.e02 + self.e23 * other.e1 * other.e12 + self.e23 * other.e01 * other.e021,
         e03: -self.e01 * other.e1 * other.e3 + self.e01 * other.e12 * other.e23 - self.e02 * other.e2 * other.e3 + self.e02 * other.e12 * other.e31 + self.e12 * other.e12 * other.e03 + self.e03 * other.s * other.s + self.e03 * other.e1 * other.e1 + self.e03 * other.e2 * other.e2 + self.e03 * other.e12 * other.e12 + self.e31 * other.e0 * other.e1 + self.e31 * other.e02 * other.e12 - self.e23 * other.e0 * other.e2 + self.e23 * other.e01 * other.e12,
         e31: -self.e01 * other.e0 * other.e3 + self.e01 * other.e02 * other.e23 + self.e02 * other.e02 * other.e31 + self.e12 * other.e2 * other.e3 + self.e12 * other.e02 * other.e03 + self.e03 * other.e0 * other.e1 + self.e03 * other.e02 * other.e12 + self.e31 * other.s * other.s + self.e31 * other.e0 * other.e0 + self.e31 * other.e2 * other.e2 + self.e31 * other.e02 * other.e02 + self.e23 * other.e1 * other.e2 + self.e23 * other.e01 * other.e02,
+        e013: self.e01 * other.s * other.e3 - self.e01 * other.e2 * other.e23 - self.e02 * other.e2 * other.e31 - self.e12 * other.e2 * other.e03 - self.e03 * other.s * other.e1 - self.e03 * other.e2 * other.e12 - self.e31 * other.s * other.e0 - self.e31 * other.e2 * other.e02 - self.e23 * other.e01 * other.e2,
         e23: self.e01 * other.e01 * other.e23 + self.e02 * other.e0 * other.e3 + self.e02 * other.e01 * other.e31 + self.e12 * other.e1 * other.e3 + self.e12 * other.e01 * other.e03 - self.e03 * other.e0 * other.e2 + self.e03 * other.e01 * other.e12 + self.e31 * other.e1 * other.e2 + self.e31 * other.e01 * other.e02 + self.e23 * other.s * other.s + self.e23 * other.e0 * other.e0 + self.e23 * other.e1 * other.e1 + self.e23 * other.e01 * other.e01,
+        e032: -self.e01 * other.e1 * other.e23 - self.e02 * other.s * other.e3 - self.e02 * other.e1 * other.e31 - self.e12 * other.e1 * other.e03 + self.e03 * other.s * other.e2 - self.e03 * other.e1 * other.e12 - self.e31 * other.e1 * other.e02 - self.e23 * other.s * other.e0 - self.e23 * other.e1 * other.e01,
+        e123: -self.e01 * other.e0 * other.e23 - self.e02 * other.e0 * other.e31 + self.e12 * other.s * other.e3 - self.e12 * other.e0 * other.e03 - self.e03 * other.e0 * other.e12 + self.e31 * other.s * other.e2 - self.e31 * other.e0 * other.e02 + self.e23 * other.s * other.e1 - self.e23 * other.e0 * other.e01,
         e0123: self.e01 * other.s * other.e23 + self.e02 * other.s * other.e31 + self.e12 * other.s * other.e03 + self.e03 * other.s * other.e12 + self.e31 * other.s * other.e02 + self.e23 * other.s * other.e01,
     };
 }
@@ -13915,16 +13921,9 @@ fn trivector_reject_fourvector(self: Trivector, other: FourVector) -> Null {
     };
 }
 
-fn trivector_reject_null(self: Trivector, other: Null) -> OddMultivector {
-    return OddMultivector {
-        e0: 0.0,
-        e1: 0.0,
-        e2: 0.0,
-        e021: 0.0,
-        e3: 0.0,
-        e013: 0.0,
-        e032: 0.0,
-        e123: 0.0,
+fn trivector_reject_null(self: Trivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -13954,16 +13953,24 @@ fn trivector_reject_evenmultivector(self: Trivector, other: EvenMultivector) -> 
     };
 }
 
-fn trivector_reject_multivector(self: Trivector, other: Multivector) -> OddMultivector {
-    return OddMultivector {
+fn trivector_reject_multivector(self: Trivector, other: Multivector) -> Multivector {
+    return Multivector {
+        s: self.e021 * other.s * other.e021 - self.e021 * other.e3 * other.e0123 + self.e013 * other.s * other.e013 - self.e013 * other.e2 * other.e0123 + self.e032 * other.s * other.e032 - self.e032 * other.e1 * other.e0123 + self.e123 * other.s * other.e123 - self.e123 * other.e0 * other.e0123,
         e0: -self.e021 * other.s * other.e12 - self.e021 * other.e3 * other.e123 - self.e013 * other.s * other.e31 - self.e013 * other.e2 * other.e123 - self.e032 * other.s * other.e23 - self.e032 * other.e1 * other.e123 - self.e123 * other.e0 * other.e123,
         e1: self.e021 * other.s * other.e02 - self.e021 * other.e3 * other.e032 - self.e013 * other.s * other.e03 - self.e013 * other.e2 * other.e032 - self.e032 * other.e1 * other.e032 + self.e123 * other.s * other.e23 - self.e123 * other.e0 * other.e032,
+        e01: -self.e021 * other.s * other.e2 - self.e021 * other.e3 * other.e23 + self.e013 * other.s * other.e3 - self.e013 * other.e2 * other.e23 - self.e032 * other.e1 * other.e23 - self.e123 * other.e0 * other.e23,
         e2: -self.e021 * other.s * other.e01 - self.e021 * other.e3 * other.e013 - self.e013 * other.e2 * other.e013 + self.e032 * other.s * other.e03 - self.e032 * other.e1 * other.e013 + self.e123 * other.s * other.e31 - self.e123 * other.e0 * other.e013,
+        e02: self.e021 * other.s * other.e1 - self.e021 * other.e3 * other.e31 - self.e013 * other.e2 * other.e31 - self.e032 * other.s * other.e3 - self.e032 * other.e1 * other.e31 - self.e123 * other.e0 * other.e31,
+        e12: -self.e021 * other.s * other.e0 - self.e021 * other.e3 * other.e03 - self.e013 * other.e2 * other.e03 - self.e032 * other.e1 * other.e03 + self.e123 * other.s * other.e3 - self.e123 * other.e0 * other.e03,
         e021: self.e021 * other.s * other.s + self.e021 * other.e3 * other.e3 + self.e013 * other.e2 * other.e3 + self.e032 * other.e1 * other.e3 + self.e123 * other.e0 * other.e3,
         e3: -self.e021 * other.e021 * other.e3 + self.e013 * other.s * other.e01 - self.e013 * other.e2 * other.e021 - self.e032 * other.s * other.e02 - self.e032 * other.e1 * other.e021 + self.e123 * other.s * other.e12 - self.e123 * other.e0 * other.e021,
+        e03: -self.e021 * other.e12 * other.e3 - self.e013 * other.s * other.e1 - self.e013 * other.e2 * other.e12 + self.e032 * other.s * other.e2 - self.e032 * other.e1 * other.e12 - self.e123 * other.e0 * other.e12,
+        e31: -self.e021 * other.e02 * other.e3 - self.e013 * other.s * other.e0 - self.e013 * other.e2 * other.e02 - self.e032 * other.e1 * other.e02 + self.e123 * other.s * other.e2 - self.e123 * other.e0 * other.e02,
         e013: self.e021 * other.e2 * other.e3 + self.e013 * other.s * other.s + self.e013 * other.e2 * other.e2 + self.e032 * other.e1 * other.e2 + self.e123 * other.e0 * other.e2,
+        e23: -self.e021 * other.e01 * other.e3 - self.e013 * other.e01 * other.e2 - self.e032 * other.s * other.e0 - self.e032 * other.e1 * other.e01 + self.e123 * other.s * other.e1 - self.e123 * other.e0 * other.e01,
         e032: self.e021 * other.e1 * other.e3 + self.e013 * other.e1 * other.e2 + self.e032 * other.s * other.s + self.e032 * other.e1 * other.e1 + self.e123 * other.e0 * other.e1,
         e123: self.e021 * other.e0 * other.e3 + self.e013 * other.e0 * other.e2 + self.e032 * other.e0 * other.e1 + self.e123 * other.s * other.s + self.e123 * other.e0 * other.e0,
+        e0123: -self.e021 * other.s * other.e3 - self.e013 * other.s * other.e2 - self.e032 * other.s * other.e1 - self.e123 * other.s * other.e0,
     };
 }
 
@@ -13997,16 +14004,9 @@ fn fourvector_reject_fourvector(self: FourVector, other: FourVector) -> Null {
     };
 }
 
-fn fourvector_reject_null(self: FourVector, other: Null) -> EvenMultivector {
-    return EvenMultivector {
-        s: 0.0,
-        e01: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e23: 0.0,
-        e0123: 0.0,
+fn fourvector_reject_null(self: FourVector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -14036,15 +14036,23 @@ fn fourvector_reject_evenmultivector(self: FourVector, other: EvenMultivector) -
     };
 }
 
-fn fourvector_reject_multivector(self: FourVector, other: Multivector) -> EvenMultivector {
-    return EvenMultivector {
+fn fourvector_reject_multivector(self: FourVector, other: Multivector) -> Multivector {
+    return Multivector {
         s: self.e0123 * other.s * other.e0123,
+        e0: self.e0123 * other.s * other.e123,
+        e1: self.e0123 * other.s * other.e032,
         e01: self.e0123 * other.s * other.e23,
+        e2: self.e0123 * other.s * other.e013,
         e02: self.e0123 * other.s * other.e31,
         e12: self.e0123 * other.s * other.e03,
+        e021: -self.e0123 * other.s * other.e3,
+        e3: self.e0123 * other.s * other.e021,
         e03: self.e0123 * other.s * other.e12,
         e31: self.e0123 * other.s * other.e02,
+        e013: -self.e0123 * other.s * other.e2,
         e23: self.e0123 * other.s * other.e01,
+        e032: -self.e0123 * other.s * other.e1,
+        e123: -self.e0123 * other.s * other.e0,
         e0123: self.e0123 * other.s * other.s,
     };
 }
@@ -14168,16 +14176,9 @@ fn oddmultivector_reject_fourvector(self: OddMultivector, other: FourVector) -> 
     };
 }
 
-fn oddmultivector_reject_null(self: OddMultivector, other: Null) -> OddMultivector {
-    return OddMultivector {
-        e0: 0.0,
-        e1: 0.0,
-        e2: 0.0,
-        e021: 0.0,
-        e3: 0.0,
-        e013: 0.0,
-        e032: 0.0,
-        e123: 0.0,
+fn oddmultivector_reject_null(self: OddMultivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -14207,16 +14208,24 @@ fn oddmultivector_reject_evenmultivector(self: OddMultivector, other: EvenMultiv
     };
 }
 
-fn oddmultivector_reject_multivector(self: OddMultivector, other: Multivector) -> OddMultivector {
-    return OddMultivector {
+fn oddmultivector_reject_multivector(self: OddMultivector, other: Multivector) -> Multivector {
+    return Multivector {
+        s: self.e0 * other.s * other.e0 + self.e0 * other.e1 * other.e01 + self.e0 * other.e2 * other.e02 - self.e0 * other.e12 * other.e021 + self.e0 * other.e3 * other.e03 - self.e0 * other.e31 * other.e013 - self.e0 * other.e23 * other.e032 + self.e0 * other.e123 * other.e0123 + self.e1 * other.s * other.e1 - self.e1 * other.e0 * other.e01 + self.e1 * other.e2 * other.e12 + self.e1 * other.e02 * other.e021 - self.e1 * other.e3 * other.e31 - self.e1 * other.e03 * other.e013 + self.e1 * other.e23 * other.e123 + self.e1 * other.e032 * other.e0123 + self.e2 * other.s * other.e2 - self.e2 * other.e0 * other.e02 - self.e2 * other.e1 * other.e12 - self.e2 * other.e01 * other.e021 + self.e2 * other.e3 * other.e23 + self.e2 * other.e03 * other.e032 + self.e2 * other.e31 * other.e123 + self.e2 * other.e013 * other.e0123 + self.e021 * other.s * other.e021 - self.e021 * other.e3 * other.e0123 + self.e3 * other.s * other.e3 - self.e3 * other.e0 * other.e03 + self.e3 * other.e1 * other.e31 + self.e3 * other.e01 * other.e013 - self.e3 * other.e2 * other.e23 - self.e3 * other.e02 * other.e032 + self.e3 * other.e12 * other.e123 + self.e3 * other.e021 * other.e0123 + self.e013 * other.s * other.e013 - self.e013 * other.e2 * other.e0123 + self.e032 * other.s * other.e032 - self.e032 * other.e1 * other.e0123 + self.e123 * other.s * other.e123 - self.e123 * other.e0 * other.e0123,
         e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 + self.e0 * other.e3 * other.e3 + self.e0 * other.e31 * other.e31 + self.e0 * other.e23 * other.e23 + self.e0 * other.e123 * other.e123 - self.e1 * other.e0 * other.e1 - self.e1 * other.e02 * other.e12 + self.e1 * other.e03 * other.e31 + self.e1 * other.e032 * other.e123 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12 - self.e2 * other.e03 * other.e23 + self.e2 * other.e013 * other.e123 - self.e021 * other.s * other.e12 - self.e021 * other.e3 * other.e123 - self.e3 * other.e0 * other.e3 - self.e3 * other.e01 * other.e31 + self.e3 * other.e02 * other.e23 + self.e3 * other.e021 * other.e123 - self.e013 * other.s * other.e31 - self.e013 * other.e2 * other.e123 - self.e032 * other.s * other.e23 - self.e032 * other.e1 * other.e123 - self.e123 * other.e0 * other.e123,
         e1: -self.e0 * other.e0 * other.e1 - self.e0 * other.e02 * other.e12 + self.e0 * other.e03 * other.e31 + self.e0 * other.e032 * other.e123 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 + self.e1 * other.e02 * other.e02 + self.e1 * other.e3 * other.e3 + self.e1 * other.e03 * other.e03 + self.e1 * other.e23 * other.e23 + self.e1 * other.e032 * other.e032 - self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e02 + self.e2 * other.e31 * other.e23 + self.e2 * other.e013 * other.e032 + self.e021 * other.s * other.e02 - self.e021 * other.e3 * other.e032 - self.e3 * other.e1 * other.e3 - self.e3 * other.e01 * other.e03 + self.e3 * other.e12 * other.e23 + self.e3 * other.e021 * other.e032 - self.e013 * other.s * other.e03 - self.e013 * other.e2 * other.e032 - self.e032 * other.e1 * other.e032 + self.e123 * other.s * other.e23 - self.e123 * other.e0 * other.e032,
+        e01: self.e0 * other.s * other.e1 + self.e0 * other.e2 * other.e12 - self.e0 * other.e3 * other.e31 + self.e0 * other.e23 * other.e123 - self.e1 * other.s * other.e0 - self.e1 * other.e2 * other.e02 - self.e1 * other.e3 * other.e03 + self.e1 * other.e23 * other.e032 + self.e2 * other.e01 * other.e2 + self.e2 * other.e013 * other.e23 - self.e021 * other.s * other.e2 - self.e021 * other.e3 * other.e23 + self.e3 * other.e01 * other.e3 + self.e3 * other.e021 * other.e23 + self.e013 * other.s * other.e3 - self.e013 * other.e2 * other.e23 - self.e032 * other.e1 * other.e23 - self.e123 * other.e0 * other.e23,
         e2: -self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 - self.e0 * other.e03 * other.e23 + self.e0 * other.e013 * other.e123 - self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e02 + self.e1 * other.e31 * other.e23 + self.e1 * other.e013 * other.e032 + self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01 + self.e2 * other.e3 * other.e3 + self.e2 * other.e03 * other.e03 + self.e2 * other.e31 * other.e31 + self.e2 * other.e013 * other.e013 - self.e021 * other.s * other.e01 - self.e021 * other.e3 * other.e013 - self.e3 * other.e2 * other.e3 - self.e3 * other.e02 * other.e03 + self.e3 * other.e12 * other.e31 + self.e3 * other.e021 * other.e013 - self.e013 * other.e2 * other.e013 + self.e032 * other.s * other.e03 - self.e032 * other.e1 * other.e013 + self.e123 * other.s * other.e31 - self.e123 * other.e0 * other.e013,
+        e02: self.e0 * other.s * other.e2 - self.e0 * other.e1 * other.e12 + self.e0 * other.e3 * other.e23 + self.e0 * other.e31 * other.e123 + self.e1 * other.e1 * other.e02 + self.e1 * other.e31 * other.e032 - self.e2 * other.s * other.e0 - self.e2 * other.e1 * other.e01 - self.e2 * other.e3 * other.e03 + self.e2 * other.e31 * other.e013 + self.e021 * other.s * other.e1 - self.e021 * other.e3 * other.e31 + self.e3 * other.e02 * other.e3 + self.e3 * other.e021 * other.e31 - self.e013 * other.e2 * other.e31 - self.e032 * other.s * other.e3 - self.e032 * other.e1 * other.e31 - self.e123 * other.e0 * other.e31,
+        e12: self.e0 * other.e0 * other.e12 + self.e0 * other.e03 * other.e123 + self.e1 * other.s * other.e2 - self.e1 * other.e0 * other.e02 + self.e1 * other.e3 * other.e23 + self.e1 * other.e03 * other.e032 - self.e2 * other.s * other.e1 + self.e2 * other.e0 * other.e01 + self.e2 * other.e3 * other.e31 + self.e2 * other.e03 * other.e013 - self.e021 * other.s * other.e0 - self.e021 * other.e3 * other.e03 + self.e3 * other.e12 * other.e3 + self.e3 * other.e021 * other.e03 - self.e013 * other.e2 * other.e03 - self.e032 * other.e1 * other.e03 + self.e123 * other.s * other.e3 - self.e123 * other.e0 * other.e03,
         e021: -self.e0 * other.s * other.e12 - self.e0 * other.e3 * other.e123 + self.e1 * other.s * other.e02 - self.e1 * other.e3 * other.e032 - self.e2 * other.s * other.e01 - self.e2 * other.e3 * other.e013 + self.e021 * other.s * other.s + self.e021 * other.e3 * other.e3 - self.e3 * other.e021 * other.e3 + self.e013 * other.e2 * other.e3 + self.e032 * other.e1 * other.e3 + self.e123 * other.e0 * other.e3,
         e3: -self.e0 * other.e0 * other.e3 - self.e0 * other.e01 * other.e31 + self.e0 * other.e02 * other.e23 + self.e0 * other.e021 * other.e123 - self.e1 * other.e1 * other.e3 - self.e1 * other.e01 * other.e03 + self.e1 * other.e12 * other.e23 + self.e1 * other.e021 * other.e032 - self.e2 * other.e2 * other.e3 - self.e2 * other.e02 * other.e03 + self.e2 * other.e12 * other.e31 + self.e2 * other.e021 * other.e013 - self.e021 * other.e021 * other.e3 + self.e3 * other.s * other.s + self.e3 * other.e0 * other.e0 + self.e3 * other.e1 * other.e1 + self.e3 * other.e01 * other.e01 + self.e3 * other.e2 * other.e2 + self.e3 * other.e02 * other.e02 + self.e3 * other.e12 * other.e12 + self.e3 * other.e021 * other.e021 + self.e013 * other.s * other.e01 - self.e013 * other.e2 * other.e021 - self.e032 * other.s * other.e02 - self.e032 * other.e1 * other.e021 + self.e123 * other.s * other.e12 - self.e123 * other.e0 * other.e021,
+        e03: self.e0 * other.s * other.e3 + self.e0 * other.e1 * other.e31 - self.e0 * other.e2 * other.e23 + self.e0 * other.e12 * other.e123 + self.e1 * other.e1 * other.e03 + self.e1 * other.e12 * other.e032 + self.e2 * other.e2 * other.e03 + self.e2 * other.e12 * other.e013 - self.e021 * other.e12 * other.e3 - self.e3 * other.s * other.e0 - self.e3 * other.e1 * other.e01 - self.e3 * other.e2 * other.e02 + self.e3 * other.e12 * other.e021 - self.e013 * other.s * other.e1 - self.e013 * other.e2 * other.e12 + self.e032 * other.s * other.e2 - self.e032 * other.e1 * other.e12 - self.e123 * other.e0 * other.e12,
+        e31: self.e0 * other.e0 * other.e31 + self.e0 * other.e02 * other.e123 - self.e1 * other.s * other.e3 + self.e1 * other.e0 * other.e03 + self.e1 * other.e2 * other.e23 + self.e1 * other.e02 * other.e032 + self.e2 * other.e2 * other.e31 + self.e2 * other.e02 * other.e013 - self.e021 * other.e02 * other.e3 + self.e3 * other.s * other.e1 - self.e3 * other.e0 * other.e01 + self.e3 * other.e2 * other.e12 + self.e3 * other.e02 * other.e021 - self.e013 * other.s * other.e0 - self.e013 * other.e2 * other.e02 - self.e032 * other.e1 * other.e02 + self.e123 * other.s * other.e2 - self.e123 * other.e0 * other.e02,
         e013: -self.e0 * other.s * other.e31 - self.e0 * other.e2 * other.e123 - self.e1 * other.s * other.e03 - self.e1 * other.e2 * other.e032 - self.e2 * other.e2 * other.e013 + self.e021 * other.e2 * other.e3 + self.e3 * other.s * other.e01 - self.e3 * other.e2 * other.e021 + self.e013 * other.s * other.s + self.e013 * other.e2 * other.e2 + self.e032 * other.e1 * other.e2 + self.e123 * other.e0 * other.e2,
+        e23: self.e0 * other.e0 * other.e23 + self.e0 * other.e01 * other.e123 + self.e1 * other.e1 * other.e23 + self.e1 * other.e01 * other.e032 + self.e2 * other.s * other.e3 - self.e2 * other.e0 * other.e03 + self.e2 * other.e1 * other.e31 + self.e2 * other.e01 * other.e013 - self.e021 * other.e01 * other.e3 - self.e3 * other.s * other.e2 + self.e3 * other.e0 * other.e02 + self.e3 * other.e1 * other.e12 + self.e3 * other.e01 * other.e021 - self.e013 * other.e01 * other.e2 - self.e032 * other.s * other.e0 - self.e032 * other.e1 * other.e01 + self.e123 * other.s * other.e1 - self.e123 * other.e0 * other.e01,
         e032: -self.e0 * other.s * other.e23 - self.e0 * other.e1 * other.e123 - self.e1 * other.e1 * other.e032 + self.e2 * other.s * other.e03 - self.e2 * other.e1 * other.e013 + self.e021 * other.e1 * other.e3 - self.e3 * other.s * other.e02 - self.e3 * other.e1 * other.e021 + self.e013 * other.e1 * other.e2 + self.e032 * other.s * other.s + self.e032 * other.e1 * other.e1 + self.e123 * other.e0 * other.e1,
         e123: -self.e0 * other.e0 * other.e123 + self.e1 * other.s * other.e23 - self.e1 * other.e0 * other.e032 + self.e2 * other.s * other.e31 - self.e2 * other.e0 * other.e013 + self.e021 * other.e0 * other.e3 + self.e3 * other.s * other.e12 - self.e3 * other.e0 * other.e021 + self.e013 * other.e0 * other.e2 + self.e032 * other.e0 * other.e1 + self.e123 * other.s * other.s + self.e123 * other.e0 * other.e0,
+        e0123: self.e0 * other.s * other.e123 + self.e1 * other.s * other.e032 + self.e2 * other.s * other.e013 - self.e021 * other.s * other.e3 + self.e3 * other.s * other.e021 - self.e013 * other.s * other.e2 - self.e032 * other.s * other.e1 - self.e123 * other.s * other.e0,
     };
 }
 
@@ -14285,16 +14294,9 @@ fn evenmultivector_reject_fourvector(self: EvenMultivector, other: FourVector) -
     };
 }
 
-fn evenmultivector_reject_null(self: EvenMultivector, other: Null) -> EvenMultivector {
-    return EvenMultivector {
-        s: 0.0,
-        e01: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e23: 0.0,
-        e0123: 0.0,
+fn evenmultivector_reject_null(self: EvenMultivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 
@@ -14324,15 +14326,23 @@ fn evenmultivector_reject_evenmultivector(self: EvenMultivector, other: EvenMult
     };
 }
 
-fn evenmultivector_reject_multivector(self: EvenMultivector, other: Multivector) -> EvenMultivector {
-    return EvenMultivector {
+fn evenmultivector_reject_multivector(self: EvenMultivector, other: Multivector) -> Multivector {
+    return Multivector {
         s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.s * other.e2 * other.e2 + self.s * other.e02 * other.e02 + self.s * other.e12 * other.e12 + self.s * other.e021 * other.e021 + self.s * other.e3 * other.e3 + self.s * other.e03 * other.e03 + self.s * other.e31 * other.e31 + self.s * other.e013 * other.e013 + self.s * other.e23 * other.e23 + self.s * other.e032 * other.e032 + self.s * other.e123 * other.e123 + self.s * other.e0123 * other.e0123 + self.e01 * other.s * other.e01 - self.e01 * other.e2 * other.e021 + self.e01 * other.e3 * other.e013 + self.e01 * other.e23 * other.e0123 + self.e02 * other.s * other.e02 + self.e02 * other.e1 * other.e021 - self.e02 * other.e3 * other.e032 + self.e02 * other.e31 * other.e0123 + self.e12 * other.s * other.e12 - self.e12 * other.e0 * other.e021 + self.e12 * other.e3 * other.e123 + self.e12 * other.e03 * other.e0123 + self.e03 * other.s * other.e03 - self.e03 * other.e1 * other.e013 + self.e03 * other.e2 * other.e032 + self.e03 * other.e12 * other.e0123 + self.e31 * other.s * other.e31 - self.e31 * other.e0 * other.e013 + self.e31 * other.e2 * other.e123 + self.e31 * other.e02 * other.e0123 + self.e23 * other.s * other.e23 - self.e23 * other.e0 * other.e032 + self.e23 * other.e1 * other.e123 + self.e23 * other.e01 * other.e0123 + self.e0123 * other.s * other.e0123,
+        e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 + self.s * other.e2 * other.e02 - self.s * other.e12 * other.e021 + self.s * other.e3 * other.e03 - self.s * other.e31 * other.e013 - self.s * other.e23 * other.e032 + self.s * other.e123 * other.e0123 + self.e01 * other.s * other.e1 + self.e01 * other.e2 * other.e12 - self.e01 * other.e3 * other.e31 + self.e01 * other.e23 * other.e123 + self.e02 * other.s * other.e2 - self.e02 * other.e1 * other.e12 + self.e02 * other.e3 * other.e23 + self.e02 * other.e31 * other.e123 + self.e12 * other.e0 * other.e12 + self.e12 * other.e03 * other.e123 + self.e03 * other.s * other.e3 + self.e03 * other.e1 * other.e31 - self.e03 * other.e2 * other.e23 + self.e03 * other.e12 * other.e123 + self.e31 * other.e0 * other.e31 + self.e31 * other.e02 * other.e123 + self.e23 * other.e0 * other.e23 + self.e23 * other.e01 * other.e123 + self.e0123 * other.s * other.e123,
+        e1: self.s * other.s * other.e1 - self.s * other.e0 * other.e01 + self.s * other.e2 * other.e12 + self.s * other.e02 * other.e021 - self.s * other.e3 * other.e31 - self.s * other.e03 * other.e013 + self.s * other.e23 * other.e123 + self.s * other.e032 * other.e0123 - self.e01 * other.s * other.e0 - self.e01 * other.e2 * other.e02 - self.e01 * other.e3 * other.e03 + self.e01 * other.e23 * other.e032 + self.e02 * other.e1 * other.e02 + self.e02 * other.e31 * other.e032 + self.e12 * other.s * other.e2 - self.e12 * other.e0 * other.e02 + self.e12 * other.e3 * other.e23 + self.e12 * other.e03 * other.e032 + self.e03 * other.e1 * other.e03 + self.e03 * other.e12 * other.e032 - self.e31 * other.s * other.e3 + self.e31 * other.e0 * other.e03 + self.e31 * other.e2 * other.e23 + self.e31 * other.e02 * other.e032 + self.e23 * other.e1 * other.e23 + self.e23 * other.e01 * other.e032 + self.e0123 * other.s * other.e032,
         e01: self.s * other.s * other.e01 - self.s * other.e2 * other.e021 + self.s * other.e3 * other.e013 + self.s * other.e23 * other.e0123 + self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e01 * other.e3 * other.e3 + self.e01 * other.e23 * other.e23 - self.e02 * other.e1 * other.e2 + self.e02 * other.e31 * other.e23 + self.e12 * other.e0 * other.e2 + self.e12 * other.e03 * other.e23 - self.e03 * other.e1 * other.e3 + self.e03 * other.e12 * other.e23 - self.e31 * other.e0 * other.e3 + self.e31 * other.e02 * other.e23 + self.e23 * other.e01 * other.e23 + self.e0123 * other.s * other.e23,
+        e2: self.s * other.s * other.e2 - self.s * other.e0 * other.e02 - self.s * other.e1 * other.e12 - self.s * other.e01 * other.e021 + self.s * other.e3 * other.e23 + self.s * other.e03 * other.e032 + self.s * other.e31 * other.e123 + self.s * other.e013 * other.e0123 + self.e01 * other.e01 * other.e2 + self.e01 * other.e013 * other.e23 - self.e02 * other.s * other.e0 - self.e02 * other.e1 * other.e01 - self.e02 * other.e3 * other.e03 + self.e02 * other.e31 * other.e013 - self.e12 * other.s * other.e1 + self.e12 * other.e0 * other.e01 + self.e12 * other.e3 * other.e31 + self.e12 * other.e03 * other.e013 + self.e03 * other.e2 * other.e03 + self.e03 * other.e12 * other.e013 + self.e31 * other.e2 * other.e31 + self.e31 * other.e02 * other.e013 + self.e23 * other.s * other.e3 - self.e23 * other.e0 * other.e03 + self.e23 * other.e1 * other.e31 + self.e23 * other.e01 * other.e013 + self.e0123 * other.s * other.e013,
         e02: self.s * other.s * other.e02 + self.s * other.e1 * other.e021 - self.s * other.e3 * other.e032 + self.s * other.e31 * other.e0123 - self.e01 * other.e1 * other.e2 + self.e01 * other.e31 * other.e23 + self.e02 * other.s * other.s + self.e02 * other.e1 * other.e1 + self.e02 * other.e3 * other.e3 + self.e02 * other.e31 * other.e31 - self.e12 * other.e0 * other.e1 + self.e12 * other.e03 * other.e31 - self.e03 * other.e2 * other.e3 + self.e03 * other.e12 * other.e31 + self.e31 * other.e02 * other.e31 + self.e23 * other.e0 * other.e3 + self.e23 * other.e01 * other.e31 + self.e0123 * other.s * other.e31,
         e12: self.s * other.s * other.e12 - self.s * other.e0 * other.e021 + self.s * other.e3 * other.e123 + self.s * other.e03 * other.e0123 + self.e01 * other.e0 * other.e2 + self.e01 * other.e03 * other.e23 - self.e02 * other.e0 * other.e1 + self.e02 * other.e03 * other.e31 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0 + self.e12 * other.e3 * other.e3 + self.e12 * other.e03 * other.e03 + self.e03 * other.e12 * other.e03 + self.e31 * other.e2 * other.e3 + self.e31 * other.e02 * other.e03 + self.e23 * other.e1 * other.e3 + self.e23 * other.e01 * other.e03 + self.e0123 * other.s * other.e03,
+        e021: self.s * other.s * other.e021 - self.s * other.e3 * other.e0123 - self.e01 * other.s * other.e2 - self.e01 * other.e3 * other.e23 + self.e02 * other.s * other.e1 - self.e02 * other.e3 * other.e31 - self.e12 * other.s * other.e0 - self.e12 * other.e3 * other.e03 - self.e03 * other.e12 * other.e3 - self.e31 * other.e02 * other.e3 - self.e23 * other.e01 * other.e3 - self.e0123 * other.s * other.e3,
+        e3: self.s * other.s * other.e3 - self.s * other.e0 * other.e03 + self.s * other.e1 * other.e31 + self.s * other.e01 * other.e013 - self.s * other.e2 * other.e23 - self.s * other.e02 * other.e032 + self.s * other.e12 * other.e123 + self.s * other.e021 * other.e0123 + self.e01 * other.e01 * other.e3 + self.e01 * other.e021 * other.e23 + self.e02 * other.e02 * other.e3 + self.e02 * other.e021 * other.e31 + self.e12 * other.e12 * other.e3 + self.e12 * other.e021 * other.e03 - self.e03 * other.s * other.e0 - self.e03 * other.e1 * other.e01 - self.e03 * other.e2 * other.e02 + self.e03 * other.e12 * other.e021 + self.e31 * other.s * other.e1 - self.e31 * other.e0 * other.e01 + self.e31 * other.e2 * other.e12 + self.e31 * other.e02 * other.e021 - self.e23 * other.s * other.e2 + self.e23 * other.e0 * other.e02 + self.e23 * other.e1 * other.e12 + self.e23 * other.e01 * other.e021 + self.e0123 * other.s * other.e021,
         e03: self.s * other.s * other.e03 - self.s * other.e1 * other.e013 + self.s * other.e2 * other.e032 + self.s * other.e12 * other.e0123 - self.e01 * other.e1 * other.e3 + self.e01 * other.e12 * other.e23 - self.e02 * other.e2 * other.e3 + self.e02 * other.e12 * other.e31 + self.e12 * other.e12 * other.e03 + self.e03 * other.s * other.s + self.e03 * other.e1 * other.e1 + self.e03 * other.e2 * other.e2 + self.e03 * other.e12 * other.e12 + self.e31 * other.e0 * other.e1 + self.e31 * other.e02 * other.e12 - self.e23 * other.e0 * other.e2 + self.e23 * other.e01 * other.e12 + self.e0123 * other.s * other.e12,
         e31: self.s * other.s * other.e31 - self.s * other.e0 * other.e013 + self.s * other.e2 * other.e123 + self.s * other.e02 * other.e0123 - self.e01 * other.e0 * other.e3 + self.e01 * other.e02 * other.e23 + self.e02 * other.e02 * other.e31 + self.e12 * other.e2 * other.e3 + self.e12 * other.e02 * other.e03 + self.e03 * other.e0 * other.e1 + self.e03 * other.e02 * other.e12 + self.e31 * other.s * other.s + self.e31 * other.e0 * other.e0 + self.e31 * other.e2 * other.e2 + self.e31 * other.e02 * other.e02 + self.e23 * other.e1 * other.e2 + self.e23 * other.e01 * other.e02 + self.e0123 * other.s * other.e02,
+        e013: self.s * other.s * other.e013 - self.s * other.e2 * other.e0123 + self.e01 * other.s * other.e3 - self.e01 * other.e2 * other.e23 - self.e02 * other.e2 * other.e31 - self.e12 * other.e2 * other.e03 - self.e03 * other.s * other.e1 - self.e03 * other.e2 * other.e12 - self.e31 * other.s * other.e0 - self.e31 * other.e2 * other.e02 - self.e23 * other.e01 * other.e2 - self.e0123 * other.s * other.e2,
         e23: self.s * other.s * other.e23 - self.s * other.e0 * other.e032 + self.s * other.e1 * other.e123 + self.s * other.e01 * other.e0123 + self.e01 * other.e01 * other.e23 + self.e02 * other.e0 * other.e3 + self.e02 * other.e01 * other.e31 + self.e12 * other.e1 * other.e3 + self.e12 * other.e01 * other.e03 - self.e03 * other.e0 * other.e2 + self.e03 * other.e01 * other.e12 + self.e31 * other.e1 * other.e2 + self.e31 * other.e01 * other.e02 + self.e23 * other.s * other.s + self.e23 * other.e0 * other.e0 + self.e23 * other.e1 * other.e1 + self.e23 * other.e01 * other.e01 + self.e0123 * other.s * other.e01,
+        e032: self.s * other.s * other.e032 - self.s * other.e1 * other.e0123 - self.e01 * other.e1 * other.e23 - self.e02 * other.s * other.e3 - self.e02 * other.e1 * other.e31 - self.e12 * other.e1 * other.e03 + self.e03 * other.s * other.e2 - self.e03 * other.e1 * other.e12 - self.e31 * other.e1 * other.e02 - self.e23 * other.s * other.e0 - self.e23 * other.e1 * other.e01 - self.e0123 * other.s * other.e1,
+        e123: self.s * other.s * other.e123 - self.s * other.e0 * other.e0123 - self.e01 * other.e0 * other.e23 - self.e02 * other.e0 * other.e31 + self.e12 * other.s * other.e3 - self.e12 * other.e0 * other.e03 - self.e03 * other.e0 * other.e12 + self.e31 * other.s * other.e2 - self.e31 * other.e0 * other.e02 + self.e23 * other.s * other.e1 - self.e23 * other.e0 * other.e01 - self.e0123 * other.s * other.e0,
         e0123: self.s * other.s * other.e0123 + self.e01 * other.s * other.e23 + self.e02 * other.s * other.e31 + self.e12 * other.s * other.e03 + self.e03 * other.s * other.e12 + self.e31 * other.s * other.e02 + self.e23 * other.s * other.e01 + self.e0123 * other.s * other.s,
     };
 }
@@ -14442,24 +14452,9 @@ fn multivector_reject_fourvector(self: Multivector, other: FourVector) -> Multiv
     };
 }
 
-fn multivector_reject_null(self: Multivector, other: Null) -> Multivector {
-    return Multivector {
-        s: 0.0,
-        e0: 0.0,
-        e1: 0.0,
-        e01: 0.0,
-        e2: 0.0,
-        e02: 0.0,
-        e12: 0.0,
-        e021: 0.0,
-        e3: 0.0,
-        e03: 0.0,
-        e31: 0.0,
-        e013: 0.0,
-        e23: 0.0,
-        e032: 0.0,
-        e123: 0.0,
-        e0123: 0.0,
+fn multivector_reject_null(self: Multivector, other: Null) -> Null {
+    return Null {
+        _phantom: 0.0,
     };
 }
 

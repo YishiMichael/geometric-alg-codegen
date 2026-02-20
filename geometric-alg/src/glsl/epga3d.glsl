@@ -3204,10 +3204,10 @@ FourVector scalar_dual(Scalar self) {
 
 Trivector vector_dual(Vector self) {
     return Trivector(
-        e021: self.e3,
-        e013: -self.e2,
-        e032: self.e1,
-        e123: -self.e0
+        e021: -self.e3,
+        e013: self.e2,
+        e032: -self.e1,
+        e123: self.e0
     );
 }
 
@@ -3224,10 +3224,10 @@ Bivector bivector_dual(Bivector self) {
 
 Vector trivector_dual(Trivector self) {
     return Vector(
-        e0: self.e123,
-        e1: -self.e032,
-        e2: self.e013,
-        e3: -self.e021
+        e0: -self.e123,
+        e1: self.e032,
+        e2: -self.e013,
+        e3: self.e021
     );
 }
 
@@ -3245,14 +3245,14 @@ Null null_dual(Null self) {
 
 OddMultivector oddmultivector_dual(OddMultivector self) {
     return OddMultivector(
-        e0: self.e123,
-        e1: -self.e032,
-        e2: self.e013,
-        e021: self.e3,
-        e3: -self.e021,
-        e013: -self.e2,
-        e032: self.e1,
-        e123: -self.e0
+        e0: -self.e123,
+        e1: self.e032,
+        e2: -self.e013,
+        e021: -self.e3,
+        e3: self.e021,
+        e013: self.e2,
+        e032: -self.e1,
+        e123: self.e0
     );
 }
 
@@ -3272,20 +3272,20 @@ EvenMultivector evenmultivector_dual(EvenMultivector self) {
 Multivector multivector_dual(Multivector self) {
     return Multivector(
         s: self.e0123,
-        e0: self.e123,
-        e1: -self.e032,
+        e0: -self.e123,
+        e1: self.e032,
         e01: self.e23,
-        e2: self.e013,
+        e2: -self.e013,
         e02: -self.e31,
         e12: self.e03,
-        e021: self.e3,
-        e3: -self.e021,
+        e021: -self.e3,
+        e3: self.e021,
         e03: self.e12,
         e31: -self.e02,
-        e013: -self.e2,
+        e013: self.e2,
         e23: self.e01,
-        e032: self.e1,
-        e123: -self.e0,
+        e032: -self.e1,
+        e123: self.e0,
         e0123: self.s
     );
 }
@@ -3298,10 +3298,10 @@ FourVector scalar_undual(Scalar self) {
 
 Trivector vector_undual(Vector self) {
     return Trivector(
-        e021: -self.e3,
-        e013: self.e2,
-        e032: -self.e1,
-        e123: self.e0
+        e021: self.e3,
+        e013: -self.e2,
+        e032: self.e1,
+        e123: -self.e0
     );
 }
 
@@ -3318,10 +3318,10 @@ Bivector bivector_undual(Bivector self) {
 
 Vector trivector_undual(Trivector self) {
     return Vector(
-        e0: -self.e123,
-        e1: self.e032,
-        e2: -self.e013,
-        e3: self.e021
+        e0: self.e123,
+        e1: -self.e032,
+        e2: self.e013,
+        e3: -self.e021
     );
 }
 
@@ -3339,14 +3339,14 @@ Null null_undual(Null self) {
 
 OddMultivector oddmultivector_undual(OddMultivector self) {
     return OddMultivector(
-        e0: -self.e123,
-        e1: self.e032,
-        e2: -self.e013,
-        e021: -self.e3,
-        e3: self.e021,
-        e013: self.e2,
-        e032: -self.e1,
-        e123: self.e0
+        e0: self.e123,
+        e1: -self.e032,
+        e2: self.e013,
+        e021: self.e3,
+        e3: -self.e021,
+        e013: -self.e2,
+        e032: self.e1,
+        e123: -self.e0
     );
 }
 
@@ -3366,20 +3366,20 @@ EvenMultivector evenmultivector_undual(EvenMultivector self) {
 Multivector multivector_undual(Multivector self) {
     return Multivector(
         s: self.e0123,
-        e0: -self.e123,
-        e1: self.e032,
+        e0: self.e123,
+        e1: -self.e032,
         e01: self.e23,
-        e2: -self.e013,
+        e2: self.e013,
         e02: -self.e31,
         e12: self.e03,
-        e021: -self.e3,
-        e3: self.e021,
+        e021: self.e3,
+        e3: -self.e021,
         e03: self.e12,
         e31: -self.e02,
-        e013: self.e2,
+        e013: -self.e2,
         e23: self.e01,
-        e032: -self.e1,
-        e123: self.e0,
+        e032: self.e1,
+        e123: -self.e0,
         e0123: self.s
     );
 }

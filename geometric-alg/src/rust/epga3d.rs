@@ -3945,10 +3945,10 @@ impl Dual for Vector {
     type Output = Trivector;
     fn dual(self) -> Trivector {
         Trivector {
-            e021: self.e3,
-            e013: -self.e2,
-            e032: self.e1,
-            e123: -self.e0,
+            e021: -self.e3,
+            e013: self.e2,
+            e032: -self.e1,
+            e123: self.e0,
         }
     }
 }
@@ -3971,10 +3971,10 @@ impl Dual for Trivector {
     type Output = Vector;
     fn dual(self) -> Vector {
         Vector {
-            e0: self.e123,
-            e1: -self.e032,
-            e2: self.e013,
-            e3: -self.e021,
+            e0: -self.e123,
+            e1: self.e032,
+            e2: -self.e013,
+            e3: self.e021,
         }
     }
 }
@@ -3999,14 +3999,14 @@ impl Dual for OddMultivector {
     type Output = OddMultivector;
     fn dual(self) -> OddMultivector {
         OddMultivector {
-            e0: self.e123,
-            e1: -self.e032,
-            e2: self.e013,
-            e021: self.e3,
-            e3: -self.e021,
-            e013: -self.e2,
-            e032: self.e1,
-            e123: -self.e0,
+            e0: -self.e123,
+            e1: self.e032,
+            e2: -self.e013,
+            e021: -self.e3,
+            e3: self.e021,
+            e013: self.e2,
+            e032: -self.e1,
+            e123: self.e0,
         }
     }
 }
@@ -4032,20 +4032,20 @@ impl Dual for Multivector {
     fn dual(self) -> Multivector {
         Multivector {
             s: self.e0123,
-            e0: self.e123,
-            e1: -self.e032,
+            e0: -self.e123,
+            e1: self.e032,
             e01: self.e23,
-            e2: self.e013,
+            e2: -self.e013,
             e02: -self.e31,
             e12: self.e03,
-            e021: self.e3,
-            e3: -self.e021,
+            e021: -self.e3,
+            e3: self.e021,
             e03: self.e12,
             e31: -self.e02,
-            e013: -self.e2,
+            e013: self.e2,
             e23: self.e01,
-            e032: self.e1,
-            e123: -self.e0,
+            e032: -self.e1,
+            e123: self.e0,
             e0123: self.s,
         }
     }
@@ -4064,10 +4064,10 @@ impl Undual for Vector {
     type Output = Trivector;
     fn undual(self) -> Trivector {
         Trivector {
-            e021: -self.e3,
-            e013: self.e2,
-            e032: -self.e1,
-            e123: self.e0,
+            e021: self.e3,
+            e013: -self.e2,
+            e032: self.e1,
+            e123: -self.e0,
         }
     }
 }
@@ -4090,10 +4090,10 @@ impl Undual for Trivector {
     type Output = Vector;
     fn undual(self) -> Vector {
         Vector {
-            e0: -self.e123,
-            e1: self.e032,
-            e2: -self.e013,
-            e3: self.e021,
+            e0: self.e123,
+            e1: -self.e032,
+            e2: self.e013,
+            e3: -self.e021,
         }
     }
 }
@@ -4118,14 +4118,14 @@ impl Undual for OddMultivector {
     type Output = OddMultivector;
     fn undual(self) -> OddMultivector {
         OddMultivector {
-            e0: -self.e123,
-            e1: self.e032,
-            e2: -self.e013,
-            e021: -self.e3,
-            e3: self.e021,
-            e013: self.e2,
-            e032: -self.e1,
-            e123: self.e0,
+            e0: self.e123,
+            e1: -self.e032,
+            e2: self.e013,
+            e021: self.e3,
+            e3: -self.e021,
+            e013: -self.e2,
+            e032: self.e1,
+            e123: -self.e0,
         }
     }
 }
@@ -4151,20 +4151,20 @@ impl Undual for Multivector {
     fn undual(self) -> Multivector {
         Multivector {
             s: self.e0123,
-            e0: -self.e123,
-            e1: self.e032,
+            e0: self.e123,
+            e1: -self.e032,
             e01: self.e23,
-            e2: -self.e013,
+            e2: self.e013,
             e02: -self.e31,
             e12: self.e03,
-            e021: -self.e3,
-            e3: self.e021,
+            e021: self.e3,
+            e3: -self.e021,
             e03: self.e12,
             e31: -self.e02,
-            e013: self.e2,
+            e013: -self.e2,
             e23: self.e01,
-            e032: -self.e1,
-            e123: self.e0,
+            e032: self.e1,
+            e123: -self.e0,
             e0123: self.s,
         }
     }

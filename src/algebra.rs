@@ -47,7 +47,7 @@ impl From<Sign> for Coefficient {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
 struct Blade {
     generator_bits: usize,
 }
@@ -110,7 +110,7 @@ impl Blade {
     }
 }
 
-#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Debug)]
+#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
 enum Space {
     GradedVector { grade: usize },
     SaturatedVector { even: bool, odd: bool },
@@ -434,7 +434,7 @@ impl<const PARAMS: usize> Multinomial<PARAMS> {
             dim: alg.dim,
             polynomials: std::iter::repeat_n(Blade::iter(alg.dim), DEGREE)
                 .multi_cartesian_product()
-                .map(|blades| -> [Blade; DEGREE] { blades.try_into().unwrap() })
+                .map(|blades| -> [Blade; DEGREE] { blades.try_into().ok().unwrap() })
                 .filter_map(|blades| {
                     term_sign(blades, alg.dim).map(|sign| {
                         let multi_index = prototype.into_iter().zip(blades).sorted().collect_vec();
@@ -562,37 +562,6 @@ impl<const PARAMS: usize> Multinomial<PARAMS> {
         spaces: [Space; PARAMS],
         params: [<GeometricAlgebra as Ast>::Param; PARAMS],
     ) -> Expr<GeometricAlgebra> {
-        let missing_blades = Blade::iter(self.dim)
-            .filter(|blade| {
-                !space.iter_blades(self.dim).contains(blade)
-                    && self
-                        .polynomials
-                        .get(blade)
-                        .map(|polynomial| {
-                            polynomial
-                                .iter()
-                                .filter_map(|(multi_index, _coeff)| {
-                                    multi_index
-                                        .iter()
-                                        .map(|&(index, blade)| {
-                                            spaces[index].contains_blade(blade).then(|| {
-                                                spaces[index]
-                                                    .access(Expr::param(params[index]), blade)
-                                            })
-                                        })
-                                        .collect::<Option<Vec<_>>>()
-                                })
-                                .count()
-                        })
-                        .unwrap_or_default()
-                        != 0
-            })
-            .map(|blade| blade.generator_bits)
-            .collect_vec();
-        if !missing_blades.is_empty() {
-            dbg!(space);
-            dbg!(missing_blades);
-        }
         space.construct(self.dim, |blade| self.blade_expr(blade, spaces, params))
     }
 }
@@ -832,7 +801,6 @@ impl GeometricAlgebra {
         class_fn: fn([Space; 1], usize) -> Class,
         multinomial: Multinomial<1>,
     ) -> Vec<Implementation<GeometricAlgebra>> {
-        dbg!(signature.operation.get_str("fn").unwrap());
         Space::iter(self.dim)
             .map(|space_0| {
                 let class = class_fn([space_0], self.dim);
@@ -852,7 +820,6 @@ impl GeometricAlgebra {
         class_fn: fn([Space; 2], usize) -> Class,
         multinomial: Multinomial<2>,
     ) -> Vec<Implementation<GeometricAlgebra>> {
-        dbg!(signature.operation.get_str("fn").unwrap());
         Space::iter(self.dim)
             .cartesian_product(Space::iter(self.dim))
             .map(|(space_0, space_1)| {
@@ -989,7 +956,7 @@ impl GeometricAlgebra {
                 &DUAL,
                 |[space_0], dim| Class::Space(space_0.dual(dim)),
                 Multinomial::new(self, [0], |[blade_0], dim| {
-                    Some(blade_0.dual(dim).parity(blade_0))
+                    Some(blade_0.parity(blade_0.dual(dim)))
                 })
                 .dual(),
             ),
@@ -998,7 +965,7 @@ impl GeometricAlgebra {
                 &UNDUAL,
                 |[space_0], dim| Class::Space(space_0.dual(dim)),
                 Multinomial::new(self, [0], |[blade_0], dim| {
-                    Some(blade_0.parity(blade_0.dual(dim)))
+                    Some(blade_0.dual(dim).parity(blade_0))
                 })
                 .dual(),
             ),

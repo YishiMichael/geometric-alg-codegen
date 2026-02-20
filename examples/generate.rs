@@ -8,51 +8,51 @@ struct GeometricAlgebraItem {
 }
 
 const ITEMS: &[GeometricAlgebraItem] = &[
-    // GeometricAlgebraItem {
-    //     name: "epga1d",
-    //     generator_square_signs: "- +",
-    //     blades: "s e0 e1 e01",
-    // },
-    // GeometricAlgebraItem {
-    //     name: "ppga1d",
-    //     generator_square_signs: "0 +",
-    //     blades: "s e0 e1 e01",
-    // },
-    // GeometricAlgebraItem {
-    //     name: "hpga1d",
-    //     generator_square_signs: "+ +",
-    //     blades: "s e0 e1 e01",
-    // },
-    // GeometricAlgebraItem {
-    //     name: "epga2d",
-    //     generator_square_signs: "- + +",
-    //     blades: "s e0 e1 e01 e2 -e20 e12 e012",
-    // },
-    // GeometricAlgebraItem {
-    //     name: "ppga2d",
-    //     generator_square_signs: "0 + +",
-    //     blades: "s e0 e1 e01 e2 -e20 e12 e012",
-    // },
-    // GeometricAlgebraItem {
-    //     name: "hpga2d",
-    //     generator_square_signs: "+ + +",
-    //     blades: "s e0 e1 e01 e2 -e20 e12 e012",
-    // },
+    GeometricAlgebraItem {
+        name: "epga1d",
+        generator_square_signs: "- +",
+        blades: "s e0 e1 e01",
+    },
+    GeometricAlgebraItem {
+        name: "ppga1d",
+        generator_square_signs: "0 +",
+        blades: "s e0 e1 e01",
+    },
+    GeometricAlgebraItem {
+        name: "hpga1d",
+        generator_square_signs: "+ +",
+        blades: "s e0 e1 e01",
+    },
+    GeometricAlgebraItem {
+        name: "epga2d",
+        generator_square_signs: "- + +",
+        blades: "s e0 e1 e01 e2 -e20 e12 e012",
+    },
+    GeometricAlgebraItem {
+        name: "ppga2d",
+        generator_square_signs: "0 + +",
+        blades: "s e0 e1 e01 e2 -e20 e12 e012",
+    },
+    GeometricAlgebraItem {
+        name: "hpga2d",
+        generator_square_signs: "+ + +",
+        blades: "s e0 e1 e01 e2 -e20 e12 e012",
+    },
     GeometricAlgebraItem {
         name: "epga3d",
         generator_square_signs: "- + + +",
         blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
     },
-    // GeometricAlgebraItem {
-    //     name: "ppga3d",
-    //     generator_square_signs: "0 + + +",
-    //     blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
-    // },
-    // GeometricAlgebraItem {
-    //     name: "hpga3d",
-    //     generator_square_signs: "+ + + +",
-    //     blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
-    // },
+    GeometricAlgebraItem {
+        name: "ppga3d",
+        generator_square_signs: "0 + + +",
+        blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
+    },
+    GeometricAlgebraItem {
+        name: "hpga3d",
+        generator_square_signs: "+ + + +",
+        blades: "s e0 e1 e01 e2 e02 e12 -e021 e3 e03 -e31 e013 e23 -e032 e123 e0123",
+    },
 ];
 
 fn main() -> std::io::Result<()> {

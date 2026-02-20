@@ -3204,10 +3204,10 @@ fn scalar_dual(self: Scalar) -> FourVector {
 
 fn vector_dual(self: Vector) -> Trivector {
     return Trivector {
-        e021: self.e3,
-        e013: -self.e2,
-        e032: self.e1,
-        e123: -self.e0,
+        e021: -self.e3,
+        e013: self.e2,
+        e032: -self.e1,
+        e123: self.e0,
     };
 }
 
@@ -3224,10 +3224,10 @@ fn bivector_dual(self: Bivector) -> Bivector {
 
 fn trivector_dual(self: Trivector) -> Vector {
     return Vector {
-        e0: self.e123,
-        e1: -self.e032,
-        e2: self.e013,
-        e3: -self.e021,
+        e0: -self.e123,
+        e1: self.e032,
+        e2: -self.e013,
+        e3: self.e021,
     };
 }
 
@@ -3245,14 +3245,14 @@ fn null_dual(self: Null) -> Null {
 
 fn oddmultivector_dual(self: OddMultivector) -> OddMultivector {
     return OddMultivector {
-        e0: self.e123,
-        e1: -self.e032,
-        e2: self.e013,
-        e021: self.e3,
-        e3: -self.e021,
-        e013: -self.e2,
-        e032: self.e1,
-        e123: -self.e0,
+        e0: -self.e123,
+        e1: self.e032,
+        e2: -self.e013,
+        e021: -self.e3,
+        e3: self.e021,
+        e013: self.e2,
+        e032: -self.e1,
+        e123: self.e0,
     };
 }
 
@@ -3272,20 +3272,20 @@ fn evenmultivector_dual(self: EvenMultivector) -> EvenMultivector {
 fn multivector_dual(self: Multivector) -> Multivector {
     return Multivector {
         s: self.e0123,
-        e0: self.e123,
-        e1: -self.e032,
+        e0: -self.e123,
+        e1: self.e032,
         e01: self.e23,
-        e2: self.e013,
+        e2: -self.e013,
         e02: -self.e31,
         e12: self.e03,
-        e021: self.e3,
-        e3: -self.e021,
+        e021: -self.e3,
+        e3: self.e021,
         e03: self.e12,
         e31: -self.e02,
-        e013: -self.e2,
+        e013: self.e2,
         e23: self.e01,
-        e032: self.e1,
-        e123: -self.e0,
+        e032: -self.e1,
+        e123: self.e0,
         e0123: self.s,
     };
 }
@@ -3298,10 +3298,10 @@ fn scalar_undual(self: Scalar) -> FourVector {
 
 fn vector_undual(self: Vector) -> Trivector {
     return Trivector {
-        e021: -self.e3,
-        e013: self.e2,
-        e032: -self.e1,
-        e123: self.e0,
+        e021: self.e3,
+        e013: -self.e2,
+        e032: self.e1,
+        e123: -self.e0,
     };
 }
 
@@ -3318,10 +3318,10 @@ fn bivector_undual(self: Bivector) -> Bivector {
 
 fn trivector_undual(self: Trivector) -> Vector {
     return Vector {
-        e0: -self.e123,
-        e1: self.e032,
-        e2: -self.e013,
-        e3: self.e021,
+        e0: self.e123,
+        e1: -self.e032,
+        e2: self.e013,
+        e3: -self.e021,
     };
 }
 
@@ -3339,14 +3339,14 @@ fn null_undual(self: Null) -> Null {
 
 fn oddmultivector_undual(self: OddMultivector) -> OddMultivector {
     return OddMultivector {
-        e0: -self.e123,
-        e1: self.e032,
-        e2: -self.e013,
-        e021: -self.e3,
-        e3: self.e021,
-        e013: self.e2,
-        e032: -self.e1,
-        e123: self.e0,
+        e0: self.e123,
+        e1: -self.e032,
+        e2: self.e013,
+        e021: self.e3,
+        e3: -self.e021,
+        e013: -self.e2,
+        e032: self.e1,
+        e123: -self.e0,
     };
 }
 
@@ -3366,20 +3366,20 @@ fn evenmultivector_undual(self: EvenMultivector) -> EvenMultivector {
 fn multivector_undual(self: Multivector) -> Multivector {
     return Multivector {
         s: self.e0123,
-        e0: -self.e123,
-        e1: self.e032,
+        e0: self.e123,
+        e1: -self.e032,
         e01: self.e23,
-        e2: -self.e013,
+        e2: self.e013,
         e02: -self.e31,
         e12: self.e03,
-        e021: -self.e3,
-        e3: self.e021,
+        e021: self.e3,
+        e3: -self.e021,
         e03: self.e12,
         e31: -self.e02,
-        e013: self.e2,
+        e013: -self.e2,
         e23: self.e01,
-        e032: -self.e1,
-        e123: self.e0,
+        e032: self.e1,
+        e123: -self.e0,
         e0123: self.s,
     };
 }

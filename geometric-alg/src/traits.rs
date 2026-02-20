@@ -34,7 +34,7 @@ pub trait Dual {
     fn dual(self) -> Self::Output;
 }
 
-/// `geometric_product(inverse_dual(a), a) = I`
+/// `geometric_product(undual(a), a) = I`
 pub trait Undual {
     type Output;
     fn undual(self) -> Self::Output;

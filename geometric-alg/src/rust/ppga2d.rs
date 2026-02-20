@@ -10125,9 +10125,11 @@ impl Transform<Multivector> for Multivector {
 }
 
 impl Project<Scalar> for Scalar {
-    type Output = Null;
-    fn project(self, other: Scalar) -> Null {
-        Null
+    type Output = Scalar;
+    fn project(self, other: Scalar) -> Scalar {
+        Scalar {
+            s: self.s * other.s * other.s,
+        }
     }
 }
 
@@ -10159,14 +10161,9 @@ impl Project<Trivector> for Scalar {
 }
 
 impl Project<Null> for Scalar {
-    type Output = EvenMultivector;
-    fn project(self, other: Null) -> EvenMultivector {
-        EvenMultivector {
-            s: 0.0,
-            e01: 0.0,
-            e20: 0.0,
-            e12: 0.0,
-        }
+    type Output = Null;
+    fn project(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -10195,13 +10192,17 @@ impl Project<EvenMultivector> for Scalar {
 }
 
 impl Project<Multivector> for Scalar {
-    type Output = EvenMultivector;
-    fn project(self, other: Multivector) -> EvenMultivector {
-        EvenMultivector {
+    type Output = Multivector;
+    fn project(self, other: Multivector) -> Multivector {
+        Multivector {
             s: self.s * other.s * other.s + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e12 * other.e12,
+            e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 - self.s * other.e2 * other.e20 + self.s * other.e12 * other.e012,
+            e1: self.s * other.s * other.e1 + self.s * other.e2 * other.e12,
             e01: -self.s * other.s * other.e01 - self.s * other.e2 * other.e012,
+            e2: self.s * other.s * other.e2 - self.s * other.e1 * other.e12,
             e20: -self.s * other.s * other.e20 - self.s * other.e1 * other.e012,
             e12: -self.s * other.s * other.e12,
+            e012: -self.s * other.s * other.e012,
         }
     }
 }
@@ -10214,9 +10215,13 @@ impl Project<Scalar> for Vector {
 }
 
 impl Project<Vector> for Vector {
-    type Output = Null;
-    fn project(self, other: Vector) -> Null {
-        Null
+    type Output = Vector;
+    fn project(self, other: Vector) -> Vector {
+        Vector {
+            e0: self.e1 * other.e0 * other.e1 + self.e2 * other.e0 * other.e2,
+            e1: self.e1 * other.e1 * other.e1 + self.e2 * other.e1 * other.e2,
+            e2: self.e1 * other.e1 * other.e2 + self.e2 * other.e2 * other.e2,
+        }
     }
 }
 
@@ -10243,14 +10248,9 @@ impl Project<Trivector> for Vector {
 }
 
 impl Project<Null> for Vector {
-    type Output = OddMultivector;
-    fn project(self, other: Null) -> OddMultivector {
-        OddMultivector {
-            e0: 0.0,
-            e1: 0.0,
-            e2: 0.0,
-            e012: 0.0,
-        }
+    type Output = Null;
+    fn project(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -10279,12 +10279,16 @@ impl Project<EvenMultivector> for Vector {
 }
 
 impl Project<Multivector> for Vector {
-    type Output = OddMultivector;
-    fn project(self, other: Multivector) -> OddMultivector {
-        OddMultivector {
+    type Output = Multivector;
+    fn project(self, other: Multivector) -> Multivector {
+        Multivector {
+            s: self.e1 * other.s * other.e1 + self.e1 * other.e2 * other.e12 + self.e2 * other.s * other.e2 - self.e2 * other.e1 * other.e12,
             e0: self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
             e1: self.e1 * other.e1 * other.e1 + self.e1 * other.e12 * other.e12 + self.e2 * other.e1 * other.e2,
+            e01: -self.e1 * other.e1 * other.e01 - self.e1 * other.e12 * other.e012 - self.e2 * other.e01 * other.e2,
             e2: self.e1 * other.e1 * other.e2 + self.e2 * other.e2 * other.e2 + self.e2 * other.e12 * other.e12,
+            e20: -self.e1 * other.e1 * other.e20 - self.e2 * other.e2 * other.e20 + self.e2 * other.e12 * other.e012,
+            e12: -self.e1 * other.e1 * other.e12 - self.e2 * other.e2 * other.e12,
             e012: -self.e1 * other.e1 * other.e012 - self.e2 * other.e2 * other.e012,
         }
     }
@@ -10305,9 +10309,13 @@ impl Project<Vector> for Bivector {
 }
 
 impl Project<Bivector> for Bivector {
-    type Output = Null;
-    fn project(self, other: Bivector) -> Null {
-        Null
+    type Output = Bivector;
+    fn project(self, other: Bivector) -> Bivector {
+        Bivector {
+            e01: self.e12 * other.e01 * other.e12,
+            e20: self.e12 * other.e20 * other.e12,
+            e12: self.e12 * other.e12 * other.e12,
+        }
     }
 }
 
@@ -10323,14 +10331,9 @@ impl Project<Trivector> for Bivector {
 }
 
 impl Project<Null> for Bivector {
-    type Output = EvenMultivector;
-    fn project(self, other: Null) -> EvenMultivector {
-        EvenMultivector {
-            s: 0.0,
-            e01: 0.0,
-            e20: 0.0,
-            e12: 0.0,
-        }
+    type Output = Null;
+    fn project(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -10359,13 +10362,17 @@ impl Project<EvenMultivector> for Bivector {
 }
 
 impl Project<Multivector> for Bivector {
-    type Output = EvenMultivector;
-    fn project(self, other: Multivector) -> EvenMultivector {
-        EvenMultivector {
+    type Output = Multivector;
+    fn project(self, other: Multivector) -> Multivector {
+        Multivector {
             s: -self.e12 * other.s * other.e12,
+            e0: -self.e12 * other.e0 * other.e12,
+            e1: -self.e12 * other.e1 * other.e12,
             e01: self.e12 * other.e01 * other.e12,
+            e2: -self.e12 * other.e2 * other.e12,
             e20: self.e12 * other.e20 * other.e12,
             e12: self.e12 * other.e12 * other.e12,
+            e012: self.e12 * other.e12 * other.e012,
         }
     }
 }
@@ -10392,21 +10399,18 @@ impl Project<Bivector> for Trivector {
 }
 
 impl Project<Trivector> for Trivector {
-    type Output = Null;
-    fn project(self, other: Trivector) -> Null {
-        Null
+    type Output = Trivector;
+    fn project(self, other: Trivector) -> Trivector {
+        Trivector {
+            e012: 0.0,
+        }
     }
 }
 
 impl Project<Null> for Trivector {
-    type Output = OddMultivector;
-    fn project(self, other: Null) -> OddMultivector {
-        OddMultivector {
-            e0: 0.0,
-            e1: 0.0,
-            e2: 0.0,
-            e012: 0.0,
-        }
+    type Output = Null;
+    fn project(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -10435,12 +10439,16 @@ impl Project<EvenMultivector> for Trivector {
 }
 
 impl Project<Multivector> for Trivector {
-    type Output = OddMultivector;
-    fn project(self, other: Multivector) -> OddMultivector {
-        OddMultivector {
+    type Output = Multivector;
+    fn project(self, other: Multivector) -> Multivector {
+        Multivector {
+            s: 0.0,
             e0: 0.0,
             e1: 0.0,
+            e01: 0.0,
             e2: 0.0,
+            e20: 0.0,
+            e12: 0.0,
             e012: 0.0,
         }
     }
@@ -10551,14 +10559,9 @@ impl Project<Trivector> for OddMultivector {
 }
 
 impl Project<Null> for OddMultivector {
-    type Output = OddMultivector;
-    fn project(self, other: Null) -> OddMultivector {
-        OddMultivector {
-            e0: 0.0,
-            e1: 0.0,
-            e2: 0.0,
-            e012: 0.0,
-        }
+    type Output = Null;
+    fn project(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -10587,12 +10590,16 @@ impl Project<EvenMultivector> for OddMultivector {
 }
 
 impl Project<Multivector> for OddMultivector {
-    type Output = OddMultivector;
-    fn project(self, other: Multivector) -> OddMultivector {
-        OddMultivector {
+    type Output = Multivector;
+    fn project(self, other: Multivector) -> Multivector {
+        Multivector {
+            s: self.e1 * other.s * other.e1 + self.e1 * other.e2 * other.e12 + self.e2 * other.s * other.e2 - self.e2 * other.e1 * other.e12,
             e0: self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
             e1: self.e1 * other.e1 * other.e1 + self.e1 * other.e12 * other.e12 + self.e2 * other.e1 * other.e2,
+            e01: -self.e1 * other.e1 * other.e01 - self.e1 * other.e12 * other.e012 - self.e2 * other.e01 * other.e2,
             e2: self.e1 * other.e1 * other.e2 + self.e2 * other.e2 * other.e2 + self.e2 * other.e12 * other.e12,
+            e20: -self.e1 * other.e1 * other.e20 - self.e2 * other.e2 * other.e20 + self.e2 * other.e12 * other.e012,
+            e12: -self.e1 * other.e1 * other.e12 - self.e2 * other.e2 * other.e12,
             e012: -self.e1 * other.e1 * other.e012 - self.e2 * other.e2 * other.e012,
         }
     }
@@ -10647,14 +10654,9 @@ impl Project<Trivector> for EvenMultivector {
 }
 
 impl Project<Null> for EvenMultivector {
-    type Output = EvenMultivector;
-    fn project(self, other: Null) -> EvenMultivector {
-        EvenMultivector {
-            s: 0.0,
-            e01: 0.0,
-            e20: 0.0,
-            e12: 0.0,
-        }
+    type Output = Null;
+    fn project(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -10683,13 +10685,17 @@ impl Project<EvenMultivector> for EvenMultivector {
 }
 
 impl Project<Multivector> for EvenMultivector {
-    type Output = EvenMultivector;
-    fn project(self, other: Multivector) -> EvenMultivector {
-        EvenMultivector {
+    type Output = Multivector;
+    fn project(self, other: Multivector) -> Multivector {
+        Multivector {
             s: self.s * other.s * other.s + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e12 * other.e12 - self.e12 * other.s * other.e12,
+            e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 - self.s * other.e2 * other.e20 + self.s * other.e12 * other.e012 - self.e12 * other.e0 * other.e12,
+            e1: self.s * other.s * other.e1 + self.s * other.e2 * other.e12 - self.e12 * other.e1 * other.e12,
             e01: -self.s * other.s * other.e01 - self.s * other.e2 * other.e012 + self.e12 * other.e01 * other.e12,
+            e2: self.s * other.s * other.e2 - self.s * other.e1 * other.e12 - self.e12 * other.e2 * other.e12,
             e20: -self.s * other.s * other.e20 - self.s * other.e1 * other.e012 + self.e12 * other.e20 * other.e12,
             e12: -self.s * other.s * other.e12 + self.e12 * other.e12 * other.e12,
+            e012: -self.s * other.s * other.e012 + self.e12 * other.e12 * other.e012,
         }
     }
 }
@@ -10759,18 +10765,9 @@ impl Project<Trivector> for Multivector {
 }
 
 impl Project<Null> for Multivector {
-    type Output = Multivector;
-    fn project(self, other: Null) -> Multivector {
-        Multivector {
-            s: 0.0,
-            e0: 0.0,
-            e1: 0.0,
-            e01: 0.0,
-            e2: 0.0,
-            e20: 0.0,
-            e12: 0.0,
-            e012: 0.0,
-        }
+    type Output = Null;
+    fn project(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -10859,14 +10856,9 @@ impl Reject<Trivector> for Scalar {
 }
 
 impl Reject<Null> for Scalar {
-    type Output = EvenMultivector;
-    fn reject(self, other: Null) -> EvenMultivector {
-        EvenMultivector {
-            s: 0.0,
-            e01: 0.0,
-            e20: 0.0,
-            e12: 0.0,
-        }
+    type Output = Null;
+    fn reject(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -10895,13 +10887,17 @@ impl Reject<EvenMultivector> for Scalar {
 }
 
 impl Reject<Multivector> for Scalar {
-    type Output = EvenMultivector;
-    fn reject(self, other: Multivector) -> EvenMultivector {
-        EvenMultivector {
+    type Output = Multivector;
+    fn reject(self, other: Multivector) -> Multivector {
+        Multivector {
             s: self.s * other.s * other.s + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e12 * other.e12,
+            e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 - self.s * other.e2 * other.e20 + self.s * other.e12 * other.e012,
+            e1: self.s * other.s * other.e1 + self.s * other.e2 * other.e12,
             e01: self.s * other.s * other.e01 + self.s * other.e2 * other.e012,
+            e2: self.s * other.s * other.e2 - self.s * other.e1 * other.e12,
             e20: self.s * other.s * other.e20 + self.s * other.e1 * other.e012,
             e12: self.s * other.s * other.e12,
+            e012: self.s * other.s * other.e012,
         }
     }
 }
@@ -10947,14 +10943,9 @@ impl Reject<Trivector> for Vector {
 }
 
 impl Reject<Null> for Vector {
-    type Output = OddMultivector;
-    fn reject(self, other: Null) -> OddMultivector {
-        OddMultivector {
-            e0: 0.0,
-            e1: 0.0,
-            e2: 0.0,
-            e012: 0.0,
-        }
+    type Output = Null;
+    fn reject(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -10983,12 +10974,16 @@ impl Reject<EvenMultivector> for Vector {
 }
 
 impl Reject<Multivector> for Vector {
-    type Output = OddMultivector;
-    fn reject(self, other: Multivector) -> OddMultivector {
-        OddMultivector {
+    type Output = Multivector;
+    fn reject(self, other: Multivector) -> Multivector {
+        Multivector {
+            s: self.e1 * other.s * other.e1 + self.e1 * other.e2 * other.e12 + self.e2 * other.s * other.e2 - self.e2 * other.e1 * other.e12,
             e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
             e1: self.e1 * other.s * other.s + self.e1 * other.e2 * other.e2 - self.e2 * other.e1 * other.e2,
+            e01: self.e0 * other.s * other.e1 + self.e0 * other.e2 * other.e12 - self.e1 * other.s * other.e0 + self.e1 * other.e2 * other.e20 + self.e2 * other.e01 * other.e2,
             e2: -self.e1 * other.e1 * other.e2 + self.e2 * other.s * other.s + self.e2 * other.e1 * other.e1,
+            e20: -self.e0 * other.s * other.e2 + self.e0 * other.e1 * other.e12 + self.e1 * other.e1 * other.e20 + self.e2 * other.s * other.e0 + self.e2 * other.e1 * other.e01,
+            e12: self.e1 * other.s * other.e2 - self.e2 * other.s * other.e1,
             e012: self.e0 * other.s * other.e12 + self.e1 * other.s * other.e20 + self.e2 * other.s * other.e01,
         }
     }
@@ -11031,14 +11026,9 @@ impl Reject<Trivector> for Bivector {
 }
 
 impl Reject<Null> for Bivector {
-    type Output = EvenMultivector;
-    fn reject(self, other: Null) -> EvenMultivector {
-        EvenMultivector {
-            s: 0.0,
-            e01: 0.0,
-            e20: 0.0,
-            e12: 0.0,
-        }
+    type Output = Null;
+    fn reject(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -11067,13 +11057,17 @@ impl Reject<EvenMultivector> for Bivector {
 }
 
 impl Reject<Multivector> for Bivector {
-    type Output = EvenMultivector;
-    fn reject(self, other: Multivector) -> EvenMultivector {
-        EvenMultivector {
+    type Output = Multivector;
+    fn reject(self, other: Multivector) -> Multivector {
+        Multivector {
             s: self.e12 * other.s * other.e12,
+            e0: self.e01 * other.s * other.e1 + self.e01 * other.e2 * other.e12 - self.e20 * other.s * other.e2 + self.e20 * other.e1 * other.e12 + self.e12 * other.e0 * other.e12,
+            e1: self.e12 * other.s * other.e2,
             e01: self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e2: -self.e12 * other.s * other.e1,
             e20: self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
             e12: self.e12 * other.s * other.s,
+            e012: self.e01 * other.s * other.e2 + self.e20 * other.s * other.e1 + self.e12 * other.s * other.e0,
         }
     }
 }
@@ -11109,14 +11103,9 @@ impl Reject<Trivector> for Trivector {
 }
 
 impl Reject<Null> for Trivector {
-    type Output = OddMultivector;
-    fn reject(self, other: Null) -> OddMultivector {
-        OddMultivector {
-            e0: 0.0,
-            e1: 0.0,
-            e2: 0.0,
-            e012: 0.0,
-        }
+    type Output = Null;
+    fn reject(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -11145,12 +11134,16 @@ impl Reject<EvenMultivector> for Trivector {
 }
 
 impl Reject<Multivector> for Trivector {
-    type Output = OddMultivector;
-    fn reject(self, other: Multivector) -> OddMultivector {
-        OddMultivector {
+    type Output = Multivector;
+    fn reject(self, other: Multivector) -> Multivector {
+        Multivector {
+            s: 0.0,
             e0: self.e012 * other.s * other.e12,
             e1: 0.0,
+            e01: self.e012 * other.s * other.e2,
             e2: 0.0,
+            e20: self.e012 * other.s * other.e1,
+            e12: 0.0,
             e012: self.e012 * other.s * other.s,
         }
     }
@@ -11261,14 +11254,9 @@ impl Reject<Trivector> for OddMultivector {
 }
 
 impl Reject<Null> for OddMultivector {
-    type Output = OddMultivector;
-    fn reject(self, other: Null) -> OddMultivector {
-        OddMultivector {
-            e0: 0.0,
-            e1: 0.0,
-            e2: 0.0,
-            e012: 0.0,
-        }
+    type Output = Null;
+    fn reject(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -11297,12 +11285,16 @@ impl Reject<EvenMultivector> for OddMultivector {
 }
 
 impl Reject<Multivector> for OddMultivector {
-    type Output = OddMultivector;
-    fn reject(self, other: Multivector) -> OddMultivector {
-        OddMultivector {
+    type Output = Multivector;
+    fn reject(self, other: Multivector) -> Multivector {
+        Multivector {
+            s: self.e1 * other.s * other.e1 + self.e1 * other.e2 * other.e12 + self.e2 * other.s * other.e2 - self.e2 * other.e1 * other.e12,
             e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12 + self.e012 * other.s * other.e12,
             e1: self.e1 * other.s * other.s + self.e1 * other.e2 * other.e2 - self.e2 * other.e1 * other.e2,
+            e01: self.e0 * other.s * other.e1 + self.e0 * other.e2 * other.e12 - self.e1 * other.s * other.e0 + self.e1 * other.e2 * other.e20 + self.e2 * other.e01 * other.e2 + self.e012 * other.s * other.e2,
             e2: -self.e1 * other.e1 * other.e2 + self.e2 * other.s * other.s + self.e2 * other.e1 * other.e1,
+            e20: -self.e0 * other.s * other.e2 + self.e0 * other.e1 * other.e12 + self.e1 * other.e1 * other.e20 + self.e2 * other.s * other.e0 + self.e2 * other.e1 * other.e01 + self.e012 * other.s * other.e1,
+            e12: self.e1 * other.s * other.e2 - self.e2 * other.s * other.e1,
             e012: self.e0 * other.s * other.e12 + self.e1 * other.s * other.e20 + self.e2 * other.s * other.e01 + self.e012 * other.s * other.s,
         }
     }
@@ -11357,14 +11349,9 @@ impl Reject<Trivector> for EvenMultivector {
 }
 
 impl Reject<Null> for EvenMultivector {
-    type Output = EvenMultivector;
-    fn reject(self, other: Null) -> EvenMultivector {
-        EvenMultivector {
-            s: 0.0,
-            e01: 0.0,
-            e20: 0.0,
-            e12: 0.0,
-        }
+    type Output = Null;
+    fn reject(self, other: Null) -> Null {
+        Null
     }
 }
 
@@ -11393,13 +11380,17 @@ impl Reject<EvenMultivector> for EvenMultivector {
 }
 
 impl Reject<Multivector> for EvenMultivector {
-    type Output = EvenMultivector;
-    fn reject(self, other: Multivector) -> EvenMultivector {
-        EvenMultivector {
+    type Output = Multivector;
+    fn reject(self, other: Multivector) -> Multivector {
+        Multivector {
             s: self.s * other.s * other.s + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e12 * other.e12 + self.e12 * other.s * other.e12,
+            e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 - self.s * other.e2 * other.e20 + self.s * other.e12 * other.e012 + self.e01 * other.s * other.e1 + self.e01 * other.e2 * other.e12 - self.e20 * other.s * other.e2 + self.e20 * other.e1 * other.e12 + self.e12 * other.e0 * other.e12,
+            e1: self.s * other.s * other.e1 + self.s * other.e2 * other.e12 + self.e12 * other.s * other.e2,
             e01: self.s * other.s * other.e01 + self.s * other.e2 * other.e012 + self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e2: self.s * other.s * other.e2 - self.s * other.e1 * other.e12 - self.e12 * other.s * other.e1,
             e20: self.s * other.s * other.e20 + self.s * other.e1 * other.e012 + self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
             e12: self.s * other.s * other.e12 + self.e12 * other.s * other.s,
+            e012: self.s * other.s * other.e012 + self.e01 * other.s * other.e2 + self.e20 * other.s * other.e1 + self.e12 * other.s * other.e0,
         }
     }
 }
@@ -11469,18 +11460,9 @@ impl Reject<Trivector> for Multivector {
 }
 
 impl Reject<Null> for Multivector {
-    type Output = Multivector;
-    fn reject(self, other: Null) -> Multivector {
-        Multivector {
-            s: 0.0,
-            e0: 0.0,
-            e1: 0.0,
-            e01: 0.0,
-            e2: 0.0,
-            e20: 0.0,
-            e12: 0.0,
-            e012: 0.0,
-        }
+    type Output = Null;
+    fn reject(self, other: Null) -> Null {
+        Null
     }
 }
 
