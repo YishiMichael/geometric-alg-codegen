@@ -2,7 +2,7 @@
 
 mod algebra;
 mod ast;
-mod emitter;
+mod syntax;
 
 pub use crate::algebra::{GeometricAlgeberaRecord, GeometricAlgebraBuilder};
-pub use emitter::*;
+pub use syntax::*;

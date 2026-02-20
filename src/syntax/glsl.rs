@@ -1,10 +1,10 @@
 use crate::ast::{Ast, Expr, ExprRepr, Implementation, Item, Ownership, Stmt, StmtRepr, Structure};
-use crate::emitter::{Emitter, Stringifier, Writer};
+use crate::syntax::{Stringifier, Syntax, Writer};
 use itertools::{Itertools, Position};
 
-pub struct WGSLLang;
+pub struct GLSLLang;
 
-impl Emitter for WGSLLang {
+impl Syntax for GLSLLang {
     fn emit_preamble(&self, writer: &mut Writer) -> std::io::Result<()> {
         write!(
             writer.buffer(),
@@ -37,19 +37,19 @@ impl Emitter for WGSLLang {
                 writer.newline()?;
                 write!(
                     writer.buffer(),
-                    "{field}: {field_type},",
-                    field = stringifier.stringify_field(field),
+                    "{field_type} {field};",
                     field_type = stringifier.stringify_type(field_type),
+                    field = stringifier.stringify_field(field),
                 )?;
             }
             if fields.is_empty() {
                 writer.newline()?;
-                write!(writer.buffer(), "_phantom: f32,")?;
+                write!(writer.buffer(), "float _phantom;")?;
             }
             writer.dedent();
         }
         writer.newline()?;
-        write!(writer.buffer(), "}}")?;
+        write!(writer.buffer(), "}};")?;
         writer.newline()?;
         Ok(())
     }
@@ -72,7 +72,11 @@ impl Emitter for WGSLLang {
         writer.newline()?;
         write!(
             writer.buffer(),
-            "fn {mangled_fn}({params}){return_type} {{",
+            "{return_type} {mangled_fn}({params}) {{",
+            return_type = return_type
+                .as_ref()
+                .map(|return_type| stringifier.stringify_type(return_type))
+                .unwrap_or("void"),
             mangled_fn = mangle(
                 stringifier.stringify_operation_fn(operation),
                 stringifier.stringify_type(self_type),
@@ -92,27 +96,20 @@ impl Emitter for WGSLLang {
                          value: param_type,
                      }| match param_type {
                         Ownership::Owned(param_type) => format!(
-                            "{param}: {param_type}",
+                            "{param_type} {param}",
                             param_type = stringifier.stringify_type(param_type),
                         ),
                         Ownership::Borrowed(param_type) => format!(
-                            "{param}: ptr<function, {param_type}>",
+                            "{param_type} {param}",
                             param_type = stringifier.stringify_type(param_type),
                         ),
                         Ownership::BorrowedMut(param_type) => format!(
-                            "{param}: ptr<function, {param_type}>",
+                            "inout {param_type} {param}",
                             param_type = stringifier.stringify_type(param_type),
                         ),
                     }
                 )
                 .join(", "),
-            return_type = return_type
-                .as_ref()
-                .map(|return_type| format!(
-                    " -> {return_type}",
-                    return_type = stringifier.stringify_type(return_type),
-                ))
-                .unwrap_or_default(),
         )?;
         {
             writer.indent();
@@ -150,33 +147,33 @@ impl Emitter for WGSLLang {
             ExprRepr::Struct { template, fields } => {
                 write!(
                     writer.buffer(),
-                    "{template} {{",
+                    "{template}(",
                     template = stringifier.stringify_template(template),
                 )?;
                 {
                     writer.indent();
-                    for Item {
-                        key: field,
-                        value: field_expr,
-                    } in fields
+                    for (
+                        position,
+                        Item {
+                            key: _,
+                            value: field_expr,
+                        },
+                    ) in fields.iter().with_position()
                     {
                         writer.newline()?;
-                        write!(
-                            writer.buffer(),
-                            "{field}: ",
-                            field = stringifier.stringify_field(field),
-                        )?;
                         self.emit_expr(writer, stringifier, field_expr)?;
-                        write!(writer.buffer(), ",")?;
+                        if matches!(position, Position::First | Position::Middle) {
+                            write!(writer.buffer(), ",")?;
+                        }
                     }
                     if fields.is_empty() {
                         writer.newline()?;
-                        write!(writer.buffer(), "_phantom: 0.0,")?;
+                        write!(writer.buffer(), "0.0")?;
                     }
                     writer.dedent();
                 }
                 writer.newline()?;
-                write!(writer.buffer(), "}}")?;
+                write!(writer.buffer(), ")")?;
             }
             ExprRepr::Field { expr, field } => {
                 self.emit_expr(writer, stringifier, expr)?;

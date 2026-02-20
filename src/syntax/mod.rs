@@ -8,7 +8,7 @@ pub use wgsl::WGSLLang;
 
 use crate::ast::{Ast, Expr, Implementation, Record, Stmt, Stringifier, Structure};
 
-pub trait Emitter {
+pub trait Syntax {
     fn emit_preamble(&self, writer: &mut Writer) -> std::io::Result<()>;
     fn emit_structure<A: Ast>(
         &self,

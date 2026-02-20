@@ -1,10 +1,10 @@
 use crate::ast::{Ast, Expr, ExprRepr, Implementation, Item, Ownership, Stmt, StmtRepr, Structure};
-use crate::emitter::{Emitter, Stringifier, Writer};
+use crate::syntax::{Stringifier, Syntax, Writer};
 use itertools::{Itertools, Position};
 
 pub struct RustLang;
 
-impl Emitter for RustLang {
+impl Syntax for RustLang {
     fn emit_preamble(&self, writer: &mut Writer) -> std::io::Result<()> {
         write!(
             writer.buffer(),

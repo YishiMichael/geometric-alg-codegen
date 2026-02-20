@@ -2,7 +2,7 @@ use crate::ast::{
     Ast, Expr, Implementation, Item, OperationSignature, Ownership, Record, Stmt, Stringifier,
     Structure, TemplateSignature, TypeBinding,
 };
-use crate::emitter::{Emitter, Writer};
+use crate::syntax::{Syntax, Writer};
 use itertools::Itertools;
 use strum::{EnumIter, EnumProperty, IntoEnumIterator};
 
@@ -1311,7 +1311,7 @@ impl GeometricAlgeberaRecord {
     ) -> std::io::Result<()>
     where
         Buffer: std::io::Write,
-        Lang: Emitter,
+        Lang: Syntax,
     {
         let stringifier = GeometricAlgebraStringifier {
             names: &self.names,

@@ -1,10 +1,10 @@
 use crate::ast::{Ast, Expr, ExprRepr, Implementation, Item, Ownership, Stmt, StmtRepr, Structure};
-use crate::emitter::{Emitter, Stringifier, Writer};
+use crate::syntax::{Stringifier, Syntax, Writer};
 use itertools::{Itertools, Position};
 
-pub struct GLSLLang;
+pub struct WGSLLang;
 
-impl Emitter for GLSLLang {
+impl Syntax for WGSLLang {
     fn emit_preamble(&self, writer: &mut Writer) -> std::io::Result<()> {
         write!(
             writer.buffer(),
@@ -37,14 +37,14 @@ impl Emitter for GLSLLang {
                 writer.newline()?;
                 write!(
                     writer.buffer(),
-                    "{field_type} {field};",
-                    field_type = stringifier.stringify_type(field_type),
+                    "{field}: {field_type},",
                     field = stringifier.stringify_field(field),
+                    field_type = stringifier.stringify_type(field_type),
                 )?;
             }
             if fields.is_empty() {
                 writer.newline()?;
-                write!(writer.buffer(), "float _phantom;")?;
+                write!(writer.buffer(), "_phantom: f32,")?;
             }
             writer.dedent();
         }
@@ -72,11 +72,7 @@ impl Emitter for GLSLLang {
         writer.newline()?;
         write!(
             writer.buffer(),
-            "{return_type} {mangled_fn}({params}) {{",
-            return_type = return_type
-                .as_ref()
-                .map(|return_type| stringifier.stringify_type(return_type).to_string())
-                .unwrap_or(String::from("void")),
+            "fn {mangled_fn}({params}){return_type} {{",
             mangled_fn = mangle(
                 stringifier.stringify_operation_fn(operation),
                 stringifier.stringify_type(self_type),
@@ -96,20 +92,27 @@ impl Emitter for GLSLLang {
                          value: param_type,
                      }| match param_type {
                         Ownership::Owned(param_type) => format!(
-                            "{param_type} {param}",
+                            "{param}: {param_type}",
                             param_type = stringifier.stringify_type(param_type),
                         ),
                         Ownership::Borrowed(param_type) => format!(
-                            "{param_type} {param}",
+                            "{param}: ptr<function, {param_type}>",
                             param_type = stringifier.stringify_type(param_type),
                         ),
                         Ownership::BorrowedMut(param_type) => format!(
-                            "inout {param_type} {param}",
+                            "{param}: ptr<function, {param_type}>",
                             param_type = stringifier.stringify_type(param_type),
                         ),
                     }
                 )
                 .join(", "),
+            return_type = return_type
+                .as_ref()
+                .map(|return_type| format!(
+                    " -> {return_type}",
+                    return_type = stringifier.stringify_type(return_type),
+                ))
+                .unwrap_or_default(),
         )?;
         {
             writer.indent();
@@ -147,18 +150,15 @@ impl Emitter for GLSLLang {
             ExprRepr::Struct { template, fields } => {
                 write!(
                     writer.buffer(),
-                    "{template}(",
+                    "{template} {{",
                     template = stringifier.stringify_template(template),
                 )?;
                 {
                     writer.indent();
-                    for (
-                        position,
-                        Item {
-                            key: field,
-                            value: field_expr,
-                        },
-                    ) in fields.iter().with_position()
+                    for Item {
+                        key: field,
+                        value: field_expr,
+                    } in fields
                     {
                         writer.newline()?;
                         write!(
@@ -167,18 +167,16 @@ impl Emitter for GLSLLang {
                             field = stringifier.stringify_field(field),
                         )?;
                         self.emit_expr(writer, stringifier, field_expr)?;
-                        if matches!(position, Position::First | Position::Middle) {
-                            write!(writer.buffer(), ",")?;
-                        }
+                        write!(writer.buffer(), ",")?;
                     }
                     if fields.is_empty() {
                         writer.newline()?;
-                        write!(writer.buffer(), "0.0")?;
+                        write!(writer.buffer(), "_phantom: 0.0,")?;
                     }
                     writer.dedent();
                 }
                 writer.newline()?;
-                write!(writer.buffer(), ")")?;
+                write!(writer.buffer(), "}}")?;
             }
             ExprRepr::Field { expr, field } => {
                 self.emit_expr(writer, stringifier, expr)?;
