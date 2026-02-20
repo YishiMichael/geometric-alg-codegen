@@ -1850,7 +1850,7 @@ impl GradeInvolution for Vector {
     type Output = Vector;
     fn grade_involution(self) -> Vector {
         Vector {
-            e0: 0.0,
+            e0: -self.e0,
             e1: -self.e1,
         }
     }
@@ -1860,7 +1860,7 @@ impl GradeInvolution for Bivector {
     type Output = Bivector;
     fn grade_involution(self) -> Bivector {
         Bivector {
-            e01: 0.0,
+            e01: self.e01,
         }
     }
 }
@@ -1876,7 +1876,7 @@ impl GradeInvolution for OddMultivector {
     type Output = OddMultivector;
     fn grade_involution(self) -> OddMultivector {
         OddMultivector {
-            e0: 0.0,
+            e0: -self.e0,
             e1: -self.e1,
         }
     }
@@ -1887,7 +1887,7 @@ impl GradeInvolution for EvenMultivector {
     fn grade_involution(self) -> EvenMultivector {
         EvenMultivector {
             s: self.s,
-            e01: 0.0,
+            e01: self.e01,
         }
     }
 }
@@ -1897,9 +1897,9 @@ impl GradeInvolution for Multivector {
     fn grade_involution(self) -> Multivector {
         Multivector {
             s: self.s,
-            e0: 0.0,
+            e0: -self.e0,
             e1: -self.e1,
-            e01: 0.0,
+            e01: self.e01,
         }
     }
 }
@@ -1917,7 +1917,7 @@ impl Reverse for Vector {
     type Output = Vector;
     fn reverse(self) -> Vector {
         Vector {
-            e0: 0.0,
+            e0: self.e0,
             e1: self.e1,
         }
     }
@@ -1927,7 +1927,7 @@ impl Reverse for Bivector {
     type Output = Bivector;
     fn reverse(self) -> Bivector {
         Bivector {
-            e01: 0.0,
+            e01: -self.e01,
         }
     }
 }
@@ -1943,7 +1943,7 @@ impl Reverse for OddMultivector {
     type Output = OddMultivector;
     fn reverse(self) -> OddMultivector {
         OddMultivector {
-            e0: 0.0,
+            e0: self.e0,
             e1: self.e1,
         }
     }
@@ -1954,7 +1954,7 @@ impl Reverse for EvenMultivector {
     fn reverse(self) -> EvenMultivector {
         EvenMultivector {
             s: self.s,
-            e01: 0.0,
+            e01: -self.e01,
         }
     }
 }
@@ -1964,9 +1964,9 @@ impl Reverse for Multivector {
     fn reverse(self) -> Multivector {
         Multivector {
             s: self.s,
-            e0: 0.0,
+            e0: self.e0,
             e1: self.e1,
-            e01: 0.0,
+            e01: -self.e01,
         }
     }
 }
@@ -1984,7 +1984,7 @@ impl Conjugate for Vector {
     type Output = Vector;
     fn conjugate(self) -> Vector {
         Vector {
-            e0: 0.0,
+            e0: -self.e0,
             e1: -self.e1,
         }
     }
@@ -1994,7 +1994,7 @@ impl Conjugate for Bivector {
     type Output = Bivector;
     fn conjugate(self) -> Bivector {
         Bivector {
-            e01: 0.0,
+            e01: -self.e01,
         }
     }
 }
@@ -2010,7 +2010,7 @@ impl Conjugate for OddMultivector {
     type Output = OddMultivector;
     fn conjugate(self) -> OddMultivector {
         OddMultivector {
-            e0: 0.0,
+            e0: -self.e0,
             e1: -self.e1,
         }
     }
@@ -2021,7 +2021,7 @@ impl Conjugate for EvenMultivector {
     fn conjugate(self) -> EvenMultivector {
         EvenMultivector {
             s: self.s,
-            e01: 0.0,
+            e01: -self.e01,
         }
     }
 }
@@ -2031,9 +2031,9 @@ impl Conjugate for Multivector {
     fn conjugate(self) -> Multivector {
         Multivector {
             s: self.s,
-            e0: 0.0,
+            e0: -self.e0,
             e1: -self.e1,
-            e01: 0.0,
+            e01: -self.e01,
         }
     }
 }
@@ -2052,7 +2052,7 @@ impl Dual for Vector {
     fn dual(self) -> Vector {
         Vector {
             e0: self.e1,
-            e1: 0.0,
+            e1: -self.e0,
         }
     }
 }
@@ -2061,7 +2061,7 @@ impl Dual for Bivector {
     type Output = Scalar;
     fn dual(self) -> Scalar {
         Scalar {
-            s: 0.0,
+            s: self.e01,
         }
     }
 }
@@ -2078,7 +2078,7 @@ impl Dual for OddMultivector {
     fn dual(self) -> OddMultivector {
         OddMultivector {
             e0: self.e1,
-            e1: 0.0,
+            e1: -self.e0,
         }
     }
 }
@@ -2087,7 +2087,7 @@ impl Dual for EvenMultivector {
     type Output = EvenMultivector;
     fn dual(self) -> EvenMultivector {
         EvenMultivector {
-            s: 0.0,
+            s: self.e01,
             e01: self.s,
         }
     }
@@ -2097,9 +2097,9 @@ impl Dual for Multivector {
     type Output = Multivector;
     fn dual(self) -> Multivector {
         Multivector {
-            s: 0.0,
+            s: self.e01,
             e0: self.e1,
-            e1: 0.0,
+            e1: -self.e0,
             e01: self.s,
         }
     }
@@ -2119,7 +2119,7 @@ impl Undual for Vector {
     fn undual(self) -> Vector {
         Vector {
             e0: -self.e1,
-            e1: 0.0,
+            e1: self.e0,
         }
     }
 }
@@ -2128,7 +2128,7 @@ impl Undual for Bivector {
     type Output = Scalar;
     fn undual(self) -> Scalar {
         Scalar {
-            s: 0.0,
+            s: self.e01,
         }
     }
 }
@@ -2145,7 +2145,7 @@ impl Undual for OddMultivector {
     fn undual(self) -> OddMultivector {
         OddMultivector {
             e0: -self.e1,
-            e1: 0.0,
+            e1: self.e0,
         }
     }
 }
@@ -2154,7 +2154,7 @@ impl Undual for EvenMultivector {
     type Output = EvenMultivector;
     fn undual(self) -> EvenMultivector {
         EvenMultivector {
-            s: 0.0,
+            s: self.e01,
             e01: self.s,
         }
     }
@@ -2164,9 +2164,9 @@ impl Undual for Multivector {
     type Output = Multivector;
     fn undual(self) -> Multivector {
         Multivector {
-            s: 0.0,
+            s: self.e01,
             e0: -self.e1,
-            e1: 0.0,
+            e1: self.e0,
             e01: self.s,
         }
     }
@@ -6494,7 +6494,7 @@ impl Transform<Vector> for Scalar {
     type Output = EvenMultivector;
     fn transform(self, other: Vector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -6504,7 +6504,7 @@ impl Transform<Bivector> for Scalar {
     type Output = EvenMultivector;
     fn transform(self, other: Bivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e01 * other.e01,
+            s: 0.0,
             e01: 0.0,
         }
     }
@@ -6521,7 +6521,7 @@ impl Transform<OddMultivector> for Scalar {
     type Output = EvenMultivector;
     fn transform(self, other: OddMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -6531,7 +6531,7 @@ impl Transform<EvenMultivector> for Scalar {
     type Output = EvenMultivector;
     fn transform(self, other: EvenMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+            s: self.s * other.s * other.s,
             e01: 0.0,
         }
     }
@@ -6541,9 +6541,9 @@ impl Transform<Multivector> for Scalar {
     type Output = Multivector;
     fn transform(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01,
+            s: self.s * other.s * other.s + self.s * other.e1 * other.e1,
             e0: 2.0 * self.s * other.s * other.e0 + 2.0 * self.s * other.e1 * other.e01,
-            e1: 2.0 * self.s * other.s * other.e1 - 2.0 * self.s * other.e0 * other.e01,
+            e1: 2.0 * self.s * other.s * other.e1,
             e01: 0.0,
         }
     }
@@ -6564,7 +6564,7 @@ impl Transform<Vector> for Vector {
     fn transform(self, other: Vector) -> OddMultivector {
         OddMultivector {
             e0: -self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
-            e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
         }
     }
 }
@@ -6574,7 +6574,7 @@ impl Transform<Bivector> for Vector {
     fn transform(self, other: Bivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e1 * other.e01 * other.e01,
+            e1: 0.0,
         }
     }
 }
@@ -6591,7 +6591,7 @@ impl Transform<OddMultivector> for Vector {
     fn transform(self, other: OddMultivector) -> OddMultivector {
         OddMultivector {
             e0: -self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
-            e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
         }
     }
 }
@@ -6601,7 +6601,7 @@ impl Transform<EvenMultivector> for Vector {
     fn transform(self, other: EvenMultivector) -> OddMultivector {
         OddMultivector {
             e0: self.e0 * other.s * other.s + 2.0 * self.e1 * other.s * other.e01,
-            e1: -2.0 * self.e0 * other.s * other.e01 + self.e1 * other.s * other.s - self.e1 * other.e01 * other.e01,
+            e1: self.e1 * other.s * other.s,
         }
     }
 }
@@ -6610,9 +6610,9 @@ impl Transform<Multivector> for Vector {
     type Output = Multivector;
     fn transform(self, other: Multivector) -> Multivector {
         Multivector {
-            s: 2.0 * self.e0 * other.s * other.e0 - 2.0 * self.e0 * other.e1 * other.e01 + 2.0 * self.e1 * other.s * other.e1 + 2.0 * self.e1 * other.e0 * other.e01,
+            s: 2.0 * self.e1 * other.s * other.e1,
             e0: self.e0 * other.s * other.s - self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1,
-            e1: -2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01,
+            e1: self.e1 * other.s * other.s + self.e1 * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -6751,7 +6751,7 @@ impl Transform<Vector> for OddMultivector {
     fn transform(self, other: Vector) -> OddMultivector {
         OddMultivector {
             e0: -self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
-            e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
         }
     }
 }
@@ -6761,7 +6761,7 @@ impl Transform<Bivector> for OddMultivector {
     fn transform(self, other: Bivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e1 * other.e01 * other.e01,
+            e1: 0.0,
         }
     }
 }
@@ -6778,7 +6778,7 @@ impl Transform<OddMultivector> for OddMultivector {
     fn transform(self, other: OddMultivector) -> OddMultivector {
         OddMultivector {
             e0: -self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
-            e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
         }
     }
 }
@@ -6788,7 +6788,7 @@ impl Transform<EvenMultivector> for OddMultivector {
     fn transform(self, other: EvenMultivector) -> OddMultivector {
         OddMultivector {
             e0: self.e0 * other.s * other.s + 2.0 * self.e1 * other.s * other.e01,
-            e1: -2.0 * self.e0 * other.s * other.e01 + self.e1 * other.s * other.s - self.e1 * other.e01 * other.e01,
+            e1: self.e1 * other.s * other.s,
         }
     }
 }
@@ -6797,9 +6797,9 @@ impl Transform<Multivector> for OddMultivector {
     type Output = Multivector;
     fn transform(self, other: Multivector) -> Multivector {
         Multivector {
-            s: 2.0 * self.e0 * other.s * other.e0 - 2.0 * self.e0 * other.e1 * other.e01 + 2.0 * self.e1 * other.s * other.e1 + 2.0 * self.e1 * other.e0 * other.e01,
+            s: 2.0 * self.e1 * other.s * other.e1,
             e0: self.e0 * other.s * other.s - self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1,
-            e1: -2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01,
+            e1: self.e1 * other.s * other.s + self.e1 * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -6819,7 +6819,7 @@ impl Transform<Vector> for EvenMultivector {
     type Output = EvenMultivector;
     fn transform(self, other: Vector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: -self.e01 * other.e1 * other.e1,
         }
     }
@@ -6829,7 +6829,7 @@ impl Transform<Bivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn transform(self, other: Bivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e01 * other.e01,
+            s: 0.0,
             e01: 0.0,
         }
     }
@@ -6846,7 +6846,7 @@ impl Transform<OddMultivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn transform(self, other: OddMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: -self.e01 * other.e1 * other.e1,
         }
     }
@@ -6856,7 +6856,7 @@ impl Transform<EvenMultivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn transform(self, other: EvenMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+            s: self.s * other.s * other.s,
             e01: self.e01 * other.s * other.s,
         }
     }
@@ -6866,9 +6866,9 @@ impl Transform<Multivector> for EvenMultivector {
     type Output = Multivector;
     fn transform(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01,
+            s: self.s * other.s * other.s + self.s * other.e1 * other.e1,
             e0: 2.0 * self.s * other.s * other.e0 + 2.0 * self.s * other.e1 * other.e01,
-            e1: 2.0 * self.s * other.s * other.e1 - 2.0 * self.s * other.e0 * other.e01,
+            e1: 2.0 * self.s * other.s * other.e1,
             e01: self.e01 * other.s * other.s - self.e01 * other.e1 * other.e1,
         }
     }
@@ -6890,9 +6890,9 @@ impl Transform<Vector> for Multivector {
     type Output = Multivector;
     fn transform(self, other: Vector) -> Multivector {
         Multivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e0: -self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
-            e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
             e01: -self.e01 * other.e1 * other.e1,
         }
     }
@@ -6902,9 +6902,9 @@ impl Transform<Bivector> for Multivector {
     type Output = Multivector;
     fn transform(self, other: Bivector) -> Multivector {
         Multivector {
-            s: self.s * other.e01 * other.e01,
+            s: 0.0,
             e0: 0.0,
-            e1: -self.e1 * other.e01 * other.e01,
+            e1: 0.0,
             e01: 0.0,
         }
     }
@@ -6921,9 +6921,9 @@ impl Transform<OddMultivector> for Multivector {
     type Output = Multivector;
     fn transform(self, other: OddMultivector) -> Multivector {
         Multivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e0: -self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.e0 * other.e1,
-            e1: 2.0 * self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
             e01: -self.e01 * other.e1 * other.e1,
         }
     }
@@ -6933,9 +6933,9 @@ impl Transform<EvenMultivector> for Multivector {
     type Output = Multivector;
     fn transform(self, other: EvenMultivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+            s: self.s * other.s * other.s,
             e0: self.e0 * other.s * other.s + 2.0 * self.e1 * other.s * other.e01,
-            e1: -2.0 * self.e0 * other.s * other.e01 + self.e1 * other.s * other.s - self.e1 * other.e01 * other.e01,
+            e1: self.e1 * other.s * other.s,
             e01: self.e01 * other.s * other.s,
         }
     }
@@ -6945,9 +6945,9 @@ impl Transform<Multivector> for Multivector {
     type Output = Multivector;
     fn transform(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + 2.0 * self.e0 * other.s * other.e0 - 2.0 * self.e0 * other.e1 * other.e01 + 2.0 * self.e1 * other.s * other.e1 + 2.0 * self.e1 * other.e0 * other.e01,
+            s: self.s * other.s * other.s + self.s * other.e1 * other.e1 + 2.0 * self.e1 * other.s * other.e1,
             e0: 2.0 * self.s * other.s * other.e0 + 2.0 * self.s * other.e1 * other.e01 + self.e0 * other.s * other.s - self.e0 * other.e1 * other.e1 + 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1,
-            e1: 2.0 * self.s * other.s * other.e1 - 2.0 * self.s * other.e0 * other.e01 - 2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01,
+            e1: 2.0 * self.s * other.s * other.e1 + self.e1 * other.s * other.s + self.e1 * other.e1 * other.e1,
             e01: self.e01 * other.s * other.s - self.e01 * other.e1 * other.e1,
         }
     }
@@ -6964,7 +6964,7 @@ impl Project<Vector> for Scalar {
     type Output = Scalar;
     fn project(self, other: Vector) -> Scalar {
         Scalar {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
         }
     }
 }
@@ -6973,7 +6973,7 @@ impl Project<Bivector> for Scalar {
     type Output = Scalar;
     fn project(self, other: Bivector) -> Scalar {
         Scalar {
-            s: self.s * other.e01 * other.e01,
+            s: 0.0,
         }
     }
 }
@@ -6992,7 +6992,7 @@ impl Project<OddMultivector> for Scalar {
     type Output = EvenMultivector;
     fn project(self, other: OddMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -7002,7 +7002,7 @@ impl Project<EvenMultivector> for Scalar {
     type Output = EvenMultivector;
     fn project(self, other: EvenMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+            s: self.s * other.s * other.s,
             e01: -self.s * other.s * other.e01,
         }
     }
@@ -7012,7 +7012,7 @@ impl Project<Multivector> for Scalar {
     type Output = EvenMultivector;
     fn project(self, other: Multivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01,
+            s: self.s * other.s * other.s + self.s * other.e1 * other.e1,
             e01: -self.s * other.s * other.e01,
         }
     }
@@ -7037,7 +7037,7 @@ impl Project<Bivector> for Vector {
     fn project(self, other: Bivector) -> Vector {
         Vector {
             e0: 0.0,
-            e1: self.e1 * other.e01 * other.e01,
+            e1: 0.0,
         }
     }
 }
@@ -7057,7 +7057,7 @@ impl Project<OddMultivector> for Vector {
     fn project(self, other: OddMultivector) -> OddMultivector {
         OddMultivector {
             e0: self.e1 * other.e0 * other.e1,
-            e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
         }
     }
 }
@@ -7067,7 +7067,7 @@ impl Project<EvenMultivector> for Vector {
     fn project(self, other: EvenMultivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: self.e1 * other.e01 * other.e01,
+            e1: 0.0,
         }
     }
 }
@@ -7077,7 +7077,7 @@ impl Project<Multivector> for Vector {
     fn project(self, other: Multivector) -> OddMultivector {
         OddMultivector {
             e0: self.e1 * other.e0 * other.e1,
-            e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01,
+            e1: self.e1 * other.e1 * other.e1,
         }
     }
 }
@@ -7127,7 +7127,7 @@ impl Project<EvenMultivector> for Bivector {
     type Output = EvenMultivector;
     fn project(self, other: EvenMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: -self.e01 * other.s * other.e01,
+            s: 0.0,
             e01: 0.0,
         }
     }
@@ -7137,7 +7137,7 @@ impl Project<Multivector> for Bivector {
     type Output = EvenMultivector;
     fn project(self, other: Multivector) -> EvenMultivector {
         EvenMultivector {
-            s: -self.e01 * other.s * other.e01,
+            s: 0.0,
             e01: 0.0,
         }
     }
@@ -7207,7 +7207,7 @@ impl Project<Vector> for OddMultivector {
     fn project(self, other: Vector) -> OddMultivector {
         OddMultivector {
             e0: self.e1 * other.e0 * other.e1,
-            e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
         }
     }
 }
@@ -7217,7 +7217,7 @@ impl Project<Bivector> for OddMultivector {
     fn project(self, other: Bivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: self.e1 * other.e01 * other.e01,
+            e1: 0.0,
         }
     }
 }
@@ -7237,7 +7237,7 @@ impl Project<OddMultivector> for OddMultivector {
     fn project(self, other: OddMultivector) -> OddMultivector {
         OddMultivector {
             e0: self.e1 * other.e0 * other.e1,
-            e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
         }
     }
 }
@@ -7247,7 +7247,7 @@ impl Project<EvenMultivector> for OddMultivector {
     fn project(self, other: EvenMultivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: self.e1 * other.e01 * other.e01,
+            e1: 0.0,
         }
     }
 }
@@ -7257,7 +7257,7 @@ impl Project<Multivector> for OddMultivector {
     fn project(self, other: Multivector) -> OddMultivector {
         OddMultivector {
             e0: self.e1 * other.e0 * other.e1,
-            e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01,
+            e1: self.e1 * other.e1 * other.e1,
         }
     }
 }
@@ -7276,7 +7276,7 @@ impl Project<Vector> for EvenMultivector {
     type Output = EvenMultivector;
     fn project(self, other: Vector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -7286,7 +7286,7 @@ impl Project<Bivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn project(self, other: Bivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e01 * other.e01,
+            s: 0.0,
             e01: 0.0,
         }
     }
@@ -7306,7 +7306,7 @@ impl Project<OddMultivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn project(self, other: OddMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -7316,7 +7316,7 @@ impl Project<EvenMultivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn project(self, other: EvenMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e01 * other.e01 - self.e01 * other.s * other.e01,
+            s: self.s * other.s * other.s,
             e01: -self.s * other.s * other.e01,
         }
     }
@@ -7326,7 +7326,7 @@ impl Project<Multivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn project(self, other: Multivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.e01 * other.s * other.e01,
+            s: self.s * other.s * other.s + self.s * other.e1 * other.e1,
             e01: -self.s * other.s * other.e01,
         }
     }
@@ -7348,9 +7348,9 @@ impl Project<Vector> for Multivector {
     type Output = Multivector;
     fn project(self, other: Vector) -> Multivector {
         Multivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e0: self.e1 * other.e0 * other.e1,
-            e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -7360,9 +7360,9 @@ impl Project<Bivector> for Multivector {
     type Output = Multivector;
     fn project(self, other: Bivector) -> Multivector {
         Multivector {
-            s: self.s * other.e01 * other.e01,
+            s: 0.0,
             e0: 0.0,
-            e1: self.e1 * other.e01 * other.e01,
+            e1: 0.0,
             e01: 0.0,
         }
     }
@@ -7384,9 +7384,9 @@ impl Project<OddMultivector> for Multivector {
     type Output = Multivector;
     fn project(self, other: OddMultivector) -> Multivector {
         Multivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e0: self.e1 * other.e0 * other.e1,
-            e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1,
+            e1: self.e1 * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -7396,9 +7396,9 @@ impl Project<EvenMultivector> for Multivector {
     type Output = Multivector;
     fn project(self, other: EvenMultivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s + self.s * other.e01 * other.e01 - self.e01 * other.s * other.e01,
+            s: self.s * other.s * other.s,
             e0: 0.0,
-            e1: self.e1 * other.e01 * other.e01,
+            e1: 0.0,
             e01: -self.s * other.s * other.e01,
         }
     }
@@ -7408,9 +7408,9 @@ impl Project<Multivector> for Multivector {
     type Output = Multivector;
     fn project(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.e0 * other.s * other.e0 + self.e0 * other.e1 * other.e01 + self.e1 * other.s * other.e1 - self.e1 * other.e0 * other.e01 - self.e01 * other.s * other.e01,
+            s: self.s * other.s * other.s + self.s * other.e1 * other.e1 + self.e1 * other.s * other.e1,
             e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 + self.e1 * other.e0 * other.e1,
-            e1: self.s * other.s * other.e1 - self.s * other.e0 * other.e01 + self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 - self.e01 * other.e1 * other.e01,
+            e1: self.s * other.s * other.e1 + self.e1 * other.e1 * other.e1,
             e01: -self.s * other.s * other.e01 - self.e1 * other.e1 * other.e01,
         }
     }
@@ -7429,7 +7429,7 @@ impl Reject<Vector> for Scalar {
     type Output = Scalar;
     fn reject(self, other: Vector) -> Scalar {
         Scalar {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
         }
     }
 }
@@ -7438,7 +7438,7 @@ impl Reject<Bivector> for Scalar {
     type Output = Scalar;
     fn reject(self, other: Bivector) -> Scalar {
         Scalar {
-            s: self.s * other.e01 * other.e01,
+            s: 0.0,
         }
     }
 }
@@ -7457,7 +7457,7 @@ impl Reject<OddMultivector> for Scalar {
     type Output = EvenMultivector;
     fn reject(self, other: OddMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -7467,7 +7467,7 @@ impl Reject<EvenMultivector> for Scalar {
     type Output = EvenMultivector;
     fn reject(self, other: EvenMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e01 * other.e01,
+            s: self.s * other.s * other.s,
             e01: self.s * other.s * other.e01,
         }
     }
@@ -7477,7 +7477,7 @@ impl Reject<Multivector> for Scalar {
     type Output = EvenMultivector;
     fn reject(self, other: Multivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01,
+            s: self.s * other.s * other.s + self.s * other.e1 * other.e1,
             e01: self.s * other.s * other.e01,
         }
     }
@@ -7498,7 +7498,7 @@ impl Reject<Vector> for Vector {
     fn reject(self, other: Vector) -> Vector {
         Vector {
             e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
-            e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+            e1: 0.0,
         }
     }
 }
@@ -7525,7 +7525,7 @@ impl Reject<OddMultivector> for Vector {
     fn reject(self, other: OddMultivector) -> OddMultivector {
         OddMultivector {
             e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
-            e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+            e1: 0.0,
         }
     }
 }
@@ -7545,7 +7545,7 @@ impl Reject<Multivector> for Vector {
     fn reject(self, other: Multivector) -> OddMultivector {
         OddMultivector {
             e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
-            e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0,
+            e1: self.e1 * other.s * other.s,
         }
     }
 }
@@ -7597,7 +7597,7 @@ impl Reject<EvenMultivector> for Bivector {
     type Output = EvenMultivector;
     fn reject(self, other: EvenMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.e01 * other.s * other.e01,
+            s: 0.0,
             e01: self.e01 * other.s * other.s,
         }
     }
@@ -7607,7 +7607,7 @@ impl Reject<Multivector> for Bivector {
     type Output = EvenMultivector;
     fn reject(self, other: Multivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.e01 * other.s * other.e01,
+            s: 0.0,
             e01: self.e01 * other.s * other.s,
         }
     }
@@ -7677,7 +7677,7 @@ impl Reject<Vector> for OddMultivector {
     fn reject(self, other: Vector) -> OddMultivector {
         OddMultivector {
             e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
-            e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+            e1: 0.0,
         }
     }
 }
@@ -7707,7 +7707,7 @@ impl Reject<OddMultivector> for OddMultivector {
     fn reject(self, other: OddMultivector) -> OddMultivector {
         OddMultivector {
             e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
-            e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+            e1: 0.0,
         }
     }
 }
@@ -7727,7 +7727,7 @@ impl Reject<Multivector> for OddMultivector {
     fn reject(self, other: Multivector) -> OddMultivector {
         OddMultivector {
             e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
-            e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0,
+            e1: self.e1 * other.s * other.s,
         }
     }
 }
@@ -7746,7 +7746,7 @@ impl Reject<Vector> for EvenMultivector {
     type Output = EvenMultivector;
     fn reject(self, other: Vector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -7756,7 +7756,7 @@ impl Reject<Bivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn reject(self, other: Bivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e01 * other.e01,
+            s: 0.0,
             e01: 0.0,
         }
     }
@@ -7776,7 +7776,7 @@ impl Reject<OddMultivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn reject(self, other: OddMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e01: 0.0,
         }
     }
@@ -7786,7 +7786,7 @@ impl Reject<EvenMultivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn reject(self, other: EvenMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e01 * other.e01 + self.e01 * other.s * other.e01,
+            s: self.s * other.s * other.s,
             e01: self.s * other.s * other.e01 + self.e01 * other.s * other.s,
         }
     }
@@ -7796,7 +7796,7 @@ impl Reject<Multivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn reject(self, other: Multivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.e01 * other.s * other.e01,
+            s: self.s * other.s * other.s + self.s * other.e1 * other.e1,
             e01: self.s * other.s * other.e01 + self.e01 * other.s * other.s,
         }
     }
@@ -7818,9 +7818,9 @@ impl Reject<Vector> for Multivector {
     type Output = Multivector;
     fn reject(self, other: Vector) -> Multivector {
         Multivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
-            e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+            e1: 0.0,
             e01: 0.0,
         }
     }
@@ -7830,7 +7830,7 @@ impl Reject<Bivector> for Multivector {
     type Output = Multivector;
     fn reject(self, other: Bivector) -> Multivector {
         Multivector {
-            s: self.s * other.e01 * other.e01,
+            s: 0.0,
             e0: 0.0,
             e1: 0.0,
             e01: 0.0,
@@ -7854,9 +7854,9 @@ impl Reject<OddMultivector> for Multivector {
     type Output = Multivector;
     fn reject(self, other: OddMultivector) -> Multivector {
         Multivector {
-            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1,
+            s: self.s * other.e1 * other.e1,
             e0: self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1,
-            e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0,
+            e1: 0.0,
             e01: 0.0,
         }
     }
@@ -7866,7 +7866,7 @@ impl Reject<EvenMultivector> for Multivector {
     type Output = Multivector;
     fn reject(self, other: EvenMultivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s + self.s * other.e01 * other.e01 + self.e01 * other.s * other.e01,
+            s: self.s * other.s * other.s,
             e0: self.e0 * other.s * other.s,
             e1: self.e1 * other.s * other.s,
             e01: self.s * other.s * other.e01 + self.e01 * other.s * other.s,
@@ -7878,9 +7878,9 @@ impl Reject<Multivector> for Multivector {
     type Output = Multivector;
     fn reject(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 + self.e0 * other.s * other.e0 + self.e0 * other.e1 * other.e01 + self.e1 * other.s * other.e1 - self.e1 * other.e0 * other.e01 + self.e01 * other.s * other.e01,
+            s: self.s * other.s * other.s + self.s * other.e1 * other.e1 + self.e1 * other.s * other.e1,
             e0: self.s * other.s * other.e0 + self.s * other.e1 * other.e01 + self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 - self.e1 * other.e0 * other.e1 + self.e01 * other.s * other.e1,
-            e1: self.s * other.s * other.e1 - self.s * other.e0 * other.e01 - self.e0 * other.e0 * other.e1 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 - self.e01 * other.s * other.e0,
+            e1: self.s * other.s * other.e1 + self.e1 * other.s * other.s,
             e01: self.s * other.s * other.e01 + self.e0 * other.s * other.e1 - self.e1 * other.s * other.e0 + self.e01 * other.s * other.s,
         }
     }

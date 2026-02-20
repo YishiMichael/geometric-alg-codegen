@@ -110,7 +110,7 @@ impl Blade {
     }
 }
 
-#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Debug)]
 enum Space {
     GradedVector { grade: usize },
     SaturatedVector { even: bool, odd: bool },
@@ -438,24 +438,27 @@ impl<const PARAMS: usize> Multinomial<PARAMS> {
                 .filter_map(|blades| {
                     term_sign(blades, alg.dim).map(|sign| {
                         let multi_index = prototype.into_iter().zip(blades).sorted().collect_vec();
-                        let blade = blades
-                            .into_iter()
-                            .fold(Blade::zero(), std::ops::BitXor::bitxor);
+                        let (blade_product, intrinsic_sign_product, square_product) =
+                            blades.into_iter().fold(
+                                (Blade::zero(), Sign::Pos, 1),
+                                |(blade_product, intrinsic_sign_product, square_product), blade| {
+                                    (
+                                        blade_product ^ blade,
+                                        intrinsic_sign_product
+                                            ^ alg.blade_intrinsic_signs[blade.generator_bits],
+                                        square_product
+                                            * (blade_product & blade)
+                                                .iter_generators(alg.dim)
+                                                .map(|generator| alg.generator_squares[generator])
+                                                .product::<Coefficient>(),
+                                    )
+                                },
+                            );
                         let coeff = Coefficient::from(
-                            sign ^ blades
-                                .into_iter()
-                                .map(|blade| alg.blade_intrinsic_signs[blade.generator_bits])
-                                .fold(
-                                    alg.blade_intrinsic_signs[blade.generator_bits],
-                                    std::ops::BitXor::bitxor,
-                                ),
-                        ) * blades
-                            .into_iter()
-                            .fold(Blade::zero().dual(alg.dim), std::ops::BitAnd::bitand)
-                            .iter_generators(alg.dim)
-                            .map(|generator| alg.generator_squares[generator])
-                            .product::<Coefficient>();
-                        (blade, multi_index, coeff)
+                            sign ^ intrinsic_sign_product
+                                ^ alg.blade_intrinsic_signs[blade_product.generator_bits],
+                        ) * square_product;
+                        (blade_product, multi_index, coeff)
                     })
                 })
                 .fold(
@@ -559,6 +562,37 @@ impl<const PARAMS: usize> Multinomial<PARAMS> {
         spaces: [Space; PARAMS],
         params: [<GeometricAlgebra as Ast>::Param; PARAMS],
     ) -> Expr<GeometricAlgebra> {
+        let missing_blades = Blade::iter(self.dim)
+            .filter(|blade| {
+                !space.iter_blades(self.dim).contains(blade)
+                    && self
+                        .polynomials
+                        .get(blade)
+                        .map(|polynomial| {
+                            polynomial
+                                .iter()
+                                .filter_map(|(multi_index, _coeff)| {
+                                    multi_index
+                                        .iter()
+                                        .map(|&(index, blade)| {
+                                            spaces[index].contains_blade(blade).then(|| {
+                                                spaces[index]
+                                                    .access(Expr::param(params[index]), blade)
+                                            })
+                                        })
+                                        .collect::<Option<Vec<_>>>()
+                                })
+                                .count()
+                        })
+                        .unwrap_or_default()
+                        != 0
+            })
+            .map(|blade| blade.generator_bits)
+            .collect_vec();
+        if !missing_blades.is_empty() {
+            dbg!(space);
+            dbg!(missing_blades);
+        }
         space.construct(self.dim, |blade| self.blade_expr(blade, spaces, params))
     }
 }
@@ -798,6 +832,7 @@ impl GeometricAlgebra {
         class_fn: fn([Space; 1], usize) -> Class,
         multinomial: Multinomial<1>,
     ) -> Vec<Implementation<GeometricAlgebra>> {
+        dbg!(signature.operation.get_str("fn").unwrap());
         Space::iter(self.dim)
             .map(|space_0| {
                 let class = class_fn([space_0], self.dim);
@@ -817,6 +852,7 @@ impl GeometricAlgebra {
         class_fn: fn([Space; 2], usize) -> Class,
         multinomial: Multinomial<2>,
     ) -> Vec<Implementation<GeometricAlgebra>> {
+        dbg!(signature.operation.get_str("fn").unwrap());
         Space::iter(self.dim)
             .cartesian_product(Space::iter(self.dim))
             .map(|(space_0, space_1)| {
@@ -1181,14 +1217,11 @@ impl GeometricAlgebra {
                     Class::Space(match [space_0, space_1] {
                         [Space::GradedVector { grade: grade_0 }, Space::GradedVector { grade: grade_1 }] => {
                             Some(grade_0)
-                                .filter(|&grade| grade < grade_1)
+                                .filter(|&grade| grade <= grade_1)
                                 .map(|grade| Space::GradedVector { grade })
                                 .unwrap_or_else(Space::null)
                         }
-                        [space_0, _] => Space::SaturatedVector {
-                            even: space_0.contains_even_grade(),
-                            odd: space_0.contains_odd_grade(),
-                        },
+                        [space_0, space_1] => space_0.product_space(space_1).product_space(space_1),
                     })
                 },
                 Multinomial::new(self, [0, 1, 1], |[blade_0, blade_1, blade_2], _| {
@@ -1213,10 +1246,7 @@ impl GeometricAlgebra {
                                 .map(|grade| Space::GradedVector { grade })
                                 .unwrap_or_else(Space::null)
                         }
-                        [space_0, _] => Space::SaturatedVector {
-                            even: space_0.contains_even_grade(),
-                            odd: space_0.contains_odd_grade(),
-                        },
+                        [space_0, space_1] => space_0.product_space(space_1).product_space(space_1),
                     })
                 },
                 Multinomial::new(self, [0, 1, 1], |[blade_0, blade_1, blade_2], _| {
