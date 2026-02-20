@@ -7,7 +7,6 @@ pub use rust::RustLang;
 pub use wgsl::WGSLLang;
 
 use crate::ast::{Ast, Expr, Implementation, Record, Stmt, Stringifier, Structure};
-use std::io::Write;
 
 pub trait Emitter {
     fn emit_preamble(&self, writer: &mut Writer) -> std::io::Result<()>;
@@ -54,21 +53,19 @@ pub trait Emitter {
 }
 
 pub struct Writer<'w> {
-    buffer: &'w mut dyn Write,
+    buffer: &'w mut dyn std::io::Write,
     indents: usize,
 }
 
 impl<'w> Writer<'w> {
-    pub fn new(buffer: &'w mut dyn Write) -> Self {
+    pub fn new(buffer: &'w mut dyn std::io::Write) -> Self {
         Self { buffer, indents: 0 }
     }
 
-    pub fn buffer(&mut self) -> &mut dyn Write {
+    pub fn buffer(&mut self) -> &mut dyn std::io::Write {
         &mut self.buffer
     }
-}
 
-impl Writer<'_> {
     pub fn indent(&mut self) {
         self.indents += 1;
     }

@@ -2,8 +2,7 @@ use crate::ast::{
     Ast, Expr, Implementation, Item, OperationSignature, Ownership, Record, Stmt, Stringifier,
     Structure, TemplateSignature, TypeBinding,
 };
-use crate::emitter::Emitter;
-use crate::Writer;
+use crate::emitter::{Emitter, Writer};
 use itertools::Itertools;
 use strum::{EnumIter, EnumProperty, IntoEnumIterator};
 
@@ -1353,16 +1352,30 @@ impl GeometricAlgebraBuilder {
             },
             names: GeometricAlgebraNames {
                 blade_names,
-                graded_spaces: (0..=dim).map(Self::graded_space_default).collect(),
-                null_space: String::from("Null"),
-                even_space: String::from("EvenMultivector"),
-                odd_space: String::from("OddMultivector"),
-                full_space: String::from("Multivector"),
+                graded_spaces: (0..=dim)
+                    .map(|grade| Self::space_name_default(Space::GradedVector { grade }))
+                    .collect(),
+                null_space: Self::space_name_default(Space::SaturatedVector {
+                    even: false,
+                    odd: false,
+                }),
+                even_space: Self::space_name_default(Space::SaturatedVector {
+                    even: true,
+                    odd: false,
+                }),
+                odd_space: Self::space_name_default(Space::SaturatedVector {
+                    even: false,
+                    odd: true,
+                }),
+                full_space: Self::space_name_default(Space::SaturatedVector {
+                    even: true,
+                    odd: true,
+                }),
             },
         }
     }
 
-    fn graded_space_default(index: usize) -> String {
+    fn space_name_default(space: Space) -> String {
         const GRADED_SPACES: [&str; 13] = [
             "Scalar",
             "Vector",
@@ -1378,9 +1391,27 @@ impl GeometricAlgebraBuilder {
             "ElevenVector",
             "TwelveVector",
         ];
-        GRADED_SPACES
-            .get(index)
-            .map_or_else(|| format!("Vector{index}"), |name| name.to_string())
+        match space {
+            Space::GradedVector { grade } => GRADED_SPACES
+                .get(grade)
+                .map_or_else(|| format!("Vector{grade}"), |name| name.to_string()),
+            Space::SaturatedVector {
+                even: false,
+                odd: false,
+            } => String::from("Null"),
+            Space::SaturatedVector {
+                even: true,
+                odd: false,
+            } => String::from("EvenMultivector"),
+            Space::SaturatedVector {
+                even: false,
+                odd: true,
+            } => String::from("OddMultivector"),
+            Space::SaturatedVector {
+                even: true,
+                odd: true,
+            } => String::from("Multivector"),
+        }
     }
 
     pub fn graded_spaces(
