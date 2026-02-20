@@ -1,9 +1,8 @@
-// #![allow(unused)]
+#![allow(clippy::type_complexity)]
 
 mod algebra;
 mod ast;
 mod emitter;
-mod traits;
 
-pub use algebra::GeometricAlgebraDimension;
+pub use crate::algebra::{GeometricAlgeberaRecord, GeometricAlgebraBuilder};
 pub use emitter::*;

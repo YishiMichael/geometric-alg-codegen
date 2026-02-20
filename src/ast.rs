@@ -1,15 +1,30 @@
 pub trait Ast: Sized {
     type Type: Clone;
     type Template: Clone;
-    type Field;
+    type Field: Clone;
     type Operation: Clone;
-    type Generic: Clone;
-    type Associate: Clone;
-    type Param: Clone;
-    type Literal;
+    type Generic: Clone + std::fmt::Display;
+    type Associate: Clone + std::fmt::Display;
+    type Param: Clone + std::fmt::Display;
+    type Literal: Clone + std::fmt::Display;
 
     fn structures(&self) -> impl Iterator<Item = Structure<Self>>;
     fn implementations(&self) -> impl Iterator<Item = Implementation<Self>>;
+
+    fn record(&self) -> Record<Self> {
+        Record {
+            structures: self.structures().collect(),
+            implementations: self.implementations().collect(),
+        }
+    }
+}
+
+pub trait Stringifier<A: Ast> {
+    fn stringify_type(&self, r#type: &A::Type) -> &str;
+    fn stringify_template(&self, template: &A::Template) -> &str;
+    fn stringify_field(&self, field: &A::Field) -> &str;
+    fn stringify_operation_trait(&self, operation: &A::Operation) -> &str;
+    fn stringify_operation_fn(&self, operation: &A::Operation) -> &str;
 }
 
 #[derive(Clone, Copy)]
@@ -18,13 +33,6 @@ pub enum TypeBinding<Type> {
     GenericBinding(usize),
     AssociateBinding(usize),
     Fixed(Type),
-}
-
-#[derive(Clone, Copy)]
-pub enum Ownership<T> {
-    Owned(T),
-    Borrowed(T),
-    BorrowedMut(T),
 }
 
 impl<Type: Clone> TypeBinding<Type> {
@@ -43,29 +51,34 @@ impl<Type: Clone> TypeBinding<Type> {
     }
 }
 
-impl<Type: Clone> Ownership<TypeBinding<Type>> {
-    fn eval_type<const GENERICS: usize, const ASSOCIATES: usize>(
-        &self,
-        self_type: &Type,
-        generic_types: &[Type; GENERICS],
-        associate_types: &[Type; ASSOCIATES],
-    ) -> Ownership<Type> {
+#[derive(Clone, Copy)]
+pub enum Ownership<T> {
+    Owned(T),
+    Borrowed(T),
+    BorrowedMut(T),
+}
+
+impl<T> Ownership<T> {
+    fn as_ref(&self) -> Ownership<&T> {
         match self {
-            Self::Owned(type_binding) => {
-                Ownership::Owned(type_binding.eval_type(self_type, generic_types, associate_types))
-            }
-            Self::Borrowed(type_binding) => Ownership::Borrowed(type_binding.eval_type(
-                self_type,
-                generic_types,
-                associate_types,
-            )),
-            Self::BorrowedMut(type_binding) => Ownership::BorrowedMut(type_binding.eval_type(
-                self_type,
-                generic_types,
-                associate_types,
-            )),
+            Self::Owned(t) => Ownership::Owned(t),
+            Self::Borrowed(t) => Ownership::Borrowed(t),
+            Self::BorrowedMut(t) => Ownership::BorrowedMut(t),
         }
     }
+
+    fn map<U>(self, f: impl FnOnce(T) -> U) -> Ownership<U> {
+        match self {
+            Self::Owned(t) => Ownership::Owned(f(t)),
+            Self::Borrowed(t) => Ownership::Borrowed(f(t)),
+            Self::BorrowedMut(t) => Ownership::BorrowedMut(f(t)),
+        }
+    }
+}
+
+pub struct Record<A: Ast> {
+    pub structures: Vec<Structure<A>>,
+    pub implementations: Vec<Implementation<A>>,
 }
 
 pub struct Item<Key, Value> {
@@ -73,29 +86,22 @@ pub struct Item<Key, Value> {
     pub value: Value,
 }
 
-pub struct TemplateSignature<A: Ast, const GENERICS: usize> {
+pub struct TemplateSignature<A: Ast> {
     pub template: A::Template,
-    pub generics: [A::Generic; GENERICS],
 }
 
-impl<A: Ast, const GENERICS: usize> TemplateSignature<A, GENERICS> {
+impl<A: Ast> TemplateSignature<A> {
     pub fn structure(&self, fields: impl Iterator<Item = Item<A::Field, A::Type>>) -> Structure<A> {
         Structure {
             template: self.template.clone(),
-            generics: Vec::from(self.generics.clone()),
             fields: fields.collect(),
         }
     }
 
-    pub fn construct(
-        &self,
-        generic_types: [A::Type; GENERICS],
-        fields: impl Iterator<Item = Item<A::Field, Expr<A>>>,
-    ) -> Expr<A> {
+    pub fn construct(&self, fields: impl Iterator<Item = Item<A::Field, Expr<A>>>) -> Expr<A> {
         ExprRepr::Struct {
             template: self.template.clone(),
-            generic_types: Vec::from(generic_types),
-            items: fields.collect(),
+            fields: fields.collect(),
         }
         .into()
     }
@@ -107,24 +113,8 @@ impl<A: Ast, const GENERICS: usize> TemplateSignature<A, GENERICS> {
 
 pub struct Structure<A: Ast> {
     pub template: A::Template,
-    pub generics: Vec<A::Generic>,
     pub fields: Vec<Item<A::Field, A::Type>>,
 }
-
-// pub trait OperationTrait<
-//     A: Ast,
-//     const GENERICS: usize,
-//     const ASSOCIATES: usize,
-//     const SELF: usize,
-//     const PARAMS: usize,
-//     const RETURN: usize,
-// >
-// {
-//     fn signature(&self) -> OperationSignature<A, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>;
-
-//     // fn iter() -> impl IntoIterator<Item = Self>;
-//     fn implementations(&self, ast: &A) -> impl IntoIterator<Item = Implementation<A>>;
-// }
 
 pub struct OperationSignature<
     A: Ast,
@@ -170,11 +160,15 @@ impl<
                  }| {
                     Item {
                         key: self_param.clone(),
-                        value: self_param_type_binding.eval_type(
-                            &self_type,
-                            &generic_types,
-                            &associate_types,
-                        ),
+                        value: self_param_type_binding
+                            .as_ref()
+                            .map(|self_param_type_binding| {
+                                self_param_type_binding.eval_type(
+                                    &self_type,
+                                    &generic_types,
+                                    &associate_types,
+                                )
+                            }),
                     }
                 },
             ),
@@ -185,11 +179,13 @@ impl<
                  }| {
                     Item {
                         key: param.clone(),
-                        value: param_type_binding.eval_type(
-                            &self_type,
-                            &generic_types,
-                            &associate_types,
-                        ),
+                        value: param_type_binding.as_ref().map(|param_type_binding| {
+                            param_type_binding.eval_type(
+                                &self_type,
+                                &generic_types,
+                                &associate_types,
+                            )
+                        }),
                     }
                 },
             )),
@@ -335,93 +331,6 @@ impl<A: Ast> From<Expr<A>> for ImplementationBody<A> {
     }
 }
 
-// pub trait Resolve: Sized {
-//     type Component;
-//     type Type;
-
-//     fn resolve_component(&self, component: &Self::Component) -> Symbol;
-//     fn resolve_type(&self, r#type: &Self::Type) -> Symbol;
-
-//     fn register_structure(
-//         &self,
-//         items: &mut Items,
-//         ident: impl AsRef<str>,
-//         fields: impl Iterator<Item = Self::Component>,
-//         field_type: impl Fn(&Self::Component) -> Self::Type,
-//     ) -> StructureSignature<'_, Self, Self::Component> {
-//         let signature = StructureSignature {
-//             resolver: self,
-//             ident: Symbol::from(ident),
-//             fields: fields.collect_vec(),
-//         };
-//         items.structures.push(Structure {
-//             ident: signature.ident,
-//             fields: signature
-//                 .fields
-//                 .iter()
-//                 .map(|component| {
-//                     (
-//                         self.resolve_component(component),
-//                         self.resolve_type(&field_type(component)),
-//                     )
-//                 })
-//                 .collect(),
-//         });
-//         signature
-//     }
-
-//     #[allow(clippy::too_many_arguments)]
-//     fn define_operation<
-//         const GENERICS: usize,
-//         const ASSOCIATES: usize,
-//         const SELF: usize,
-//         const PARAMS: usize,
-//         const RETURN: usize,
-//     >(
-//         &self,
-//         ident: &'static str,
-//         op_ident: &'static str,
-//         generics: [&'static str; GENERICS],
-//         associates: [&'static str; ASSOCIATES],
-//         self_param_item: [(&'static str, Ownership<Pretype>); SELF],
-//         param_items: [(&'static str, Ownership<Pretype>); PARAMS],
-//         return_pretype: [Pretype; RETURN],
-//     ) -> OperationSignature<'_, Self, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN> {
-//         OperationSignature {
-//             resolver: self,
-//             ident: Symbol::from(ident),
-//             op_ident: Symbol::from(op_ident),
-//             generics: generics.map(Symbol::from),
-//             associates: associates.map(Symbol::from),
-//             self_param_item: self_param_item.map(|(self_param_ident, self_param_pretype)| {
-//                 (Symbol::from(self_param_ident), self_param_pretype)
-//             }),
-//             param_items: param_items
-//                 .map(|(param_ident, param_pretype)| (Symbol::from(param_ident), param_pretype)),
-//             return_pretype,
-//         }
-//     }
-// }
-
-// pub struct OperationSignature<
-//     'r,
-//     Resolver,
-//     const GENERICS: usize,
-//     const ASSOCIATES: usize,
-//     const SELF: usize,
-//     const PARAMS: usize,
-//     const RETURN: usize,
-// > {
-//     resolver: &'r Resolver,
-//     ident: Symbol,
-//     op_ident: Symbol,
-//     generics: [Symbol; GENERICS],
-//     associates: [Symbol; ASSOCIATES],
-//     self_param_item: [(Symbol, Ownership<Pretype>); SELF],
-//     param_items: [(Symbol, Ownership<Pretype>); PARAMS],
-//     return_pretype: [Pretype; RETURN],
-// }
-
 pub enum ExprRepr<A: Ast> {
     Variable {
         param: A::Param,
@@ -431,8 +340,7 @@ pub enum ExprRepr<A: Ast> {
     },
     Struct {
         template: A::Template,
-        generic_types: Vec<A::Type>,
-        items: Vec<Item<A::Field, Expr<A>>>,
+        fields: Vec<Item<A::Field, Expr<A>>>,
     },
     Field {
         expr: Expr<A>,

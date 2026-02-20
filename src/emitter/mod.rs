@@ -6,74 +6,69 @@ pub use glsl::GLSLLang;
 pub use rust::RustLang;
 pub use wgsl::WGSLLang;
 
-use crate::ast::{Expr, ExprRepr, Implementation, Items, Stmt, StmtRepr, Structure};
+use crate::ast::{Ast, Expr, Implementation, Record, Stmt, Stringifier, Structure};
 use std::io::Write;
 
-pub trait EmitterTrait {
-    fn emit_preamble(&mut self) -> std::io::Result<()>;
+pub trait Emitter {
+    fn emit_preamble(&self, writer: &mut Writer) -> std::io::Result<()>;
+    fn emit_structure<A: Ast>(
+        &self,
+        writer: &mut Writer,
+        stringifier: &dyn Stringifier<A>,
+        structure: &Structure<A>,
+    ) -> std::io::Result<()>;
+    fn emit_implementation<A: Ast>(
+        &self,
+        writer: &mut Writer,
+        stringifier: &dyn Stringifier<A>,
+        implementation: &Implementation<A>,
+    ) -> std::io::Result<()>;
+    fn emit_expr<A: Ast>(
+        &self,
+        writer: &mut Writer,
+        stringifier: &dyn Stringifier<A>,
+        expr_repr: &Expr<A>,
+    ) -> std::io::Result<()>;
+    fn emit_stmt<A: Ast>(
+        &self,
+        writer: &mut Writer,
+        stringifier: &dyn Stringifier<A>,
+        stmt_repr: &Stmt<A>,
+    ) -> std::io::Result<()>;
 
-    fn emit_structure(&mut self, _structure: &Structure) -> std::io::Result<()>;
-
-    fn emit_implementation(&mut self, _implementation: &Implementation) -> std::io::Result<()>;
-
-    fn emit_expr_repr(&mut self, _expr_repr: &ExprRepr) -> std::io::Result<()>;
-
-    fn emit_stmt_repr(&mut self, _stmt_repr: &StmtRepr) -> std::io::Result<()>;
-
-    fn emit_expr(&mut self, expr: &Expr) -> std::io::Result<()> {
-        self.emit_expr_repr(&expr.repr)
-    }
-
-    fn emit_stmt(&mut self, stmt: &Stmt) -> std::io::Result<()> {
-        self.emit_stmt_repr(&stmt.repr)
-    }
-
-    fn emit_items(&mut self, items: &Items) -> std::io::Result<()> {
-        self.emit_preamble()?;
-        for structure in &items.structures {
-            self.emit_structure(structure)?;
+    fn emit_record<A: Ast>(
+        &self,
+        writer: &mut Writer,
+        stringifier: &dyn Stringifier<A>,
+        record: &Record<A>,
+    ) -> std::io::Result<()> {
+        self.emit_preamble(writer)?;
+        for structure in &record.structures {
+            self.emit_structure(writer, stringifier, structure)?;
         }
-        for implementation in &items.implementations {
-            self.emit_implementation(implementation)?;
+        for implementation in &record.implementations {
+            self.emit_implementation(writer, stringifier, implementation)?;
         }
         Ok(())
     }
 }
 
-pub struct Emitter<Buffer, Lang> {
-    buffer: Buffer,
-    lang: Lang,
+pub struct Writer<'w> {
+    buffer: &'w mut dyn Write,
     indents: usize,
 }
 
-impl<Buffer, Lang> Emitter<Buffer, Lang> {
-    pub fn new(buffer: Buffer, lang: Lang) -> Self {
-        Self {
-            buffer,
-            lang,
-            indents: 0,
-        }
+impl<'w> Writer<'w> {
+    pub fn new(buffer: &'w mut dyn Write) -> Self {
+        Self { buffer, indents: 0 }
     }
-}
 
-impl<Buffer, Lang> std::ops::Deref for Emitter<Buffer, Lang> {
-    type Target = Buffer;
-
-    fn deref(&self) -> &Self::Target {
-        &self.buffer
-    }
-}
-
-impl<Buffer, Lang> std::ops::DerefMut for Emitter<Buffer, Lang> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
+    pub fn buffer(&mut self) -> &mut dyn Write {
         &mut self.buffer
     }
 }
 
-impl<Buffer, Lang> Emitter<Buffer, Lang>
-where
-    Buffer: Write,
-{
+impl Writer<'_> {
     pub fn indent(&mut self) {
         self.indents += 1;
     }
@@ -83,9 +78,9 @@ where
     }
 
     pub fn newline(&mut self) -> std::io::Result<()> {
-        writeln!(self)?;
+        writeln!(self.buffer())?;
         let indents = self.indents;
-        write!(self, "{:width$}", "", width = 4 * indents)?;
+        write!(self.buffer(), "{:width$}", "", width = 4 * indents)?;
         Ok(())
     }
 }

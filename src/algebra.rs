@@ -1,9 +1,11 @@
 use crate::ast::{
-    Ast, Expr, Implementation, Item, OperationSignature, Ownership, Stmt, Structure,
-    TemplateSignature, TypeBinding,
+    Ast, Expr, Implementation, Item, OperationSignature, Ownership, Record, Stmt, Stringifier,
+    Structure, TemplateSignature, TypeBinding,
 };
+use crate::emitter::Emitter;
+use crate::Writer;
 use itertools::Itertools;
-use strum::{EnumIter, IntoEnumIterator, IntoStaticStr};
+use strum::{EnumIter, EnumProperty, IntoEnumIterator};
 
 type Coefficient = i32;
 
@@ -176,19 +178,11 @@ impl Space {
         }
     }
 
-    fn signature(self) -> TemplateSignature<GeometricAlgebra, 0> {
-        TemplateSignature {
-            template: self,
-            generics: [],
-        }
-    }
-
     fn structure(self, dim: usize) -> Structure<GeometricAlgebra> {
-        self.signature()
-            .structure(self.iter_blades(dim).map(|blade| Item {
-                key: blade,
-                value: Class::Base,
-            }))
+        TemplateSignature { template: self }.structure(self.iter_blades(dim).map(|blade| Item {
+            key: blade,
+            value: Class::Base,
+        }))
     }
 
     fn construct(
@@ -196,27 +190,15 @@ impl Space {
         dim: usize,
         field: impl Fn(Blade) -> Expr<GeometricAlgebra>,
     ) -> Expr<GeometricAlgebra> {
-        self.signature().construct(
-            [],
-            self.iter_blades(dim).map(|blade| Item {
-                key: blade,
-                value: field(blade),
-            }),
-        )
+        TemplateSignature { template: self }.construct(self.iter_blades(dim).map(|blade| Item {
+            key: blade,
+            value: field(blade),
+        }))
     }
 
     fn access(self, expr: Expr<GeometricAlgebra>, blade: Blade) -> Expr<GeometricAlgebra> {
-        self.signature().access(expr, blade)
+        TemplateSignature { template: self }.access(expr, blade)
     }
-
-    // fn checked_access_expr(
-    //     self,
-    //     expr: Expr<GeometricAlgebra>,
-    //     blade: Blade,
-    // ) -> Option<Expr<GeometricAlgebra>> {
-    //     self.contains_blade(blade)
-    //         .then(|| self.access_expr(expr, blade))
-    // }
 }
 
 #[derive(Clone, Copy, Eq, PartialEq)]
@@ -225,63 +207,79 @@ enum Class {
     Space(Space),
 }
 
-// impl StructureTrait<GeometricAlgebra, 0> for Space {
-//     fn signature(&self) -> StructureSignature<GeometricAlgebra, 0> {
-//         StructureSignature {
-//             structure: *self,
-//             generics: [],
-//         }
-//     }
-
-//     fn fields(
-//         &self,
-//         alg: &GeometricAlgebra,
-//     ) -> impl IntoIterator<Item = Item<<GeometricAlgebra as Ast>::Field, <GeometricAlgebra as Ast>::Type>>
-//     {
-//         self.iter_blades(self.dim).map(|blade| Item {
-//             key: blade,
-//             value: Type::Base,
-//         })
-//     }
-// }
-
-#[derive(Clone, Copy, EnumIter, IntoStaticStr)]
+#[derive(Clone, Copy, EnumIter, EnumProperty)]
 enum Operation {
+    #[strum(props(trait = "Abs", fn = "abs"))]
     Abs,
+    #[strum(props(trait = "Sqrt", fn = "sqrt"))]
     Sqrt,
+    #[strum(props(trait = "From", fn = "from"))]
     From,
+    #[strum(props(trait = "Neg", fn = "neg"))]
     Neg,
+    #[strum(props(trait = "Add", fn = "add"))]
     Add,
+    #[strum(props(trait = "Sub", fn = "sub"))]
     Sub,
+    #[strum(props(trait = "Mul", fn = "mul"))]
     Mul,
+    #[strum(props(trait = "Div", fn = "div"))]
     Div,
+    #[strum(props(trait = "AddAssign", fn = "add_assign"))]
     AddAssign,
+    #[strum(props(trait = "SubAssign", fn = "sub_assign"))]
     SubAssign,
+    #[strum(props(trait = "MulAssign", fn = "mul_assign"))]
     MulAssign,
+    #[strum(props(trait = "DivAssign", fn = "div_assign"))]
     DivAssign,
+    #[strum(props(trait = "Zero", fn = "zero"))]
     Zero,
+    #[strum(props(trait = "One", fn = "one"))]
     One,
+    #[strum(props(trait = "GradeInvolution", fn = "grade_involution"))]
     GradeInvolution,
+    #[strum(props(trait = "Reverse", fn = "reverse"))]
     Reverse,
+    #[strum(props(trait = "Conjugate", fn = "conjugate"))]
     Conjugate,
+    #[strum(props(trait = "Dual", fn = "dual"))]
     Dual,
+    #[strum(props(trait = "Undual", fn = "undual"))]
     Undual,
+    #[strum(props(trait = "NormSquared", fn = "norm_squared"))]
     NormSquared,
+    #[strum(props(trait = "Norm", fn = "norm"))]
     Norm,
+    #[strum(props(trait = "Inverse", fn = "inverse"))]
     Inverse,
+    #[strum(props(trait = "Normalized", fn = "normalized"))]
     Normalized,
+    #[strum(props(trait = "Normalize", fn = "normalize"))]
     Normalize,
+    #[strum(props(trait = "GeometricProduct", fn = "geometric_product"))]
     GeometricProduct,
+    #[strum(props(trait = "ScalarProduct", fn = "scalar_product"))]
     ScalarProduct,
+    #[strum(props(trait = "LeftInnerProduct", fn = "left_inner_product"))]
     LeftInnerProduct,
+    #[strum(props(trait = "RightInnerProduct", fn = "right_inner_product"))]
     RightInnerProduct,
+    #[strum(props(trait = "InnerProduct", fn = "inner_product"))]
     InnerProduct,
+    #[strum(props(trait = "OuterProduct", fn = "outer_product"))]
     OuterProduct,
+    #[strum(props(trait = "RegressiveProduct", fn = "regressive_product"))]
     RegressiveProduct,
+    #[strum(props(trait = "Commutator", fn = "commutator"))]
     Commutator,
+    #[strum(props(trait = "Anticommutator", fn = "anticommutator"))]
     Anticommutator,
+    #[strum(props(trait = "Transform", fn = "transform"))]
     Transform,
+    #[strum(props(trait = "Project", fn = "project"))]
     Project,
+    #[strum(props(trait = "Reject", fn = "reject"))]
     Reject,
 }
 
@@ -356,7 +354,7 @@ impl Operation {
             associates: [],
             self_param_item: [Item {
                 key: "self",
-                value: Ownership::Owned(TypeBinding::SelfBining),
+                value: Ownership::BorrowedMut(TypeBinding::SelfBining),
             }],
             param_items: [],
             return_type_binding: [],
@@ -370,7 +368,7 @@ impl Operation {
             associates: [],
             self_param_item: [Item {
                 key: "self",
-                value: Ownership::Owned(TypeBinding::SelfBining),
+                value: Ownership::BorrowedMut(TypeBinding::SelfBining),
             }],
             param_items: [Item {
                 key: "other",
@@ -565,49 +563,7 @@ impl<const PARAMS: usize> Multinomial<PARAMS> {
     }
 }
 
-// struct GeometricAlgebraIdents {
-//     blade_idents: Vec<Symbol>,
-//     precision: Symbol,
-//     graded_spaces: Vec<Symbol>,
-//     null_space: Symbol,
-//     even_space: Symbol,
-//     odd_space: Symbol,
-//     full_space: Symbol,
-// }
-
-// impl Resolve for GeometricAlgebraIdents {
-//     type Component = Blade;
-//     type Type = Type;
-
-//     fn resolve_component(&self, blade: &Self::Component) -> Symbol {
-//         self.blade_idents[blade.generator_bits]
-//     }
-
-//     fn resolve_type(&self, class: &Self::Type) -> Symbol {
-//         match class {
-//             Type::Base => self.precision,
-//             Type::Space(Space::GradedVector { grade }) => self.graded_spaces[*grade],
-//             Type::Space(Space::SaturatedVector {
-//                 even: false,
-//                 odd: false,
-//             }) => self.null_space,
-//             Type::Space(Space::SaturatedVector {
-//                 even: true,
-//                 odd: false,
-//             }) => self.even_space,
-//             Type::Space(Space::SaturatedVector {
-//                 even: false,
-//                 odd: true,
-//             }) => self.odd_space,
-//             Type::Space(Space::SaturatedVector {
-//                 even: true,
-//                 odd: true,
-//             }) => self.full_space,
-//         }
-//     }
-// }
-
-pub struct GeometricAlgebra {
+struct GeometricAlgebra {
     dim: usize,
     generator_squares: Vec<Coefficient>,
     blade_intrinsic_signs: Vec<Sign>,
@@ -633,6 +589,7 @@ impl Ast for GeometricAlgebra {
 }
 
 impl GeometricAlgebra {
+    #[allow(clippy::wrong_self_convention)]
     fn from_implementations(
         &self,
         signature: &UnaryConstructorSignature,
@@ -686,7 +643,7 @@ impl GeometricAlgebra {
         Space::iter(self.dim)
             .map(|space_0| {
                 signature.implementation(Class::Space(space_0), [], [], |[], []| {
-                    space_0.construct(self.dim, |_| Expr::literal(0))
+                    space_0.construct(self.dim, |_| Expr::literal(0u32))
                 })
             })
             .collect()
@@ -703,11 +660,11 @@ impl GeometricAlgebra {
                     space_0.construct(self.dim, |blade| {
                         if blade == Blade::zero() {
                             match self.blade_intrinsic_signs[blade.generator_bits] {
-                                Sign::Pos => Expr::literal(1),
-                                Sign::Neg => -Expr::literal(1),
+                                Sign::Pos => Expr::literal(1u32),
+                                Sign::Neg => -Expr::literal(1u32),
                             }
                         } else {
-                            Expr::literal(0)
+                            Expr::literal(0u32)
                         }
                     })
                 })
@@ -774,9 +731,9 @@ impl GeometricAlgebra {
             }))
             .chain(Space::iter(self.dim).map(|space| {
                 signature.implementation(
-                    Class::Space(space),
+                    Class::Base,
                     [Class::Space(space)],
-                    [Class::Base],
+                    [Class::Space(space)],
                     |[param_0], [param_1]| {
                         space.construct(self.dim, |blade| {
                             op(
@@ -1276,24 +1233,128 @@ impl GeometricAlgebra {
     }
 }
 
-pub struct GeometricAlgebraDimension {
-    dim: usize,
-    blade_intrinsic_signs: Vec<Sign>,
-    idents: GeometricAlgebraIdents,
+struct GeometricAlgebraNames {
+    blade_names: Vec<String>,
+    graded_spaces: Vec<String>,
+    null_space: String,
+    even_space: String,
+    odd_space: String,
+    full_space: String,
 }
 
-impl GeometricAlgebraDimension {
-    pub fn new(dim: usize, blades: impl IntoIterator<Item = impl AsRef<str>>) -> Self {
+struct GeometricAlgebraStringifier<'n> {
+    names: &'n GeometricAlgebraNames,
+    precision: &'static str,
+}
+
+impl Stringifier<GeometricAlgebra> for GeometricAlgebraStringifier<'_> {
+    fn stringify_type(&self, r#type: &<GeometricAlgebra as Ast>::Type) -> &str {
+        match r#type {
+            Class::Base => self.precision,
+            Class::Space(space) => self.stringify_template(space),
+        }
+    }
+
+    fn stringify_template(&self, template: &<GeometricAlgebra as Ast>::Template) -> &str {
+        match template {
+            Space::GradedVector { grade } => &self.names.graded_spaces[*grade],
+            Space::SaturatedVector {
+                even: false,
+                odd: false,
+            } => &self.names.null_space,
+            Space::SaturatedVector {
+                even: true,
+                odd: false,
+            } => &self.names.even_space,
+            Space::SaturatedVector {
+                even: false,
+                odd: true,
+            } => &self.names.odd_space,
+            Space::SaturatedVector {
+                even: true,
+                odd: true,
+            } => &self.names.full_space,
+        }
+    }
+
+    fn stringify_field(&self, field: &<GeometricAlgebra as Ast>::Field) -> &str {
+        &self.names.blade_names[field.generator_bits]
+    }
+
+    fn stringify_operation_trait(&self, operation: &<GeometricAlgebra as Ast>::Operation) -> &str {
+        operation.get_str("trait").unwrap()
+    }
+
+    fn stringify_operation_fn(&self, operation: &<GeometricAlgebra as Ast>::Operation) -> &str {
+        operation.get_str("fn").unwrap()
+    }
+}
+
+pub struct GeometricAlgeberaRecord {
+    record: Record<GeometricAlgebra>,
+    names: GeometricAlgebraNames,
+}
+
+impl GeometricAlgeberaRecord {
+    pub fn write<Lang, Buffer>(
+        &self,
+        lang: Lang,
+        buffer: &mut Buffer,
+        precision: &'static str,
+    ) -> std::io::Result<()>
+    where
+        Buffer: std::io::Write,
+        Lang: Emitter,
+    {
+        let stringifier = GeometricAlgebraStringifier {
+            names: &self.names,
+            precision,
+        };
+        let mut writer = Writer::new(buffer);
+        lang.emit_record(&mut writer, &stringifier, &self.record)
+    }
+}
+
+pub struct GeometricAlgebraBuilder {
+    alg: GeometricAlgebra,
+    names: GeometricAlgebraNames,
+}
+
+impl GeometricAlgebraBuilder {
+    pub fn new(
+        generator_squares: impl IntoIterator<Item = Coefficient>,
+        blades: impl IntoIterator<Item = impl AsRef<str>>,
+    ) -> Self {
+        let generator_squares = generator_squares.into_iter().collect_vec();
+        let dim = generator_squares.len();
         let blades = blades.into_iter().collect_vec();
         assert_eq!(blades.len(), 1 << dim);
-        let (blade_idents, blade_intrinsic_signs): (Vec<_>, Vec<_>) = blades
+        let (blade_names, blade_intrinsic_signs): (Vec<_>, Vec<_>) = blades
             .into_iter()
             .map(|name| match name.as_ref().strip_prefix('-') {
-                None => (Symbol::from(name), Sign::Pos),
-                Some(name) => (Symbol::from(name), Sign::Neg),
+                None => (name.as_ref().to_string(), Sign::Pos),
+                Some(name) => (name.to_string(), Sign::Neg),
             })
             .unzip();
 
+        Self {
+            alg: GeometricAlgebra {
+                dim,
+                generator_squares,
+                blade_intrinsic_signs,
+            },
+            names: GeometricAlgebraNames {
+                blade_names,
+                graded_spaces: (0..=dim).map(Self::graded_space_default).collect(),
+                null_space: String::from("Null"),
+                even_space: String::from("EvenMultivector"),
+                odd_space: String::from("OddMultivector"),
+                full_space: String::from("Multivector"),
+            },
+        }
+    }
+
+    fn graded_space_default(index: usize) -> String {
         const GRADED_SPACES: [&str; 13] = [
             "Scalar",
             "Vector",
@@ -1309,39 +1370,21 @@ impl GeometricAlgebraDimension {
             "ElevenVector",
             "TwelveVector",
         ];
-        Self {
-            dim,
-            blade_intrinsic_signs,
-            idents: GeometricAlgebraIdents {
-                blade_idents,
-                precision: Symbol::from("f32"),
-                graded_spaces: (0..=dim)
-                    .map(|index| {
-                        GRADED_SPACES
-                            .get(index)
-                            .map_or_else(|| Symbol::from(format!("Vector{index}")), Symbol::from)
-                    })
-                    .collect(),
-                null_space: Symbol::from("Null"),
-                even_space: Symbol::from("EvenMultivector"),
-                odd_space: Symbol::from("OddMultivector"),
-                full_space: Symbol::from("Multivector"),
-            },
-        }
-    }
-
-    pub fn precision(mut self, precision: impl AsRef<str>) -> Self {
-        self.idents.precision = Symbol::from(precision);
-        self
+        GRADED_SPACES
+            .get(index)
+            .map_or_else(|| format!("Vector{index}"), |name| name.to_string())
     }
 
     pub fn graded_spaces(
         mut self,
         graded_spaces: impl IntoIterator<Item = impl AsRef<str>>,
     ) -> Self {
-        let graded_spaces = graded_spaces.into_iter().map(Symbol::from).collect_vec();
-        assert_eq!(graded_spaces.len(), self.dim + 1);
-        self.idents.graded_spaces = graded_spaces;
+        let graded_spaces = graded_spaces
+            .into_iter()
+            .map(|graded_space| graded_space.as_ref().to_string())
+            .collect_vec();
+        assert_eq!(graded_spaces.len(), self.alg.dim + 1);
+        self.names.graded_spaces = graded_spaces;
         self
     }
 
@@ -1352,21 +1395,17 @@ impl GeometricAlgebraDimension {
         odd_space: impl AsRef<str>,
         full_space: impl AsRef<str>,
     ) -> Self {
-        self.idents.null_space = Symbol::from(null_space);
-        self.idents.even_space = Symbol::from(even_space);
-        self.idents.odd_space = Symbol::from(odd_space);
-        self.idents.full_space = Symbol::from(full_space);
+        self.names.null_space = null_space.as_ref().to_string();
+        self.names.even_space = even_space.as_ref().to_string();
+        self.names.odd_space = odd_space.as_ref().to_string();
+        self.names.full_space = full_space.as_ref().to_string();
         self
     }
 
-    pub fn items(&self, generator_squares: impl IntoIterator<Item = Coefficient>) -> Items {
-        let generator_squares = generator_squares.into_iter().collect_vec();
-        assert_eq!(self.dim, generator_squares.len());
-        let algebra = GeometricAlgebra {
-            dim: self.dim,
-            generator_squares,
-            blade_intrinsic_signs: self.blade_intrinsic_signs.clone(),
-        };
-        algebra.items(&self.idents)
+    pub fn build(self) -> GeometricAlgeberaRecord {
+        GeometricAlgeberaRecord {
+            record: self.alg.record(),
+            names: self.names,
+        }
     }
 }
