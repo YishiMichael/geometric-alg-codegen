@@ -15,6 +15,16 @@ enum Sign {
     Neg,
 }
 
+impl Sign {
+    fn from_count(count: usize) -> Self {
+        if 1 & count == 0 {
+            Self::Pos
+        } else {
+            Self::Neg
+        }
+    }
+}
+
 impl std::ops::BitXor for Sign {
     type Output = Self;
 
@@ -24,16 +34,6 @@ impl std::ops::BitXor for Sign {
             (Self::Pos, Self::Neg) => Self::Neg,
             (Self::Neg, Self::Pos) => Self::Neg,
             (Self::Neg, Self::Neg) => Self::Pos,
-        }
-    }
-}
-
-impl From<usize> for Sign {
-    fn from(value: usize) -> Self {
-        if 1 & value == 0 {
-            Self::Pos
-        } else {
-            Self::Neg
         }
     }
 }
@@ -106,7 +106,7 @@ impl Blade {
                 }
             })
             .into_inner();
-        Sign::from((gray_inv >> 1 & other.generator_bits).count_ones() as usize)
+        Sign::from_count((gray_inv >> 1 & other.generator_bits).count_ones() as usize)
     }
 }
 
@@ -416,48 +416,41 @@ const TRANSFORM: BinarySignature = Operation::Transform.binary_signature();
 const PROJECT: BinarySignature = Operation::Project.binary_signature();
 const REJECT: BinarySignature = Operation::Reject.binary_signature();
 
-struct Multinomial<const PARAMS: usize> {
-    dim: usize,
+struct Multinomial<'a, const PARAMS: usize> {
+    alg: &'a GeometricAlgebra,
     polynomials: std::collections::BTreeMap<
         Blade,
         std::collections::BTreeMap<Vec<(usize, Blade)>, Coefficient>,
     >,
 }
 
-impl<const PARAMS: usize> Multinomial<PARAMS> {
+impl<'a, const PARAMS: usize> Multinomial<'a, PARAMS> {
     fn new<const DEGREE: usize>(
-        alg: &GeometricAlgebra,
+        alg: &'a GeometricAlgebra,
         prototype: [usize; DEGREE],
         term_sign: fn([Blade; DEGREE], usize) -> Option<Sign>,
     ) -> Self {
         Self {
-            dim: alg.dim,
+            alg,
             polynomials: std::iter::repeat_n(Blade::iter(alg.dim), DEGREE)
                 .multi_cartesian_product()
                 .map(|blades| -> [Blade; DEGREE] { blades.try_into().ok().unwrap() })
                 .filter_map(|blades| {
                     term_sign(blades, alg.dim).map(|sign| {
                         let multi_index = prototype.into_iter().zip(blades).sorted().collect_vec();
-                        let (blade_product, intrinsic_sign_product, square_product) =
-                            blades.into_iter().fold(
-                                (Blade::zero(), Sign::Pos, 1),
-                                |(blade_product, intrinsic_sign_product, square_product), blade| {
-                                    (
-                                        blade_product ^ blade,
-                                        intrinsic_sign_product
-                                            ^ alg.blade_intrinsic_signs[blade.generator_bits],
-                                        square_product
-                                            * (blade_product & blade)
-                                                .iter_generators(alg.dim)
-                                                .map(|generator| alg.generator_squares[generator])
-                                                .product::<Coefficient>(),
-                                    )
-                                },
-                            );
-                        let coeff = Coefficient::from(
-                            sign ^ intrinsic_sign_product
-                                ^ alg.blade_intrinsic_signs[blade_product.generator_bits],
-                        ) * square_product;
+                        let (blade_product, coeff) = blades.into_iter().fold(
+                            (Blade::zero(), Coefficient::from(sign)),
+                            |(blade_product, coeff), blade| {
+                                (
+                                    blade_product ^ blade,
+                                    coeff
+                                        * (blade_product & blade)
+                                            .iter_generators(alg.dim)
+                                            .map(|generator| alg.generator_squares[generator])
+                                            .product::<Coefficient>(),
+                                )
+                            },
+                        );
                         (blade_product, multi_index, coeff)
                     })
                 })
@@ -490,11 +483,11 @@ impl<const PARAMS: usize> Multinomial<PARAMS> {
 
     fn dual(self) -> Self {
         Self {
-            dim: self.dim,
+            alg: self.alg,
             polynomials: self
                 .polynomials
                 .into_iter()
-                .map(|(blade, polynomial)| (blade.dual(self.dim), polynomial))
+                .map(|(blade, polynomial)| (blade.dual(self.alg.dim), polynomial))
                 .collect(),
         }
     }
@@ -519,9 +512,27 @@ impl<const PARAMS: usize> Multinomial<PARAMS> {
                                 })
                             })
                             .collect::<Option<Vec<_>>>()
-                            .map(|exprs| (exprs.into_iter(), coeff))
+                            .map(|exprs| {
+                                (
+                                    exprs.into_iter(),
+                                    *coeff
+                                        * Coefficient::from(
+                                            multi_index
+                                                .iter()
+                                                .map(|(_, blade)| {
+                                                    self.alg.blade_intrinsic_signs
+                                                        [blade.generator_bits]
+                                                })
+                                                .fold(
+                                                    self.alg.blade_intrinsic_signs
+                                                        [blade.generator_bits],
+                                                    std::ops::BitXor::bitxor,
+                                                ),
+                                        ),
+                                )
+                            })
                     })
-                    .fold(None, |expr_acc, (exprs, &coeff)| {
+                    .fold(None, |expr_acc, (exprs, coeff)| {
                         let coeff_abs = coeff.unsigned_abs();
                         let literal = Expr::literal(coeff_abs);
                         Some(match (expr_acc, coeff_abs == 1, coeff < 0) {
@@ -562,7 +573,7 @@ impl<const PARAMS: usize> Multinomial<PARAMS> {
         spaces: [Space; PARAMS],
         params: [<GeometricAlgebra as Ast>::Param; PARAMS],
     ) -> Expr<GeometricAlgebra> {
-        space.construct(self.dim, |blade| self.blade_expr(blade, spaces, params))
+        space.construct(self.alg.dim, |blade| self.blade_expr(blade, spaces, params))
     }
 }
 
@@ -935,20 +946,20 @@ impl GeometricAlgebra {
             Operation::GradeInvolution => self.unary_multinomial_implementations(
                 &GRADE_INVOLUTION,
                 |[space_0], _| Class::Space(space_0),
-                Multinomial::new(self, [0], |[blade_0], _| Some(Sign::from(blade_0.grade()))),
+                Multinomial::new(self, [0], |[blade_0], _| Some(Sign::from_count(blade_0.grade()))),
             ),
 
             Operation::Reverse => self.unary_multinomial_implementations(
                 &REVERSE,
                 |[space_0], _| Class::Space(space_0),
-                Multinomial::new(self, [0], |[blade_0], _| Some(Sign::from(blade_0.grade() >> 1))),
+                Multinomial::new(self, [0], |[blade_0], _| Some(Sign::from_count(blade_0.grade() >> 1))),
             ),
 
             Operation::Conjugate => self.unary_multinomial_implementations(
                 &CONJUGATE,
                 |[space_0], _| Class::Space(space_0),
                 Multinomial::new(self, [0], |[blade_0], _| {
-                    Some(Sign::from((blade_0.grade() + 1) >> 1))
+                    Some(Sign::from_count((blade_0.grade() + 1) >> 1))
                 }),
             ),
 
@@ -1173,7 +1184,7 @@ impl GeometricAlgebra {
                         blade_0.parity(blade_1)
                             ^ blade_0.parity(blade_2)
                             ^ blade_1.parity(blade_2)
-                            ^ Sign::from(blade_2.grade() >> 1),
+                            ^ Sign::from_count(blade_2.grade() >> 1),
                     )
                 }),
             ),
@@ -1198,7 +1209,7 @@ impl GeometricAlgebra {
                             blade_0.parity(blade_1)
                                 ^ blade_0.parity(blade_2)
                                 ^ blade_1.parity(blade_2)
-                                ^ Sign::from(blade_2.grade() >> 1)
+                                ^ Sign::from_count(blade_2.grade() >> 1)
                         })
                 }),
             ),
@@ -1222,7 +1233,7 @@ impl GeometricAlgebra {
                             blade_0.parity(blade_1)
                                 ^ blade_0.parity(blade_2)
                                 ^ blade_1.parity(blade_2)
-                                ^ Sign::from(blade_2.grade() >> 1)
+                                ^ Sign::from_count(blade_2.grade() >> 1)
                         })
                 }),
             ),

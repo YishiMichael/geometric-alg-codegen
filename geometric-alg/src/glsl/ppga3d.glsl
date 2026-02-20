@@ -3204,9 +3204,9 @@ FourVector scalar_dual(Scalar self) {
 
 Trivector vector_dual(Vector self) {
     return Trivector(
-        e021: -self.e3,
+        e021: self.e3,
         e013: self.e2,
-        e032: -self.e1,
+        e032: self.e1,
         e123: self.e0
     );
 }
@@ -3214,10 +3214,10 @@ Trivector vector_dual(Vector self) {
 Bivector bivector_dual(Bivector self) {
     return Bivector(
         e01: self.e23,
-        e02: -self.e31,
+        e02: self.e31,
         e12: self.e03,
         e03: self.e12,
-        e31: -self.e02,
+        e31: self.e02,
         e23: self.e01
     );
 }
@@ -3225,9 +3225,9 @@ Bivector bivector_dual(Bivector self) {
 Vector trivector_dual(Trivector self) {
     return Vector(
         e0: -self.e123,
-        e1: self.e032,
+        e1: -self.e032,
         e2: -self.e013,
-        e3: self.e021
+        e3: -self.e021
     );
 }
 
@@ -3246,12 +3246,12 @@ Null null_dual(Null self) {
 OddMultivector oddmultivector_dual(OddMultivector self) {
     return OddMultivector(
         e0: -self.e123,
-        e1: self.e032,
+        e1: -self.e032,
         e2: -self.e013,
-        e021: -self.e3,
-        e3: self.e021,
+        e021: self.e3,
+        e3: -self.e021,
         e013: self.e2,
-        e032: -self.e1,
+        e032: self.e1,
         e123: self.e0
     );
 }
@@ -3260,10 +3260,10 @@ EvenMultivector evenmultivector_dual(EvenMultivector self) {
     return EvenMultivector(
         s: self.e0123,
         e01: self.e23,
-        e02: -self.e31,
+        e02: self.e31,
         e12: self.e03,
         e03: self.e12,
-        e31: -self.e02,
+        e31: self.e02,
         e23: self.e01,
         e0123: self.s
     );
@@ -3273,18 +3273,18 @@ Multivector multivector_dual(Multivector self) {
     return Multivector(
         s: self.e0123,
         e0: -self.e123,
-        e1: self.e032,
+        e1: -self.e032,
         e01: self.e23,
         e2: -self.e013,
-        e02: -self.e31,
+        e02: self.e31,
         e12: self.e03,
-        e021: -self.e3,
-        e3: self.e021,
+        e021: self.e3,
+        e3: -self.e021,
         e03: self.e12,
-        e31: -self.e02,
+        e31: self.e02,
         e013: self.e2,
         e23: self.e01,
-        e032: -self.e1,
+        e032: self.e1,
         e123: self.e0,
         e0123: self.s
     );
@@ -3298,9 +3298,9 @@ FourVector scalar_undual(Scalar self) {
 
 Trivector vector_undual(Vector self) {
     return Trivector(
-        e021: self.e3,
+        e021: -self.e3,
         e013: -self.e2,
-        e032: self.e1,
+        e032: -self.e1,
         e123: -self.e0
     );
 }
@@ -3308,10 +3308,10 @@ Trivector vector_undual(Vector self) {
 Bivector bivector_undual(Bivector self) {
     return Bivector(
         e01: self.e23,
-        e02: -self.e31,
+        e02: self.e31,
         e12: self.e03,
         e03: self.e12,
-        e31: -self.e02,
+        e31: self.e02,
         e23: self.e01
     );
 }
@@ -3319,9 +3319,9 @@ Bivector bivector_undual(Bivector self) {
 Vector trivector_undual(Trivector self) {
     return Vector(
         e0: self.e123,
-        e1: -self.e032,
+        e1: self.e032,
         e2: self.e013,
-        e3: -self.e021
+        e3: self.e021
     );
 }
 
@@ -3340,12 +3340,12 @@ Null null_undual(Null self) {
 OddMultivector oddmultivector_undual(OddMultivector self) {
     return OddMultivector(
         e0: self.e123,
-        e1: -self.e032,
+        e1: self.e032,
         e2: self.e013,
-        e021: self.e3,
-        e3: -self.e021,
+        e021: -self.e3,
+        e3: self.e021,
         e013: -self.e2,
-        e032: self.e1,
+        e032: -self.e1,
         e123: -self.e0
     );
 }
@@ -3354,10 +3354,10 @@ EvenMultivector evenmultivector_undual(EvenMultivector self) {
     return EvenMultivector(
         s: self.e0123,
         e01: self.e23,
-        e02: -self.e31,
+        e02: self.e31,
         e12: self.e03,
         e03: self.e12,
-        e31: -self.e02,
+        e31: self.e02,
         e23: self.e01,
         e0123: self.s
     );
@@ -3367,18 +3367,18 @@ Multivector multivector_undual(Multivector self) {
     return Multivector(
         s: self.e0123,
         e0: self.e123,
-        e1: -self.e032,
+        e1: self.e032,
         e01: self.e23,
         e2: self.e013,
-        e02: -self.e31,
+        e02: self.e31,
         e12: self.e03,
-        e021: self.e3,
-        e3: -self.e021,
+        e021: -self.e3,
+        e3: self.e021,
         e03: self.e12,
-        e31: -self.e02,
+        e31: self.e02,
         e013: -self.e2,
         e23: self.e01,
-        e032: self.e1,
+        e032: -self.e1,
         e123: -self.e0,
         e0123: self.s
     );
@@ -8733,9 +8733,9 @@ Scalar vector_regressive_product_trivector(Vector self, Trivector other) {
 Vector vector_regressive_product_fourvector(Vector self, FourVector other) {
     return Vector(
         e0: 0.0,
-        e1: -self.e1 * other.e0123,
+        e1: self.e1 * other.e0123,
         e2: self.e2 * other.e0123,
-        e3: -self.e3 * other.e0123
+        e3: self.e3 * other.e0123
     );
 }
 
@@ -8761,10 +8761,10 @@ EvenMultivector vector_regressive_product_oddmultivector(Vector self, OddMultive
 OddMultivector vector_regressive_product_evenmultivector(Vector self, EvenMultivector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e1 * other.e0123,
+        e1: self.e1 * other.e0123,
         e2: self.e2 * other.e0123,
         e021: 0.0,
-        e3: -self.e3 * other.e0123,
+        e3: self.e3 * other.e0123,
         e013: 0.0,
         e032: 0.0,
         e123: 0.0
@@ -8775,13 +8775,13 @@ Multivector vector_regressive_product_multivector(Vector self, Multivector other
     return Multivector(
         s: self.e0 * other.e123 + self.e1 * other.e032 + self.e2 * other.e013 + self.e3 * other.e021,
         e0: 0.0,
-        e1: -self.e1 * other.e0123,
+        e1: self.e1 * other.e0123,
         e01: 0.0,
         e2: self.e2 * other.e0123,
         e02: 0.0,
         e12: 0.0,
         e021: 0.0,
-        e3: -self.e3 * other.e0123,
+        e3: self.e3 * other.e0123,
         e03: 0.0,
         e31: 0.0,
         e013: 0.0,
@@ -8813,9 +8813,9 @@ Scalar bivector_regressive_product_bivector(Bivector self, Bivector other) {
 Vector bivector_regressive_product_trivector(Bivector self, Trivector other) {
     return Vector(
         e0: 0.0,
-        e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+        e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
         e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
-        e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013
+        e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013
     );
 }
 
@@ -8825,7 +8825,7 @@ Bivector bivector_regressive_product_fourvector(Bivector self, FourVector other)
         e02: 0.0,
         e12: self.e12 * other.e0123,
         e03: 0.0,
-        e31: -self.e31 * other.e0123,
+        e31: self.e31 * other.e0123,
         e23: self.e23 * other.e0123
     );
 }
@@ -8839,10 +8839,10 @@ Null bivector_regressive_product_null(Bivector self, Null other) {
 OddMultivector bivector_regressive_product_oddmultivector(Bivector self, OddMultivector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+        e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
         e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
         e021: 0.0,
-        e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013,
+        e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013,
         e013: 0.0,
         e032: 0.0,
         e123: 0.0
@@ -8856,7 +8856,7 @@ EvenMultivector bivector_regressive_product_evenmultivector(Bivector self, EvenM
         e02: 0.0,
         e12: self.e12 * other.e0123,
         e03: 0.0,
-        e31: -self.e31 * other.e0123,
+        e31: self.e31 * other.e0123,
         e23: self.e23 * other.e0123,
         e0123: 0.0
     );
@@ -8866,15 +8866,15 @@ Multivector bivector_regressive_product_multivector(Bivector self, Multivector o
     return Multivector(
         s: self.e01 * other.e23 + self.e02 * other.e31 + self.e12 * other.e03 + self.e03 * other.e12 + self.e31 * other.e02 + self.e23 * other.e01,
         e0: 0.0,
-        e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+        e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
         e01: 0.0,
         e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
         e02: 0.0,
         e12: self.e12 * other.e0123,
         e021: 0.0,
-        e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013,
+        e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013,
         e03: 0.0,
-        e31: -self.e31 * other.e0123,
+        e31: self.e31 * other.e0123,
         e013: 0.0,
         e23: self.e23 * other.e0123,
         e032: 0.0,
@@ -8898,9 +8898,9 @@ Scalar trivector_regressive_product_vector(Trivector self, Vector other) {
 Vector trivector_regressive_product_bivector(Trivector self, Bivector other) {
     return Vector(
         e0: 0.0,
-        e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+        e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
         e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
-        e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03
+        e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03
     );
 }
 
@@ -8910,7 +8910,7 @@ Bivector trivector_regressive_product_trivector(Trivector self, Trivector other)
         e02: 0.0,
         e12: -self.e021 * other.e123 + self.e123 * other.e021,
         e03: 0.0,
-        e31: self.e013 * other.e123 - self.e123 * other.e013,
+        e31: -self.e013 * other.e123 + self.e123 * other.e013,
         e23: -self.e032 * other.e123 + self.e123 * other.e032
     );
 }
@@ -8937,7 +8937,7 @@ EvenMultivector trivector_regressive_product_oddmultivector(Trivector self, OddM
         e02: 0.0,
         e12: -self.e021 * other.e123 + self.e123 * other.e021,
         e03: 0.0,
-        e31: self.e013 * other.e123 - self.e123 * other.e013,
+        e31: -self.e013 * other.e123 + self.e123 * other.e013,
         e23: -self.e032 * other.e123 + self.e123 * other.e032,
         e0123: 0.0
     );
@@ -8946,10 +8946,10 @@ EvenMultivector trivector_regressive_product_oddmultivector(Trivector self, OddM
 OddMultivector trivector_regressive_product_evenmultivector(Trivector self, EvenMultivector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+        e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
         e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
         e021: 0.0,
-        e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+        e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
         e013: 0.0,
         e032: 0.0,
         e123: self.e123 * other.e0123
@@ -8960,15 +8960,15 @@ Multivector trivector_regressive_product_multivector(Trivector self, Multivector
     return Multivector(
         s: -self.e021 * other.e3 - self.e013 * other.e2 - self.e032 * other.e1 - self.e123 * other.e0,
         e0: 0.0,
-        e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+        e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
         e01: 0.0,
         e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
         e02: 0.0,
         e12: -self.e021 * other.e123 + self.e123 * other.e021,
         e021: 0.0,
-        e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+        e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
         e03: 0.0,
-        e31: self.e013 * other.e123 - self.e123 * other.e013,
+        e31: -self.e013 * other.e123 + self.e123 * other.e013,
         e013: 0.0,
         e23: -self.e032 * other.e123 + self.e123 * other.e032,
         e032: 0.0,
@@ -8986,9 +8986,9 @@ Scalar fourvector_regressive_product_scalar(FourVector self, Scalar other) {
 Vector fourvector_regressive_product_vector(FourVector self, Vector other) {
     return Vector(
         e0: 0.0,
-        e1: -self.e0123 * other.e1,
+        e1: self.e0123 * other.e1,
         e2: self.e0123 * other.e2,
-        e3: -self.e0123 * other.e3
+        e3: self.e0123 * other.e3
     );
 }
 
@@ -8998,7 +8998,7 @@ Bivector fourvector_regressive_product_bivector(FourVector self, Bivector other)
         e02: 0.0,
         e12: self.e0123 * other.e12,
         e03: 0.0,
-        e31: -self.e0123 * other.e31,
+        e31: self.e0123 * other.e31,
         e23: self.e0123 * other.e23
     );
 }
@@ -9027,10 +9027,10 @@ Null fourvector_regressive_product_null(FourVector self, Null other) {
 OddMultivector fourvector_regressive_product_oddmultivector(FourVector self, OddMultivector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e0123 * other.e1,
+        e1: self.e0123 * other.e1,
         e2: self.e0123 * other.e2,
         e021: 0.0,
-        e3: -self.e0123 * other.e3,
+        e3: self.e0123 * other.e3,
         e013: 0.0,
         e032: 0.0,
         e123: self.e0123 * other.e123
@@ -9044,7 +9044,7 @@ EvenMultivector fourvector_regressive_product_evenmultivector(FourVector self, E
         e02: 0.0,
         e12: self.e0123 * other.e12,
         e03: 0.0,
-        e31: -self.e0123 * other.e31,
+        e31: self.e0123 * other.e31,
         e23: self.e0123 * other.e23,
         e0123: 0.0
     );
@@ -9054,15 +9054,15 @@ Multivector fourvector_regressive_product_multivector(FourVector self, Multivect
     return Multivector(
         s: self.e0123 * other.s,
         e0: 0.0,
-        e1: -self.e0123 * other.e1,
+        e1: self.e0123 * other.e1,
         e01: 0.0,
         e2: self.e0123 * other.e2,
         e02: 0.0,
         e12: self.e0123 * other.e12,
         e021: 0.0,
-        e3: -self.e0123 * other.e3,
+        e3: self.e0123 * other.e3,
         e03: 0.0,
-        e31: -self.e0123 * other.e31,
+        e31: self.e0123 * other.e31,
         e013: 0.0,
         e23: self.e0123 * other.e23,
         e032: 0.0,
@@ -9154,10 +9154,10 @@ EvenMultivector oddmultivector_regressive_product_vector(OddMultivector self, Ve
 OddMultivector oddmultivector_regressive_product_bivector(OddMultivector self, Bivector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+        e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
         e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
         e021: 0.0,
-        e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+        e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
         e013: 0.0,
         e032: 0.0,
         e123: 0.0
@@ -9171,7 +9171,7 @@ EvenMultivector oddmultivector_regressive_product_trivector(OddMultivector self,
         e02: 0.0,
         e12: -self.e021 * other.e123 + self.e123 * other.e021,
         e03: 0.0,
-        e31: self.e013 * other.e123 - self.e123 * other.e013,
+        e31: -self.e013 * other.e123 + self.e123 * other.e013,
         e23: -self.e032 * other.e123 + self.e123 * other.e032,
         e0123: 0.0
     );
@@ -9180,10 +9180,10 @@ EvenMultivector oddmultivector_regressive_product_trivector(OddMultivector self,
 OddMultivector oddmultivector_regressive_product_fourvector(OddMultivector self, FourVector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e1 * other.e0123,
+        e1: self.e1 * other.e0123,
         e2: self.e2 * other.e0123,
         e021: 0.0,
-        e3: -self.e3 * other.e0123,
+        e3: self.e3 * other.e0123,
         e013: 0.0,
         e032: 0.0,
         e123: self.e123 * other.e0123
@@ -9203,7 +9203,7 @@ EvenMultivector oddmultivector_regressive_product_oddmultivector(OddMultivector 
         e02: 0.0,
         e12: -self.e021 * other.e123 + self.e123 * other.e021,
         e03: 0.0,
-        e31: self.e013 * other.e123 - self.e123 * other.e013,
+        e31: -self.e013 * other.e123 + self.e123 * other.e013,
         e23: -self.e032 * other.e123 + self.e123 * other.e032,
         e0123: 0.0
     );
@@ -9212,10 +9212,10 @@ EvenMultivector oddmultivector_regressive_product_oddmultivector(OddMultivector 
 OddMultivector oddmultivector_regressive_product_evenmultivector(OddMultivector self, EvenMultivector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e1 * other.e0123 - self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+        e1: self.e1 * other.e0123 + self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
         e2: self.e2 * other.e0123 - self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
         e021: 0.0,
-        e3: -self.e3 * other.e0123 - self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+        e3: self.e3 * other.e0123 + self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
         e013: 0.0,
         e032: 0.0,
         e123: self.e123 * other.e0123
@@ -9226,15 +9226,15 @@ Multivector oddmultivector_regressive_product_multivector(OddMultivector self, M
     return Multivector(
         s: self.e0 * other.e123 + self.e1 * other.e032 + self.e2 * other.e013 - self.e021 * other.e3 + self.e3 * other.e021 - self.e013 * other.e2 - self.e032 * other.e1 - self.e123 * other.e0,
         e0: 0.0,
-        e1: -self.e1 * other.e0123 - self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+        e1: self.e1 * other.e0123 + self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
         e01: 0.0,
         e2: self.e2 * other.e0123 - self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
         e02: 0.0,
         e12: -self.e021 * other.e123 + self.e123 * other.e021,
         e021: 0.0,
-        e3: -self.e3 * other.e0123 - self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+        e3: self.e3 * other.e0123 + self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
         e03: 0.0,
-        e31: self.e013 * other.e123 - self.e123 * other.e013,
+        e31: -self.e013 * other.e123 + self.e123 * other.e013,
         e013: 0.0,
         e23: -self.e032 * other.e123 + self.e123 * other.e032,
         e032: 0.0,
@@ -9259,10 +9259,10 @@ EvenMultivector evenmultivector_regressive_product_scalar(EvenMultivector self, 
 OddMultivector evenmultivector_regressive_product_vector(EvenMultivector self, Vector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e0123 * other.e1,
+        e1: self.e0123 * other.e1,
         e2: self.e0123 * other.e2,
         e021: 0.0,
-        e3: -self.e0123 * other.e3,
+        e3: self.e0123 * other.e3,
         e013: 0.0,
         e032: 0.0,
         e123: 0.0
@@ -9276,7 +9276,7 @@ EvenMultivector evenmultivector_regressive_product_bivector(EvenMultivector self
         e02: 0.0,
         e12: self.e0123 * other.e12,
         e03: 0.0,
-        e31: -self.e0123 * other.e31,
+        e31: self.e0123 * other.e31,
         e23: self.e0123 * other.e23,
         e0123: 0.0
     );
@@ -9285,10 +9285,10 @@ EvenMultivector evenmultivector_regressive_product_bivector(EvenMultivector self
 OddMultivector evenmultivector_regressive_product_trivector(EvenMultivector self, Trivector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+        e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
         e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
         e021: 0.0,
-        e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013,
+        e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013,
         e013: 0.0,
         e032: 0.0,
         e123: self.e0123 * other.e123
@@ -9302,7 +9302,7 @@ EvenMultivector evenmultivector_regressive_product_fourvector(EvenMultivector se
         e02: 0.0,
         e12: self.e12 * other.e0123,
         e03: 0.0,
-        e31: -self.e31 * other.e0123,
+        e31: self.e31 * other.e0123,
         e23: self.e23 * other.e0123,
         e0123: 0.0
     );
@@ -9317,10 +9317,10 @@ Null evenmultivector_regressive_product_null(EvenMultivector self, Null other) {
 OddMultivector evenmultivector_regressive_product_oddmultivector(EvenMultivector self, OddMultivector other) {
     return OddMultivector(
         e0: 0.0,
-        e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021 - self.e0123 * other.e1,
+        e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021 + self.e0123 * other.e1,
         e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021 + self.e0123 * other.e2,
         e021: 0.0,
-        e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013 - self.e0123 * other.e3,
+        e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013 + self.e0123 * other.e3,
         e013: 0.0,
         e032: 0.0,
         e123: self.e0123 * other.e123
@@ -9334,7 +9334,7 @@ EvenMultivector evenmultivector_regressive_product_evenmultivector(EvenMultivect
         e02: 0.0,
         e12: self.e12 * other.e0123 + self.e0123 * other.e12,
         e03: 0.0,
-        e31: -self.e31 * other.e0123 - self.e0123 * other.e31,
+        e31: self.e31 * other.e0123 + self.e0123 * other.e31,
         e23: self.e23 * other.e0123 + self.e0123 * other.e23,
         e0123: 0.0
     );
@@ -9344,15 +9344,15 @@ Multivector evenmultivector_regressive_product_multivector(EvenMultivector self,
     return Multivector(
         s: self.s * other.e0123 + self.e01 * other.e23 + self.e02 * other.e31 + self.e12 * other.e03 + self.e03 * other.e12 + self.e31 * other.e02 + self.e23 * other.e01 + self.e0123 * other.s,
         e0: 0.0,
-        e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021 - self.e0123 * other.e1,
+        e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021 + self.e0123 * other.e1,
         e01: 0.0,
         e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021 + self.e0123 * other.e2,
         e02: 0.0,
         e12: self.e12 * other.e0123 + self.e0123 * other.e12,
         e021: 0.0,
-        e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013 - self.e0123 * other.e3,
+        e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013 + self.e0123 * other.e3,
         e03: 0.0,
-        e31: -self.e31 * other.e0123 - self.e0123 * other.e31,
+        e31: self.e31 * other.e0123 + self.e0123 * other.e31,
         e013: 0.0,
         e23: self.e23 * other.e0123 + self.e0123 * other.e23,
         e032: 0.0,
@@ -9386,13 +9386,13 @@ Multivector multivector_regressive_product_vector(Multivector self, Vector other
     return Multivector(
         s: -self.e021 * other.e3 - self.e013 * other.e2 - self.e032 * other.e1 - self.e123 * other.e0,
         e0: 0.0,
-        e1: -self.e0123 * other.e1,
+        e1: self.e0123 * other.e1,
         e01: 0.0,
         e2: self.e0123 * other.e2,
         e02: 0.0,
         e12: 0.0,
         e021: 0.0,
-        e3: -self.e0123 * other.e3,
+        e3: self.e0123 * other.e3,
         e03: 0.0,
         e31: 0.0,
         e013: 0.0,
@@ -9407,15 +9407,15 @@ Multivector multivector_regressive_product_bivector(Multivector self, Bivector o
     return Multivector(
         s: self.e01 * other.e23 + self.e02 * other.e31 + self.e12 * other.e03 + self.e03 * other.e12 + self.e31 * other.e02 + self.e23 * other.e01,
         e0: 0.0,
-        e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+        e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
         e01: 0.0,
         e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
         e02: 0.0,
         e12: self.e0123 * other.e12,
         e021: 0.0,
-        e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+        e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
         e03: 0.0,
-        e31: -self.e0123 * other.e31,
+        e31: self.e0123 * other.e31,
         e013: 0.0,
         e23: self.e0123 * other.e23,
         e032: 0.0,
@@ -9428,15 +9428,15 @@ Multivector multivector_regressive_product_trivector(Multivector self, Trivector
     return Multivector(
         s: self.e0 * other.e123 + self.e1 * other.e032 + self.e2 * other.e013 + self.e3 * other.e021,
         e0: 0.0,
-        e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+        e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
         e01: 0.0,
         e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
         e02: 0.0,
         e12: -self.e021 * other.e123 + self.e123 * other.e021,
         e021: 0.0,
-        e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013,
+        e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013,
         e03: 0.0,
-        e31: self.e013 * other.e123 - self.e123 * other.e013,
+        e31: -self.e013 * other.e123 + self.e123 * other.e013,
         e013: 0.0,
         e23: -self.e032 * other.e123 + self.e123 * other.e032,
         e032: 0.0,
@@ -9449,15 +9449,15 @@ Multivector multivector_regressive_product_fourvector(Multivector self, FourVect
     return Multivector(
         s: self.s * other.e0123,
         e0: 0.0,
-        e1: -self.e1 * other.e0123,
+        e1: self.e1 * other.e0123,
         e01: 0.0,
         e2: self.e2 * other.e0123,
         e02: 0.0,
         e12: self.e12 * other.e0123,
         e021: 0.0,
-        e3: -self.e3 * other.e0123,
+        e3: self.e3 * other.e0123,
         e03: 0.0,
-        e31: -self.e31 * other.e0123,
+        e31: self.e31 * other.e0123,
         e013: 0.0,
         e23: self.e23 * other.e0123,
         e032: 0.0,
@@ -9476,15 +9476,15 @@ Multivector multivector_regressive_product_oddmultivector(Multivector self, OddM
     return Multivector(
         s: self.e0 * other.e123 + self.e1 * other.e032 + self.e2 * other.e013 - self.e021 * other.e3 + self.e3 * other.e021 - self.e013 * other.e2 - self.e032 * other.e1 - self.e123 * other.e0,
         e0: 0.0,
-        e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021 - self.e0123 * other.e1,
+        e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021 + self.e0123 * other.e1,
         e01: 0.0,
         e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021 + self.e0123 * other.e2,
         e02: 0.0,
         e12: -self.e021 * other.e123 + self.e123 * other.e021,
         e021: 0.0,
-        e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013 - self.e0123 * other.e3,
+        e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013 + self.e0123 * other.e3,
         e03: 0.0,
-        e31: self.e013 * other.e123 - self.e123 * other.e013,
+        e31: -self.e013 * other.e123 + self.e123 * other.e013,
         e013: 0.0,
         e23: -self.e032 * other.e123 + self.e123 * other.e032,
         e032: 0.0,
@@ -9497,15 +9497,15 @@ Multivector multivector_regressive_product_evenmultivector(Multivector self, Eve
     return Multivector(
         s: self.s * other.e0123 + self.e01 * other.e23 + self.e02 * other.e31 + self.e12 * other.e03 + self.e03 * other.e12 + self.e31 * other.e02 + self.e23 * other.e01 + self.e0123 * other.s,
         e0: 0.0,
-        e1: -self.e1 * other.e0123 - self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+        e1: self.e1 * other.e0123 + self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
         e01: 0.0,
         e2: self.e2 * other.e0123 - self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
         e02: 0.0,
         e12: self.e12 * other.e0123 + self.e0123 * other.e12,
         e021: 0.0,
-        e3: -self.e3 * other.e0123 - self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+        e3: self.e3 * other.e0123 + self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
         e03: 0.0,
-        e31: -self.e31 * other.e0123 - self.e0123 * other.e31,
+        e31: self.e31 * other.e0123 + self.e0123 * other.e31,
         e013: 0.0,
         e23: self.e23 * other.e0123 + self.e0123 * other.e23,
         e032: 0.0,
@@ -9518,15 +9518,15 @@ Multivector multivector_regressive_product_multivector(Multivector self, Multive
     return Multivector(
         s: self.s * other.e0123 + self.e0 * other.e123 + self.e1 * other.e032 + self.e01 * other.e23 + self.e2 * other.e013 + self.e02 * other.e31 + self.e12 * other.e03 - self.e021 * other.e3 + self.e3 * other.e021 + self.e03 * other.e12 + self.e31 * other.e02 - self.e013 * other.e2 + self.e23 * other.e01 - self.e032 * other.e1 - self.e123 * other.e0 + self.e0123 * other.s,
         e0: 0.0,
-        e1: -self.e1 * other.e0123 - self.e01 * other.e123 + self.e12 * other.e013 - self.e021 * other.e31 - self.e31 * other.e021 + self.e013 * other.e12 - self.e123 * other.e01 - self.e0123 * other.e1,
+        e1: self.e1 * other.e0123 + self.e01 * other.e123 - self.e12 * other.e013 + self.e021 * other.e31 + self.e31 * other.e021 - self.e013 * other.e12 + self.e123 * other.e01 + self.e0123 * other.e1,
         e01: 0.0,
         e2: self.e2 * other.e0123 + self.e02 * other.e123 + self.e12 * other.e032 - self.e021 * other.e23 - self.e23 * other.e021 + self.e032 * other.e12 + self.e123 * other.e02 + self.e0123 * other.e2,
         e02: 0.0,
         e12: self.e12 * other.e0123 - self.e021 * other.e123 + self.e123 * other.e021 + self.e0123 * other.e12,
         e021: 0.0,
-        e3: -self.e3 * other.e0123 - self.e03 * other.e123 + self.e31 * other.e032 - self.e013 * other.e23 - self.e23 * other.e013 + self.e032 * other.e31 - self.e123 * other.e03 - self.e0123 * other.e3,
+        e3: self.e3 * other.e0123 + self.e03 * other.e123 - self.e31 * other.e032 + self.e013 * other.e23 + self.e23 * other.e013 - self.e032 * other.e31 + self.e123 * other.e03 + self.e0123 * other.e3,
         e03: 0.0,
-        e31: -self.e31 * other.e0123 + self.e013 * other.e123 - self.e123 * other.e013 - self.e0123 * other.e31,
+        e31: self.e31 * other.e0123 - self.e013 * other.e123 + self.e123 * other.e013 + self.e0123 * other.e31,
         e013: 0.0,
         e23: self.e23 * other.e0123 - self.e032 * other.e123 + self.e123 * other.e032 + self.e0123 * other.e23,
         e032: 0.0,

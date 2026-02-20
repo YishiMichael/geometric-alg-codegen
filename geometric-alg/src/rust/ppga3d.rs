@@ -3945,9 +3945,9 @@ impl Dual for Vector {
     type Output = Trivector;
     fn dual(self) -> Trivector {
         Trivector {
-            e021: -self.e3,
+            e021: self.e3,
             e013: self.e2,
-            e032: -self.e1,
+            e032: self.e1,
             e123: self.e0,
         }
     }
@@ -3958,10 +3958,10 @@ impl Dual for Bivector {
     fn dual(self) -> Bivector {
         Bivector {
             e01: self.e23,
-            e02: -self.e31,
+            e02: self.e31,
             e12: self.e03,
             e03: self.e12,
-            e31: -self.e02,
+            e31: self.e02,
             e23: self.e01,
         }
     }
@@ -3972,9 +3972,9 @@ impl Dual for Trivector {
     fn dual(self) -> Vector {
         Vector {
             e0: -self.e123,
-            e1: self.e032,
+            e1: -self.e032,
             e2: -self.e013,
-            e3: self.e021,
+            e3: -self.e021,
         }
     }
 }
@@ -4000,12 +4000,12 @@ impl Dual for OddMultivector {
     fn dual(self) -> OddMultivector {
         OddMultivector {
             e0: -self.e123,
-            e1: self.e032,
+            e1: -self.e032,
             e2: -self.e013,
-            e021: -self.e3,
-            e3: self.e021,
+            e021: self.e3,
+            e3: -self.e021,
             e013: self.e2,
-            e032: -self.e1,
+            e032: self.e1,
             e123: self.e0,
         }
     }
@@ -4017,10 +4017,10 @@ impl Dual for EvenMultivector {
         EvenMultivector {
             s: self.e0123,
             e01: self.e23,
-            e02: -self.e31,
+            e02: self.e31,
             e12: self.e03,
             e03: self.e12,
-            e31: -self.e02,
+            e31: self.e02,
             e23: self.e01,
             e0123: self.s,
         }
@@ -4033,18 +4033,18 @@ impl Dual for Multivector {
         Multivector {
             s: self.e0123,
             e0: -self.e123,
-            e1: self.e032,
+            e1: -self.e032,
             e01: self.e23,
             e2: -self.e013,
-            e02: -self.e31,
+            e02: self.e31,
             e12: self.e03,
-            e021: -self.e3,
-            e3: self.e021,
+            e021: self.e3,
+            e3: -self.e021,
             e03: self.e12,
-            e31: -self.e02,
+            e31: self.e02,
             e013: self.e2,
             e23: self.e01,
-            e032: -self.e1,
+            e032: self.e1,
             e123: self.e0,
             e0123: self.s,
         }
@@ -4064,9 +4064,9 @@ impl Undual for Vector {
     type Output = Trivector;
     fn undual(self) -> Trivector {
         Trivector {
-            e021: self.e3,
+            e021: -self.e3,
             e013: -self.e2,
-            e032: self.e1,
+            e032: -self.e1,
             e123: -self.e0,
         }
     }
@@ -4077,10 +4077,10 @@ impl Undual for Bivector {
     fn undual(self) -> Bivector {
         Bivector {
             e01: self.e23,
-            e02: -self.e31,
+            e02: self.e31,
             e12: self.e03,
             e03: self.e12,
-            e31: -self.e02,
+            e31: self.e02,
             e23: self.e01,
         }
     }
@@ -4091,9 +4091,9 @@ impl Undual for Trivector {
     fn undual(self) -> Vector {
         Vector {
             e0: self.e123,
-            e1: -self.e032,
+            e1: self.e032,
             e2: self.e013,
-            e3: -self.e021,
+            e3: self.e021,
         }
     }
 }
@@ -4119,12 +4119,12 @@ impl Undual for OddMultivector {
     fn undual(self) -> OddMultivector {
         OddMultivector {
             e0: self.e123,
-            e1: -self.e032,
+            e1: self.e032,
             e2: self.e013,
-            e021: self.e3,
-            e3: -self.e021,
+            e021: -self.e3,
+            e3: self.e021,
             e013: -self.e2,
-            e032: self.e1,
+            e032: -self.e1,
             e123: -self.e0,
         }
     }
@@ -4136,10 +4136,10 @@ impl Undual for EvenMultivector {
         EvenMultivector {
             s: self.e0123,
             e01: self.e23,
-            e02: -self.e31,
+            e02: self.e31,
             e12: self.e03,
             e03: self.e12,
-            e31: -self.e02,
+            e31: self.e02,
             e23: self.e01,
             e0123: self.s,
         }
@@ -4152,18 +4152,18 @@ impl Undual for Multivector {
         Multivector {
             s: self.e0123,
             e0: self.e123,
-            e1: -self.e032,
+            e1: self.e032,
             e01: self.e23,
             e2: self.e013,
-            e02: -self.e31,
+            e02: self.e31,
             e12: self.e03,
-            e021: self.e3,
-            e3: -self.e021,
+            e021: -self.e3,
+            e3: self.e021,
             e03: self.e12,
-            e31: -self.e02,
+            e31: self.e02,
             e013: -self.e2,
             e23: self.e01,
-            e032: self.e1,
+            e032: -self.e1,
             e123: -self.e0,
             e0123: self.s,
         }
@@ -10898,9 +10898,9 @@ impl RegressiveProduct<FourVector> for Vector {
     fn regressive_product(self, other: FourVector) -> Vector {
         Vector {
             e0: 0.0,
-            e1: -self.e1 * other.e0123,
+            e1: self.e1 * other.e0123,
             e2: self.e2 * other.e0123,
-            e3: -self.e3 * other.e0123,
+            e3: self.e3 * other.e0123,
         }
     }
 }
@@ -10933,10 +10933,10 @@ impl RegressiveProduct<EvenMultivector> for Vector {
     fn regressive_product(self, other: EvenMultivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e1 * other.e0123,
+            e1: self.e1 * other.e0123,
             e2: self.e2 * other.e0123,
             e021: 0.0,
-            e3: -self.e3 * other.e0123,
+            e3: self.e3 * other.e0123,
             e013: 0.0,
             e032: 0.0,
             e123: 0.0,
@@ -10950,13 +10950,13 @@ impl RegressiveProduct<Multivector> for Vector {
         Multivector {
             s: self.e0 * other.e123 + self.e1 * other.e032 + self.e2 * other.e013 + self.e3 * other.e021,
             e0: 0.0,
-            e1: -self.e1 * other.e0123,
+            e1: self.e1 * other.e0123,
             e01: 0.0,
             e2: self.e2 * other.e0123,
             e02: 0.0,
             e12: 0.0,
             e021: 0.0,
-            e3: -self.e3 * other.e0123,
+            e3: self.e3 * other.e0123,
             e03: 0.0,
             e31: 0.0,
             e013: 0.0,
@@ -10996,9 +10996,9 @@ impl RegressiveProduct<Trivector> for Bivector {
     fn regressive_product(self, other: Trivector) -> Vector {
         Vector {
             e0: 0.0,
-            e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+            e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
             e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
-            e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013,
+            e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013,
         }
     }
 }
@@ -11011,7 +11011,7 @@ impl RegressiveProduct<FourVector> for Bivector {
             e02: 0.0,
             e12: self.e12 * other.e0123,
             e03: 0.0,
-            e31: -self.e31 * other.e0123,
+            e31: self.e31 * other.e0123,
             e23: self.e23 * other.e0123,
         }
     }
@@ -11029,10 +11029,10 @@ impl RegressiveProduct<OddMultivector> for Bivector {
     fn regressive_product(self, other: OddMultivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+            e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
             e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
             e021: 0.0,
-            e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013,
+            e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013,
             e013: 0.0,
             e032: 0.0,
             e123: 0.0,
@@ -11049,7 +11049,7 @@ impl RegressiveProduct<EvenMultivector> for Bivector {
             e02: 0.0,
             e12: self.e12 * other.e0123,
             e03: 0.0,
-            e31: -self.e31 * other.e0123,
+            e31: self.e31 * other.e0123,
             e23: self.e23 * other.e0123,
             e0123: 0.0,
         }
@@ -11062,15 +11062,15 @@ impl RegressiveProduct<Multivector> for Bivector {
         Multivector {
             s: self.e01 * other.e23 + self.e02 * other.e31 + self.e12 * other.e03 + self.e03 * other.e12 + self.e31 * other.e02 + self.e23 * other.e01,
             e0: 0.0,
-            e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+            e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
             e01: 0.0,
             e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
             e02: 0.0,
             e12: self.e12 * other.e0123,
             e021: 0.0,
-            e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013,
+            e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013,
             e03: 0.0,
-            e31: -self.e31 * other.e0123,
+            e31: self.e31 * other.e0123,
             e013: 0.0,
             e23: self.e23 * other.e0123,
             e032: 0.0,
@@ -11101,9 +11101,9 @@ impl RegressiveProduct<Bivector> for Trivector {
     fn regressive_product(self, other: Bivector) -> Vector {
         Vector {
             e0: 0.0,
-            e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+            e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
             e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
-            e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+            e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
         }
     }
 }
@@ -11116,7 +11116,7 @@ impl RegressiveProduct<Trivector> for Trivector {
             e02: 0.0,
             e12: -self.e021 * other.e123 + self.e123 * other.e021,
             e03: 0.0,
-            e31: self.e013 * other.e123 - self.e123 * other.e013,
+            e31: -self.e013 * other.e123 + self.e123 * other.e013,
             e23: -self.e032 * other.e123 + self.e123 * other.e032,
         }
     }
@@ -11150,7 +11150,7 @@ impl RegressiveProduct<OddMultivector> for Trivector {
             e02: 0.0,
             e12: -self.e021 * other.e123 + self.e123 * other.e021,
             e03: 0.0,
-            e31: self.e013 * other.e123 - self.e123 * other.e013,
+            e31: -self.e013 * other.e123 + self.e123 * other.e013,
             e23: -self.e032 * other.e123 + self.e123 * other.e032,
             e0123: 0.0,
         }
@@ -11162,10 +11162,10 @@ impl RegressiveProduct<EvenMultivector> for Trivector {
     fn regressive_product(self, other: EvenMultivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+            e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
             e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
             e021: 0.0,
-            e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+            e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
             e013: 0.0,
             e032: 0.0,
             e123: self.e123 * other.e0123,
@@ -11179,15 +11179,15 @@ impl RegressiveProduct<Multivector> for Trivector {
         Multivector {
             s: -self.e021 * other.e3 - self.e013 * other.e2 - self.e032 * other.e1 - self.e123 * other.e0,
             e0: 0.0,
-            e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+            e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
             e01: 0.0,
             e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
             e02: 0.0,
             e12: -self.e021 * other.e123 + self.e123 * other.e021,
             e021: 0.0,
-            e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+            e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
             e03: 0.0,
-            e31: self.e013 * other.e123 - self.e123 * other.e013,
+            e31: -self.e013 * other.e123 + self.e123 * other.e013,
             e013: 0.0,
             e23: -self.e032 * other.e123 + self.e123 * other.e032,
             e032: 0.0,
@@ -11211,9 +11211,9 @@ impl RegressiveProduct<Vector> for FourVector {
     fn regressive_product(self, other: Vector) -> Vector {
         Vector {
             e0: 0.0,
-            e1: -self.e0123 * other.e1,
+            e1: self.e0123 * other.e1,
             e2: self.e0123 * other.e2,
-            e3: -self.e0123 * other.e3,
+            e3: self.e0123 * other.e3,
         }
     }
 }
@@ -11226,7 +11226,7 @@ impl RegressiveProduct<Bivector> for FourVector {
             e02: 0.0,
             e12: self.e0123 * other.e12,
             e03: 0.0,
-            e31: -self.e0123 * other.e31,
+            e31: self.e0123 * other.e31,
             e23: self.e0123 * other.e23,
         }
     }
@@ -11265,10 +11265,10 @@ impl RegressiveProduct<OddMultivector> for FourVector {
     fn regressive_product(self, other: OddMultivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e0123 * other.e1,
+            e1: self.e0123 * other.e1,
             e2: self.e0123 * other.e2,
             e021: 0.0,
-            e3: -self.e0123 * other.e3,
+            e3: self.e0123 * other.e3,
             e013: 0.0,
             e032: 0.0,
             e123: self.e0123 * other.e123,
@@ -11285,7 +11285,7 @@ impl RegressiveProduct<EvenMultivector> for FourVector {
             e02: 0.0,
             e12: self.e0123 * other.e12,
             e03: 0.0,
-            e31: -self.e0123 * other.e31,
+            e31: self.e0123 * other.e31,
             e23: self.e0123 * other.e23,
             e0123: 0.0,
         }
@@ -11298,15 +11298,15 @@ impl RegressiveProduct<Multivector> for FourVector {
         Multivector {
             s: self.e0123 * other.s,
             e0: 0.0,
-            e1: -self.e0123 * other.e1,
+            e1: self.e0123 * other.e1,
             e01: 0.0,
             e2: self.e0123 * other.e2,
             e02: 0.0,
             e12: self.e0123 * other.e12,
             e021: 0.0,
-            e3: -self.e0123 * other.e3,
+            e3: self.e0123 * other.e3,
             e03: 0.0,
-            e31: -self.e0123 * other.e31,
+            e31: self.e0123 * other.e31,
             e013: 0.0,
             e23: self.e0123 * other.e23,
             e032: 0.0,
@@ -11416,10 +11416,10 @@ impl RegressiveProduct<Bivector> for OddMultivector {
     fn regressive_product(self, other: Bivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+            e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
             e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
             e021: 0.0,
-            e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+            e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
             e013: 0.0,
             e032: 0.0,
             e123: 0.0,
@@ -11436,7 +11436,7 @@ impl RegressiveProduct<Trivector> for OddMultivector {
             e02: 0.0,
             e12: -self.e021 * other.e123 + self.e123 * other.e021,
             e03: 0.0,
-            e31: self.e013 * other.e123 - self.e123 * other.e013,
+            e31: -self.e013 * other.e123 + self.e123 * other.e013,
             e23: -self.e032 * other.e123 + self.e123 * other.e032,
             e0123: 0.0,
         }
@@ -11448,10 +11448,10 @@ impl RegressiveProduct<FourVector> for OddMultivector {
     fn regressive_product(self, other: FourVector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e1 * other.e0123,
+            e1: self.e1 * other.e0123,
             e2: self.e2 * other.e0123,
             e021: 0.0,
-            e3: -self.e3 * other.e0123,
+            e3: self.e3 * other.e0123,
             e013: 0.0,
             e032: 0.0,
             e123: self.e123 * other.e0123,
@@ -11475,7 +11475,7 @@ impl RegressiveProduct<OddMultivector> for OddMultivector {
             e02: 0.0,
             e12: -self.e021 * other.e123 + self.e123 * other.e021,
             e03: 0.0,
-            e31: self.e013 * other.e123 - self.e123 * other.e013,
+            e31: -self.e013 * other.e123 + self.e123 * other.e013,
             e23: -self.e032 * other.e123 + self.e123 * other.e032,
             e0123: 0.0,
         }
@@ -11487,10 +11487,10 @@ impl RegressiveProduct<EvenMultivector> for OddMultivector {
     fn regressive_product(self, other: EvenMultivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e1 * other.e0123 - self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+            e1: self.e1 * other.e0123 + self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
             e2: self.e2 * other.e0123 - self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
             e021: 0.0,
-            e3: -self.e3 * other.e0123 - self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+            e3: self.e3 * other.e0123 + self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
             e013: 0.0,
             e032: 0.0,
             e123: self.e123 * other.e0123,
@@ -11504,15 +11504,15 @@ impl RegressiveProduct<Multivector> for OddMultivector {
         Multivector {
             s: self.e0 * other.e123 + self.e1 * other.e032 + self.e2 * other.e013 - self.e021 * other.e3 + self.e3 * other.e021 - self.e013 * other.e2 - self.e032 * other.e1 - self.e123 * other.e0,
             e0: 0.0,
-            e1: -self.e1 * other.e0123 - self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+            e1: self.e1 * other.e0123 + self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
             e01: 0.0,
             e2: self.e2 * other.e0123 - self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
             e02: 0.0,
             e12: -self.e021 * other.e123 + self.e123 * other.e021,
             e021: 0.0,
-            e3: -self.e3 * other.e0123 - self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+            e3: self.e3 * other.e0123 + self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
             e03: 0.0,
-            e31: self.e013 * other.e123 - self.e123 * other.e013,
+            e31: -self.e013 * other.e123 + self.e123 * other.e013,
             e013: 0.0,
             e23: -self.e032 * other.e123 + self.e123 * other.e032,
             e032: 0.0,
@@ -11543,10 +11543,10 @@ impl RegressiveProduct<Vector> for EvenMultivector {
     fn regressive_product(self, other: Vector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e0123 * other.e1,
+            e1: self.e0123 * other.e1,
             e2: self.e0123 * other.e2,
             e021: 0.0,
-            e3: -self.e0123 * other.e3,
+            e3: self.e0123 * other.e3,
             e013: 0.0,
             e032: 0.0,
             e123: 0.0,
@@ -11563,7 +11563,7 @@ impl RegressiveProduct<Bivector> for EvenMultivector {
             e02: 0.0,
             e12: self.e0123 * other.e12,
             e03: 0.0,
-            e31: -self.e0123 * other.e31,
+            e31: self.e0123 * other.e31,
             e23: self.e0123 * other.e23,
             e0123: 0.0,
         }
@@ -11575,10 +11575,10 @@ impl RegressiveProduct<Trivector> for EvenMultivector {
     fn regressive_product(self, other: Trivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+            e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
             e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
             e021: 0.0,
-            e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013,
+            e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013,
             e013: 0.0,
             e032: 0.0,
             e123: self.e0123 * other.e123,
@@ -11595,7 +11595,7 @@ impl RegressiveProduct<FourVector> for EvenMultivector {
             e02: 0.0,
             e12: self.e12 * other.e0123,
             e03: 0.0,
-            e31: -self.e31 * other.e0123,
+            e31: self.e31 * other.e0123,
             e23: self.e23 * other.e0123,
             e0123: 0.0,
         }
@@ -11614,10 +11614,10 @@ impl RegressiveProduct<OddMultivector> for EvenMultivector {
     fn regressive_product(self, other: OddMultivector) -> OddMultivector {
         OddMultivector {
             e0: 0.0,
-            e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021 - self.e0123 * other.e1,
+            e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021 + self.e0123 * other.e1,
             e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021 + self.e0123 * other.e2,
             e021: 0.0,
-            e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013 - self.e0123 * other.e3,
+            e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013 + self.e0123 * other.e3,
             e013: 0.0,
             e032: 0.0,
             e123: self.e0123 * other.e123,
@@ -11634,7 +11634,7 @@ impl RegressiveProduct<EvenMultivector> for EvenMultivector {
             e02: 0.0,
             e12: self.e12 * other.e0123 + self.e0123 * other.e12,
             e03: 0.0,
-            e31: -self.e31 * other.e0123 - self.e0123 * other.e31,
+            e31: self.e31 * other.e0123 + self.e0123 * other.e31,
             e23: self.e23 * other.e0123 + self.e0123 * other.e23,
             e0123: 0.0,
         }
@@ -11647,15 +11647,15 @@ impl RegressiveProduct<Multivector> for EvenMultivector {
         Multivector {
             s: self.s * other.e0123 + self.e01 * other.e23 + self.e02 * other.e31 + self.e12 * other.e03 + self.e03 * other.e12 + self.e31 * other.e02 + self.e23 * other.e01 + self.e0123 * other.s,
             e0: 0.0,
-            e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021 - self.e0123 * other.e1,
+            e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021 + self.e0123 * other.e1,
             e01: 0.0,
             e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021 + self.e0123 * other.e2,
             e02: 0.0,
             e12: self.e12 * other.e0123 + self.e0123 * other.e12,
             e021: 0.0,
-            e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013 - self.e0123 * other.e3,
+            e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013 + self.e0123 * other.e3,
             e03: 0.0,
-            e31: -self.e31 * other.e0123 - self.e0123 * other.e31,
+            e31: self.e31 * other.e0123 + self.e0123 * other.e31,
             e013: 0.0,
             e23: self.e23 * other.e0123 + self.e0123 * other.e23,
             e032: 0.0,
@@ -11695,13 +11695,13 @@ impl RegressiveProduct<Vector> for Multivector {
         Multivector {
             s: -self.e021 * other.e3 - self.e013 * other.e2 - self.e032 * other.e1 - self.e123 * other.e0,
             e0: 0.0,
-            e1: -self.e0123 * other.e1,
+            e1: self.e0123 * other.e1,
             e01: 0.0,
             e2: self.e0123 * other.e2,
             e02: 0.0,
             e12: 0.0,
             e021: 0.0,
-            e3: -self.e0123 * other.e3,
+            e3: self.e0123 * other.e3,
             e03: 0.0,
             e31: 0.0,
             e013: 0.0,
@@ -11719,15 +11719,15 @@ impl RegressiveProduct<Bivector> for Multivector {
         Multivector {
             s: self.e01 * other.e23 + self.e02 * other.e31 + self.e12 * other.e03 + self.e03 * other.e12 + self.e31 * other.e02 + self.e23 * other.e01,
             e0: 0.0,
-            e1: -self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+            e1: self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
             e01: 0.0,
             e2: -self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
             e02: 0.0,
             e12: self.e0123 * other.e12,
             e021: 0.0,
-            e3: -self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+            e3: self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
             e03: 0.0,
-            e31: -self.e0123 * other.e31,
+            e31: self.e0123 * other.e31,
             e013: 0.0,
             e23: self.e0123 * other.e23,
             e032: 0.0,
@@ -11743,15 +11743,15 @@ impl RegressiveProduct<Trivector> for Multivector {
         Multivector {
             s: self.e0 * other.e123 + self.e1 * other.e032 + self.e2 * other.e013 + self.e3 * other.e021,
             e0: 0.0,
-            e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021,
+            e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021,
             e01: 0.0,
             e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021,
             e02: 0.0,
             e12: -self.e021 * other.e123 + self.e123 * other.e021,
             e021: 0.0,
-            e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013,
+            e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013,
             e03: 0.0,
-            e31: self.e013 * other.e123 - self.e123 * other.e013,
+            e31: -self.e013 * other.e123 + self.e123 * other.e013,
             e013: 0.0,
             e23: -self.e032 * other.e123 + self.e123 * other.e032,
             e032: 0.0,
@@ -11767,15 +11767,15 @@ impl RegressiveProduct<FourVector> for Multivector {
         Multivector {
             s: self.s * other.e0123,
             e0: 0.0,
-            e1: -self.e1 * other.e0123,
+            e1: self.e1 * other.e0123,
             e01: 0.0,
             e2: self.e2 * other.e0123,
             e02: 0.0,
             e12: self.e12 * other.e0123,
             e021: 0.0,
-            e3: -self.e3 * other.e0123,
+            e3: self.e3 * other.e0123,
             e03: 0.0,
-            e31: -self.e31 * other.e0123,
+            e31: self.e31 * other.e0123,
             e013: 0.0,
             e23: self.e23 * other.e0123,
             e032: 0.0,
@@ -11798,15 +11798,15 @@ impl RegressiveProduct<OddMultivector> for Multivector {
         Multivector {
             s: self.e0 * other.e123 + self.e1 * other.e032 + self.e2 * other.e013 - self.e021 * other.e3 + self.e3 * other.e021 - self.e013 * other.e2 - self.e032 * other.e1 - self.e123 * other.e0,
             e0: 0.0,
-            e1: -self.e01 * other.e123 + self.e12 * other.e013 - self.e31 * other.e021 - self.e0123 * other.e1,
+            e1: self.e01 * other.e123 - self.e12 * other.e013 + self.e31 * other.e021 + self.e0123 * other.e1,
             e01: 0.0,
             e2: self.e02 * other.e123 + self.e12 * other.e032 - self.e23 * other.e021 + self.e0123 * other.e2,
             e02: 0.0,
             e12: -self.e021 * other.e123 + self.e123 * other.e021,
             e021: 0.0,
-            e3: -self.e03 * other.e123 + self.e31 * other.e032 - self.e23 * other.e013 - self.e0123 * other.e3,
+            e3: self.e03 * other.e123 - self.e31 * other.e032 + self.e23 * other.e013 + self.e0123 * other.e3,
             e03: 0.0,
-            e31: self.e013 * other.e123 - self.e123 * other.e013,
+            e31: -self.e013 * other.e123 + self.e123 * other.e013,
             e013: 0.0,
             e23: -self.e032 * other.e123 + self.e123 * other.e032,
             e032: 0.0,
@@ -11822,15 +11822,15 @@ impl RegressiveProduct<EvenMultivector> for Multivector {
         Multivector {
             s: self.s * other.e0123 + self.e01 * other.e23 + self.e02 * other.e31 + self.e12 * other.e03 + self.e03 * other.e12 + self.e31 * other.e02 + self.e23 * other.e01 + self.e0123 * other.s,
             e0: 0.0,
-            e1: -self.e1 * other.e0123 - self.e021 * other.e31 + self.e013 * other.e12 - self.e123 * other.e01,
+            e1: self.e1 * other.e0123 + self.e021 * other.e31 - self.e013 * other.e12 + self.e123 * other.e01,
             e01: 0.0,
             e2: self.e2 * other.e0123 - self.e021 * other.e23 + self.e032 * other.e12 + self.e123 * other.e02,
             e02: 0.0,
             e12: self.e12 * other.e0123 + self.e0123 * other.e12,
             e021: 0.0,
-            e3: -self.e3 * other.e0123 - self.e013 * other.e23 + self.e032 * other.e31 - self.e123 * other.e03,
+            e3: self.e3 * other.e0123 + self.e013 * other.e23 - self.e032 * other.e31 + self.e123 * other.e03,
             e03: 0.0,
-            e31: -self.e31 * other.e0123 - self.e0123 * other.e31,
+            e31: self.e31 * other.e0123 + self.e0123 * other.e31,
             e013: 0.0,
             e23: self.e23 * other.e0123 + self.e0123 * other.e23,
             e032: 0.0,
@@ -11846,15 +11846,15 @@ impl RegressiveProduct<Multivector> for Multivector {
         Multivector {
             s: self.s * other.e0123 + self.e0 * other.e123 + self.e1 * other.e032 + self.e01 * other.e23 + self.e2 * other.e013 + self.e02 * other.e31 + self.e12 * other.e03 - self.e021 * other.e3 + self.e3 * other.e021 + self.e03 * other.e12 + self.e31 * other.e02 - self.e013 * other.e2 + self.e23 * other.e01 - self.e032 * other.e1 - self.e123 * other.e0 + self.e0123 * other.s,
             e0: 0.0,
-            e1: -self.e1 * other.e0123 - self.e01 * other.e123 + self.e12 * other.e013 - self.e021 * other.e31 - self.e31 * other.e021 + self.e013 * other.e12 - self.e123 * other.e01 - self.e0123 * other.e1,
+            e1: self.e1 * other.e0123 + self.e01 * other.e123 - self.e12 * other.e013 + self.e021 * other.e31 + self.e31 * other.e021 - self.e013 * other.e12 + self.e123 * other.e01 + self.e0123 * other.e1,
             e01: 0.0,
             e2: self.e2 * other.e0123 + self.e02 * other.e123 + self.e12 * other.e032 - self.e021 * other.e23 - self.e23 * other.e021 + self.e032 * other.e12 + self.e123 * other.e02 + self.e0123 * other.e2,
             e02: 0.0,
             e12: self.e12 * other.e0123 - self.e021 * other.e123 + self.e123 * other.e021 + self.e0123 * other.e12,
             e021: 0.0,
-            e3: -self.e3 * other.e0123 - self.e03 * other.e123 + self.e31 * other.e032 - self.e013 * other.e23 - self.e23 * other.e013 + self.e032 * other.e31 - self.e123 * other.e03 - self.e0123 * other.e3,
+            e3: self.e3 * other.e0123 + self.e03 * other.e123 - self.e31 * other.e032 + self.e013 * other.e23 + self.e23 * other.e013 - self.e032 * other.e31 + self.e123 * other.e03 + self.e0123 * other.e3,
             e03: 0.0,
-            e31: -self.e31 * other.e0123 + self.e013 * other.e123 - self.e123 * other.e013 - self.e0123 * other.e31,
+            e31: self.e31 * other.e0123 - self.e013 * other.e123 + self.e123 * other.e013 + self.e0123 * other.e31,
             e013: 0.0,
             e23: self.e23 * other.e0123 - self.e032 * other.e123 + self.e123 * other.e032 + self.e0123 * other.e23,
             e032: 0.0,
