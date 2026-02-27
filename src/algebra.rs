@@ -79,6 +79,30 @@ impl Blade {
     fn grade(self) -> usize {
         self.generator_bits.count_ones() as usize
     }
+
+    fn parity<const N: usize>(blades: [Blade; N]) -> Sign {
+        Sign::from_count(
+            blades
+                .iter()
+                .enumerate()
+                .flat_map(|(index, blade)| {
+                    let gray_inv = (0..)
+                        .fold_while(blade.generator_bits, |bits, base| {
+                            let shifted = bits >> (1 << base);
+                            if shifted == 0 {
+                                itertools::FoldWhile::Done(bits)
+                            } else {
+                                itertools::FoldWhile::Continue(bits ^ shifted)
+                            }
+                        })
+                        .into_inner();
+                    blades[index + 1..].iter().map(move |blade| {
+                        (gray_inv >> 1 & blade.generator_bits).count_ones() as usize
+                    })
+                })
+                .sum(),
+        )
+    }
 }
 
 #[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
@@ -590,22 +614,93 @@ const TRANSFORM: BinarySignature = Operation::Transform.binary_signature();
 const PROJECT: BinarySignature = Operation::Project.binary_signature();
 const REJECT: BinarySignature = Operation::Reject.binary_signature();
 
-struct Multinomial<const VARIABLE: usize, const DEGREE: usize> {
-    polynomials: std::collections::BTreeMap<
-        Blade,
-        std::collections::BTreeMap<[(usize, Blade); DEGREE], Coefficient>,
-    >,
+struct MultinomialConfig<const DEGREE: usize> {
+    input_blades_remap: fn(&GeometricAlgebra, Blade) -> (Sign, Blade),
+    term_filter: fn([Blade; DEGREE]) -> bool,
+    term_sign: fn([Blade; DEGREE]) -> Sign,
+    output_blade_remap: fn(&GeometricAlgebra, Blade) -> (Sign, Blade),
 }
 
-impl<const VARIABLE: usize, const DEGREE: usize>
-    FromIterator<(Blade, [(usize, Blade); DEGREE], Coefficient)> for Multinomial<VARIABLE, DEGREE>
-{
-    fn from_iter<I: IntoIterator<Item = (Blade, [(usize, Blade); DEGREE], Coefficient)>>(
-        iter: I,
-    ) -> Self {
+impl<const DEGREE: usize> Default for MultinomialConfig<DEGREE> {
+    fn default() -> Self {
         Self {
-            polynomials: iter.into_iter().fold(
-                std::collections::BTreeMap::new(),
+            input_blades_remap: |_, blade| (Sign::Pos, blade),
+            term_filter: |_| true,
+            term_sign: |_| Sign::Pos,
+            output_blade_remap: |_, blade| (Sign::Pos, blade),
+        }
+    }
+}
+
+impl<const DEGREE: usize> MultinomialConfig<DEGREE> {
+    fn body_fn<const VARIABLE: usize>(
+        self,
+        alg: &GeometricAlgebra,
+        prototype: [usize; DEGREE],
+    ) -> impl Fn(
+        <GeometricAlgebra as Ast>::Type,
+        [(
+            <GeometricAlgebra as Ast>::Param,
+            <GeometricAlgebra as Ast>::Type,
+        ); VARIABLE],
+    ) -> Expr<GeometricAlgebra> {
+        let multinomial = std::iter::repeat_n(alg.blades(), DEGREE)
+            .multi_cartesian_product()
+            .filter_map(|blades| {
+                let (input_signs, input_blades): (Vec<_>, Vec<_>) = blades
+                    .iter()
+                    .map(|&blade| (self.input_blades_remap)(alg, blade))
+                    .unzip();
+                let input_blades = input_blades.try_into().ok().unwrap();
+                (self.term_filter)(input_blades).then(|| {
+                    let (output_blade, square_product) = input_blades.into_iter().fold(
+                        (Blade::zero(), 1),
+                        |(output_blade, square_product), input_blade| {
+                            (
+                                output_blade ^ input_blade,
+                                square_product
+                                    * alg
+                                        .blade_generators(output_blade & input_blade)
+                                        .map(|generator| alg.generator_squares[generator])
+                                        .product::<Coefficient>(),
+                            )
+                        },
+                    );
+                    let (output_sign, blade) = (self.output_blade_remap)(alg, output_blade);
+                    let coeff = square_product
+                        * Coefficient::from(
+                            Blade::parity(input_blades)
+                                ^ (self.term_sign)(input_blades)
+                                ^ input_signs
+                                    .into_iter()
+                                    .fold(output_sign, std::ops::BitXor::bitxor)
+                                ^ blades
+                                    .iter()
+                                    .map(|blade| alg.blade_intrinsic_signs[blade.generator_bits])
+                                    .fold(
+                                        alg.blade_intrinsic_signs[blade.generator_bits],
+                                        std::ops::BitXor::bitxor,
+                                    ),
+                        );
+                    (
+                        blade,
+                        prototype
+                            .into_iter()
+                            .zip(blades)
+                            .sorted()
+                            .collect_vec()
+                            .try_into()
+                            .ok()
+                            .unwrap(),
+                        coeff,
+                    )
+                })
+            })
+            .fold(
+                std::collections::BTreeMap::<
+                    Blade,
+                    std::collections::BTreeMap<[(usize, Blade); DEGREE], Coefficient>,
+                >::new(),
                 |mut polynomials, (blade, multi_index, coeff)| {
                     if coeff != 0 {
                         let polynomial = polynomials.entry(blade).or_default();
@@ -627,76 +722,60 @@ impl<const VARIABLE: usize, const DEGREE: usize>
                     }
                     polynomials
                 },
-            ),
-        }
-    }
-}
+            );
 
-impl<const VARIABLE: usize, const DEGREE: usize> Multinomial<VARIABLE, DEGREE> {
-    fn blade_expr(
-        &self,
-        blade: Blade,
-        blade_expr_fn: impl Fn((usize, Blade)) -> Option<Expr<GeometricAlgebra>>,
-    ) -> Option<Expr<GeometricAlgebra>> {
-        self.polynomials.get(&blade).and_then(|polynomial| {
-            polynomial
-                .iter()
-                .filter_map(|(multi_index, coeff)| {
-                    multi_index
-                        .iter()
-                        .map(|&(variable, blade)| blade_expr_fn((variable, blade)))
-                        .collect::<Option<Vec<_>>>()
-                        .map(|exprs| (exprs.into_iter(), *coeff))
-                })
-                .fold(None, |expr_acc, (exprs, coeff)| {
-                    let coeff_abs = coeff.unsigned_abs();
-                    let literal = Expr::literal(coeff_abs);
-                    Some(match (expr_acc, coeff_abs == 1, coeff < 0) {
-                        (Some(expr_acc), false, false) => {
-                            expr_acc + exprs.fold(literal, std::ops::Mul::mul)
-                        }
-                        (Some(expr_acc), false, true) => {
-                            expr_acc - exprs.fold(literal, std::ops::Mul::mul)
-                        }
-                        (Some(expr_acc), true, false) => {
-                            expr_acc + exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
-                        }
-                        (Some(expr_acc), true, true) => {
-                            expr_acc - exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
-                        }
-                        (None, false, false) => exprs.fold(literal, std::ops::Mul::mul),
-                        (None, false, true) => exprs.fold(-literal, std::ops::Mul::mul),
-                        (None, true, false) => exprs.reduce(std::ops::Mul::mul).unwrap_or(literal),
-                        (None, true, true) => exprs
-                            .fold(None, |expr_acc, expr| {
-                                Some(match expr_acc {
-                                    Some(expr_acc) => expr_acc * expr,
-                                    None => -expr,
-                                })
-                            })
-                            .unwrap_or(-literal),
-                    })
-                })
-        })
-    }
-
-    fn body_fn(
-        self,
-        alg: &GeometricAlgebra,
-    ) -> impl Fn(
-        <GeometricAlgebra as Ast>::Type,
-        [(
-            <GeometricAlgebra as Ast>::Param,
-            <GeometricAlgebra as Ast>::Type,
-        ); VARIABLE],
-    ) -> Expr<GeometricAlgebra> {
         move |class, param_items| {
             alg.construct(class, |blade| {
-                self.blade_expr(blade, |(variable, blade)| {
-                    let (param, class) = param_items[variable];
-                    alg.access(class, blade, Expr::param(param))
-                })
-                .unwrap_or_else(|| Expr::literal(0))
+                multinomial
+                    .get(&blade)
+                    .and_then(|polynomial| {
+                        polynomial
+                            .iter()
+                            .filter_map(|(multi_index, coeff)| {
+                                multi_index
+                                    .iter()
+                                    .map(|&(variable, blade)| {
+                                        let (param, class) = param_items[variable];
+                                        alg.access(class, blade, Expr::param(param))
+                                    })
+                                    .collect::<Option<Vec<_>>>()
+                                    .map(|exprs| (exprs.into_iter(), *coeff))
+                            })
+                            .fold(None, |expr_acc, (exprs, coeff)| {
+                                let coeff_abs = coeff.unsigned_abs();
+                                let literal = Expr::literal(coeff_abs);
+                                Some(match (expr_acc, coeff_abs == 1, coeff < 0) {
+                                    (Some(expr_acc), false, false) => {
+                                        expr_acc + exprs.fold(literal, std::ops::Mul::mul)
+                                    }
+                                    (Some(expr_acc), false, true) => {
+                                        expr_acc - exprs.fold(literal, std::ops::Mul::mul)
+                                    }
+                                    (Some(expr_acc), true, false) => {
+                                        expr_acc
+                                            + exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+                                    }
+                                    (Some(expr_acc), true, true) => {
+                                        expr_acc
+                                            - exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+                                    }
+                                    (None, false, false) => exprs.fold(literal, std::ops::Mul::mul),
+                                    (None, false, true) => exprs.fold(-literal, std::ops::Mul::mul),
+                                    (None, true, false) => {
+                                        exprs.reduce(std::ops::Mul::mul).unwrap_or(literal)
+                                    }
+                                    (None, true, true) => exprs
+                                        .fold(None, |expr_acc, expr| {
+                                            Some(match expr_acc {
+                                                Some(expr_acc) => expr_acc * expr,
+                                                None => -expr,
+                                            })
+                                        })
+                                        .unwrap_or(-literal),
+                                })
+                            })
+                    })
+                    .unwrap_or_else(|| Expr::literal(0))
             })
         }
     }
@@ -745,21 +824,18 @@ impl GeometricAlgebra {
         (0..self.dim).filter(move |generator| blade.generator_bits & 1 << generator != 0)
     }
 
-    fn parity<const N: usize>(&self, blades: [Blade; N]) -> Sign {
-        Sign::from_count(
-            blades
-                .iter()
-                .enumerate()
-                .flat_map(|(index, blade)| {
-                    let gray_inv = (0..self.dim)
-                        .map(|generator| blade.generator_bits >> generator)
-                        .fold(0, std::ops::BitXor::bitxor);
-                    blades[index + 1..].iter().map(move |blade| {
-                        (gray_inv >> 1 & blade.generator_bits).count_ones() as usize
-                    })
-                })
-                .sum(),
-        )
+    fn dual_blade(&self, blade: Blade) -> (Sign, Blade) {
+        let complement_blade = Blade {
+            generator_bits: ((1 << self.dim) - 1) ^ blade.generator_bits,
+        };
+        (Blade::parity([blade, complement_blade]), complement_blade)
+    }
+
+    fn undual_blade(&self, blade: Blade) -> (Sign, Blade) {
+        let complement_blade = Blade {
+            generator_bits: ((1 << self.dim) - 1) ^ blade.generator_bits,
+        };
+        (Blade::parity([complement_blade, blade]), complement_blade)
     }
 
     fn spaces(&self) -> impl Iterator<Item = Space> {
@@ -838,90 +914,6 @@ impl GeometricAlgebra {
         }
     }
 
-    fn multinomial<const VARIABLE: usize, const DEGREE: usize>(
-        &self,
-        prototype: [usize; DEGREE],
-        input_blades_remap: impl Fn(Blade) -> (Sign, Blade),
-        term_sign: impl Fn([Blade; DEGREE]) -> Option<Sign>,
-        output_blade_remap: impl Fn(Blade) -> (Sign, Blade),
-    ) -> Multinomial<VARIABLE, DEGREE> {
-        std::iter::repeat_n(self.blades(), DEGREE)
-            .multi_cartesian_product()
-            .filter_map(|blades| {
-                let (input_signs, input_blades): (Vec<_>, Vec<_>) = blades
-                    .iter()
-                    .map(|&blade| input_blades_remap(blade))
-                    .unzip();
-                let input_blades = input_blades.try_into().ok().unwrap();
-                term_sign(input_blades).map(|term_sign| {
-                    let (output_blade, square_product) = input_blades.into_iter().fold(
-                        (Blade::zero(), 1),
-                        |(output_blade, square_product), input_blade| {
-                            (
-                                output_blade ^ input_blade,
-                                square_product
-                                    * self
-                                        .blade_generators(output_blade & input_blade)
-                                        .map(|generator| self.generator_squares[generator])
-                                        .product::<Coefficient>(),
-                            )
-                        },
-                    );
-                    let (output_sign, blade) = output_blade_remap(output_blade);
-                    let coeff = square_product
-                        * Coefficient::from(
-                            self.parity(input_blades)
-                                ^ term_sign
-                                ^ input_signs
-                                    .into_iter()
-                                    .fold(output_sign, std::ops::BitXor::bitxor)
-                                ^ blades
-                                    .iter()
-                                    .map(|blade| self.blade_intrinsic_signs[blade.generator_bits])
-                                    .fold(
-                                        self.blade_intrinsic_signs[blade.generator_bits],
-                                        std::ops::BitXor::bitxor,
-                                    ),
-                        );
-                    (
-                        blade,
-                        prototype
-                            .into_iter()
-                            .zip(blades)
-                            .sorted()
-                            .collect_vec()
-                            .try_into()
-                            .ok()
-                            .unwrap(),
-                        coeff,
-                    )
-                })
-            })
-            .collect()
-    }
-
-    fn identity_blade_remap(&self) -> impl Fn(Blade) -> (Sign, Blade) {
-        |blade| (Sign::Pos, blade)
-    }
-
-    fn dual_blade_remap(&self) -> impl Fn(Blade) -> (Sign, Blade) {
-        |blade| {
-            let complement_blade = Blade {
-                generator_bits: ((1 << self.dim) - 1) ^ blade.generator_bits,
-            };
-            (self.parity([blade, complement_blade]), complement_blade)
-        }
-    }
-
-    fn undual_blade_remap(&self) -> impl Fn(Blade) -> (Sign, Blade) {
-        |blade| {
-            let complement_blade = Blade {
-                generator_bits: ((1 << self.dim) - 1) ^ blade.generator_bits,
-            };
-            (self.parity([complement_blade, blade]), complement_blade)
-        }
-    }
-
     fn operation_implementations(
         &self,
         operation: Operation,
@@ -951,13 +943,7 @@ impl GeometricAlgebra {
             Operation::One => ONE.impl_for(
                 self,
                 |class| matches!(class, Class::Space(space) if space.contains(Blade::zero())),
-                self.multinomial(
-                    [],
-                    self.identity_blade_remap(),
-                    |[]| Some(Sign::Pos),
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig::default().body_fn(self, []),
             ),
 
             Operation::Neg => NEG.impl_for(
@@ -1179,13 +1165,11 @@ impl GeometricAlgebra {
                     [Class::Space(space_0)] => Some(Class::Space(space_0)),
                     _ => None,
                 },
-                self.multinomial(
-                    [0],
-                    self.identity_blade_remap(),
-                    |[blade_0]| Some(Sign::from_count(blade_0.grade())),
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    term_sign: |[blade_0]| Sign::from_count(blade_0.grade()),
+                    ..Default::default()
+                }
+                .body_fn(self, [0]),
             ),
 
             Operation::Reverse => REVERSE.impl_for(
@@ -1194,13 +1178,11 @@ impl GeometricAlgebra {
                     [Class::Space(space_0)] => Some(Class::Space(space_0)),
                     _ => None,
                 },
-                self.multinomial(
-                    [0],
-                    self.identity_blade_remap(),
-                    |[blade_0]| Some(Sign::from_count(blade_0.grade() >> 1)),
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    term_sign: |[blade_0]| Sign::from_count(blade_0.grade() >> 1),
+                    ..Default::default()
+                }
+                .body_fn(self, [0]),
             ),
 
             Operation::Conjugate => CONJUGATE.impl_for(
@@ -1209,13 +1191,11 @@ impl GeometricAlgebra {
                     [Class::Space(space_0)] => Some(Class::Space(space_0)),
                     _ => None,
                 },
-                self.multinomial(
-                    [0],
-                    self.identity_blade_remap(),
-                    |[blade_0]| Some(Sign::from_count((blade_0.grade() + 1) >> 1)),
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    term_sign: |[blade_0]| Sign::from_count((blade_0.grade() + 1) >> 1),
+                    ..Default::default()
+                }
+                .body_fn(self, [0]),
             ),
 
             Operation::Dual => DUAL.impl_for(
@@ -1224,13 +1204,11 @@ impl GeometricAlgebra {
                     [Class::Space(space_0)] => Some(Class::Space(self.dual_space(space_0))),
                     _ => None,
                 },
-                self.multinomial(
-                    [0],
-                    self.identity_blade_remap(),
-                    |_| Some(Sign::Pos),
-                    self.dual_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    output_blade_remap: Self::dual_blade,
+                    ..Default::default()
+                }
+                .body_fn(self, [0]),
             ),
 
             Operation::Undual => UNDUAL.impl_for(
@@ -1239,13 +1217,11 @@ impl GeometricAlgebra {
                     [Class::Space(space_0)] => Some(Class::Space(self.dual_space(space_0))),
                     _ => None,
                 },
-                self.multinomial(
-                    [0],
-                    self.identity_blade_remap(),
-                    |_| Some(Sign::Pos),
-                    self.undual_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    output_blade_remap: Self::undual_blade,
+                    ..Default::default()
+                }
+                .body_fn(self, [0]),
             ),
 
             Operation::NormSquared => NORM_SQUARED.impl_for(
@@ -1254,15 +1230,12 @@ impl GeometricAlgebra {
                     [Class::Space(_)] => Some(Class::Base),
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 0],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1]| {
-                        (blade_0 == blade_1).then_some(Sign::from_count(blade_1.grade() >> 1))
-                    },
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1]| blade_0 == blade_1,
+                    term_sign: |[_, blade_1]| Sign::from_count(blade_1.grade() >> 1),
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 0]),
             ),
 
             Operation::Norm => NORM.impl_for(
@@ -1317,13 +1290,7 @@ impl GeometricAlgebra {
                     }
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1],
-                    self.identity_blade_remap(),
-                    |_| Some(Sign::Pos),
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig::default().body_fn(self, [0, 1]),
             ),
 
             Operation::ScalarProduct => SCALAR_PRODUCT.impl_for(
@@ -1332,13 +1299,11 @@ impl GeometricAlgebra {
                     [Class::Space(_), Class::Space(_)] => Some(Class::Base),
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1]| (blade_0 == blade_1).then_some(Sign::Pos),
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1]| blade_0 == blade_1,
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1]),
             ),
 
             Operation::LeftInnerProduct => LEFT_INNER_PRODUCT.impl_for(
@@ -1353,13 +1318,11 @@ impl GeometricAlgebra {
                     }
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1]| (blade_0 & blade_1 == blade_0).then_some(Sign::Pos),
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1]| blade_0 & blade_1 == blade_0,
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1]),
             ),
 
             Operation::RightInnerProduct => RIGHT_INNER_PRODUCT.impl_for(
@@ -1374,13 +1337,11 @@ impl GeometricAlgebra {
                     }
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1]| (blade_0 & blade_1 == blade_1).then_some(Sign::Pos),
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1]| blade_0 & blade_1 == blade_1,
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1]),
             ),
 
             Operation::InnerProduct => INNER_PRODUCT.impl_for(
@@ -1395,16 +1356,13 @@ impl GeometricAlgebra {
                     }
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1]| {
-                        (blade_0 & blade_1 == blade_0 || blade_0 & blade_1 == blade_1)
-                            .then_some(Sign::Pos)
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1]| {
+                        blade_0 & blade_1 == blade_0 || blade_0 & blade_1 == blade_1
                     },
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1]),
             ),
 
             Operation::OuterProduct => OUTER_PRODUCT.impl_for(
@@ -1421,13 +1379,11 @@ impl GeometricAlgebra {
                     }
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1]| (blade_0 & blade_1 == Blade::zero()).then_some(Sign::Pos),
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1]| blade_0 & blade_1 == Blade::zero(),
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1]),
             ),
 
             Operation::RegressiveProduct => REGRESSIVE_PRODUCT.impl_for(
@@ -1444,13 +1400,13 @@ impl GeometricAlgebra {
                     )),
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1],
-                    self.dual_blade_remap(),
-                    |[blade_0, blade_1]| (blade_0 & blade_1 == Blade::zero()).then_some(Sign::Pos),
-                    self.undual_blade_remap(),
-                )
-                .body_fn(self),
+                MultinomialConfig {
+                    input_blades_remap: Self::dual_blade,
+                    term_filter: |[blade_0, blade_1]| blade_0 & blade_1 == Blade::zero(),
+                    output_blade_remap: Self::undual_blade,
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1]),
             ),
 
             Operation::Commutator => COMMUTATOR.impl_for(
@@ -1461,16 +1417,13 @@ impl GeometricAlgebra {
                     }
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1]| {
-                        (self.parity([blade_0, blade_1]) != self.parity([blade_1, blade_0]))
-                            .then_some(Sign::Pos)
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1]| {
+                        Blade::parity([blade_0, blade_1]) != Blade::parity([blade_1, blade_0])
                     },
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1]),
             ),
 
             Operation::Anticommutator => ANTICOMMUTATOR.impl_for(
@@ -1481,16 +1434,13 @@ impl GeometricAlgebra {
                     }
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1]| {
-                        (self.parity([blade_0, blade_1]) == self.parity([blade_1, blade_0]))
-                            .then_some(Sign::Pos)
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1]| {
+                        Blade::parity([blade_0, blade_1]) == Blade::parity([blade_1, blade_0])
                     },
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1]),
             ),
 
             Operation::Transform => TRANSFORM.impl_for(
@@ -1499,19 +1449,18 @@ impl GeometricAlgebra {
                     [Class::Space(space_0), Class::Space(_)] => Some(Class::Space(space_0)),
                     _ => None,
                 },
-                self.multinomial(
-                    [1, 0, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1, blade_2]| {
-                        ((blade_0 ^ blade_1 ^ blade_2).grade() == blade_1.grade()).then(|| {
-                            Sign::from_count(blade_0.grade())
-                                ^ Sign::from_count(blade_1.grade())
-                                ^ Sign::from_count(blade_2.grade() >> 1)
-                        })
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1, blade_2]| {
+                        (blade_0 ^ blade_1 ^ blade_2).grade() == blade_1.grade()
                     },
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                    term_sign: |[blade_0, blade_1, blade_2]| {
+                        Sign::from_count(blade_0.grade())
+                            ^ Sign::from_count(blade_1.grade())
+                            ^ Sign::from_count(blade_2.grade() >> 1)
+                    },
+                    ..Default::default()
+                }
+                .body_fn(self, [1, 0, 1]),
             ),
 
             Operation::Project => PROJECT.impl_for(
@@ -1526,22 +1475,20 @@ impl GeometricAlgebra {
                     }
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1, blade_2]| {
-                        (blade_0 & blade_1 == blade_0
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1, blade_2]| {
+                        blade_0 & blade_1 == blade_0
                             && (blade_0 ^ blade_1) & blade_2 == blade_0 ^ blade_1
-                            && (blade_0 ^ blade_1 ^ blade_2).grade() == blade_0.grade())
-                        .then(|| {
-                            Sign::from_count(blade_0.grade())
-                                ^ Sign::from_count(blade_1.grade())
-                                ^ Sign::from_count(blade_2.grade() >> 1)
-                        })
+                            && (blade_0 ^ blade_1 ^ blade_2).grade() == blade_0.grade()
                     },
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                    term_sign: |[blade_0, blade_1, blade_2]| {
+                        Sign::from_count(blade_0.grade())
+                            ^ Sign::from_count(blade_1.grade())
+                            ^ Sign::from_count(blade_2.grade() >> 1)
+                    },
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1, 1]),
             ),
 
             Operation::Reject => REJECT.impl_for(
@@ -1556,22 +1503,20 @@ impl GeometricAlgebra {
                     }
                     _ => None,
                 },
-                self.multinomial(
-                    [0, 1, 1],
-                    self.identity_blade_remap(),
-                    |[blade_0, blade_1, blade_2]| {
-                        (blade_0 & blade_1 == Blade::zero()
+                MultinomialConfig {
+                    term_filter: |[blade_0, blade_1, blade_2]| {
+                        blade_0 & blade_1 == Blade::zero()
                             && (blade_0 ^ blade_1) & blade_2 == blade_2
-                            && (blade_0 ^ blade_1 ^ blade_2).grade() == blade_0.grade())
-                        .then(|| {
-                            Sign::from_count(blade_0.grade())
-                                ^ Sign::from_count(blade_1.grade())
-                                ^ Sign::from_count(blade_2.grade() >> 1)
-                        })
+                            && (blade_0 ^ blade_1 ^ blade_2).grade() == blade_0.grade()
                     },
-                    self.identity_blade_remap(),
-                )
-                .body_fn(self),
+                    term_sign: |[blade_0, blade_1, blade_2]| {
+                        Sign::from_count(blade_0.grade())
+                            ^ Sign::from_count(blade_1.grade())
+                            ^ Sign::from_count(blade_2.grade() >> 1)
+                    },
+                    ..Default::default()
+                }
+                .body_fn(self, [0, 1, 1]),
             ),
         }
     }
