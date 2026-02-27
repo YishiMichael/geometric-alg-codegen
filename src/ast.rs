@@ -2,7 +2,7 @@ pub trait Ast: Sized {
     type Type: Clone;
     type Template: Clone;
     type Field: Clone;
-    type Operation: Clone;
+    type Operation: Clone + OperationName;
     type Generic: Clone + std::fmt::Display;
     type Associate: Clone + std::fmt::Display;
     type Param: Clone + std::fmt::Display;
@@ -19,12 +19,16 @@ pub trait Ast: Sized {
     }
 }
 
+pub trait OperationName {
+    fn trait_name(&self) -> &str;
+    fn fn_name(&self) -> &str;
+    fn is_builtin(&self) -> bool;
+}
+
 pub trait Stringifier<A: Ast> {
     fn stringify_type(&self, r#type: &A::Type) -> &str;
     fn stringify_template(&self, template: &A::Template) -> &str;
     fn stringify_field(&self, field: &A::Field) -> &str;
-    fn stringify_operation_trait(&self, operation: &A::Operation) -> &str;
-    fn stringify_operation_fn(&self, operation: &A::Operation) -> &str;
 }
 
 #[derive(Clone, Copy)]
@@ -91,17 +95,20 @@ pub struct TemplateSignature<A: Ast> {
 }
 
 impl<A: Ast> TemplateSignature<A> {
-    pub fn structure(&self, fields: impl Iterator<Item = Item<A::Field, A::Type>>) -> Structure<A> {
+    pub fn structure(
+        &self,
+        fields: impl IntoIterator<Item = Item<A::Field, A::Type>>,
+    ) -> Structure<A> {
         Structure {
             template: self.template.clone(),
-            fields: fields.collect(),
+            fields: fields.into_iter().collect(),
         }
     }
 
-    pub fn construct(&self, fields: impl Iterator<Item = Item<A::Field, Expr<A>>>) -> Expr<A> {
+    pub fn construct(&self, fields: impl IntoIterator<Item = Item<A::Field, Expr<A>>>) -> Expr<A> {
         ExprRepr::Struct {
             template: self.template.clone(),
-            fields: fields.collect(),
+            fields: fields.into_iter().collect(),
         }
         .into()
     }
@@ -141,12 +148,12 @@ impl<
         const RETURN: usize,
     > OperationSignature<A, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
 {
-    pub fn implementation<Body>(
+    fn implementation<Body>(
         &self,
         self_type: A::Type,
         generic_types: [A::Type; GENERICS],
         associate_types: [A::Type; ASSOCIATES],
-        implementor: impl FnOnce([A::Param; SELF], [A::Param; PARAMS]) -> Body,
+        body_fn: impl FnOnce([A::Param; SELF], [A::Param; PARAMS]) -> Body,
     ) -> Implementation<A>
     where
         Body: Into<ImplementationBody<A>>,
@@ -207,7 +214,7 @@ impl<
                 .zip(associate_types)
                 .map(|(key, value)| Item { key, value })
                 .collect(),
-            body: implementor(
+            body: body_fn(
                 self.self_param_item.each_ref().map(
                     |Item {
                          key: self_param,
@@ -224,31 +231,70 @@ impl<
             .into(),
         }
     }
-}
 
-impl<A: Ast, const ASSOCIATES: usize> OperationSignature<A, 0, ASSOCIATES, 1, 0, 1> {
-    pub fn call_builtin(&self, self_expr: Expr<A>) -> Expr<A> {
-        ExprRepr::CallBuiltin {
-            operation: self.operation.clone(),
-            self_expr,
-        }
-        .into()
+    pub fn implementations<SelfTypeIter, GenericTypesIter, Body>(
+        &self,
+        self_type: SelfTypeIter,
+        generic_types: impl Fn(A::Type) -> GenericTypesIter,
+        associate_types: impl Fn(A::Type, [A::Type; GENERICS]) -> Option<[A::Type; ASSOCIATES]>,
+        body_fn: impl Fn(
+            A::Type,
+            [A::Type; GENERICS],
+            [A::Type; ASSOCIATES],
+            [A::Param; SELF],
+            [A::Param; PARAMS],
+        ) -> Body,
+    ) -> Vec<Implementation<A>>
+    where
+        SelfTypeIter: IntoIterator<Item = A::Type>,
+        GenericTypesIter: IntoIterator<Item = [A::Type; GENERICS]>,
+        Body: Into<ImplementationBody<A>>,
+    {
+        self_type
+            .into_iter()
+            .flat_map(|ref self_type| {
+                generic_types(self_type.clone())
+                    .into_iter()
+                    .filter_map(|ref generic_types| {
+                        associate_types(self_type.clone(), generic_types.clone()).map(
+                            |ref associate_types| {
+                                self.implementation(
+                                    self_type.clone(),
+                                    generic_types.clone(),
+                                    associate_types.clone(),
+                                    |self_param, params| {
+                                        body_fn(
+                                            self_type.clone(),
+                                            generic_types.clone(),
+                                            associate_types.clone(),
+                                            self_param,
+                                            params,
+                                        )
+                                    },
+                                )
+                            },
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .collect()
     }
 }
 
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 0, PARAMS, 1>
 {
-    pub fn call(
+    pub fn call_expr(
         &self,
         self_type: A::Type,
         generic_types: [A::Type; GENERICS],
         param_exprs: [Expr<A>; PARAMS],
     ) -> Expr<A> {
-        ExprRepr::CallFunction {
+        ExprRepr::Call {
             operation: self.operation.clone(),
             self_type,
             generic_types: Vec::from(generic_types),
+            self_expr: None,
             param_exprs: Vec::from(param_exprs),
         }
         .into()
@@ -258,19 +304,42 @@ impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 1, PARAMS, 1>
 {
-    pub fn call(
+    pub fn call_expr(
         &self,
         self_type: A::Type,
         generic_types: [A::Type; GENERICS],
         self_expr: Expr<A>,
         param_exprs: [Expr<A>; PARAMS],
     ) -> Expr<A> {
-        ExprRepr::CallMethod {
+        ExprRepr::Call {
             operation: self.operation.clone(),
             self_type,
             generic_types: Vec::from(generic_types),
-            self_expr,
+            self_expr: Some(self_expr),
             param_exprs: Vec::from(param_exprs),
+        }
+        .into()
+    }
+}
+
+impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
+    OperationSignature<A, GENERICS, ASSOCIATES, 0, PARAMS, 0>
+{
+    pub fn call_stmt(
+        &self,
+        self_type: A::Type,
+        generic_types: [A::Type; GENERICS],
+        param_exprs: [Expr<A>; PARAMS],
+    ) -> Stmt<A> {
+        StmtRepr::Expr {
+            expr: ExprRepr::Call {
+                operation: self.operation.clone(),
+                self_type,
+                generic_types: Vec::from(generic_types),
+                self_expr: None,
+                param_exprs: Vec::from(param_exprs),
+            }
+            .into(),
         }
         .into()
     }
@@ -279,7 +348,7 @@ impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 1, PARAMS, 0>
 {
-    pub fn call(
+    pub fn call_stmt(
         &self,
         self_type: A::Type,
         generic_types: [A::Type; GENERICS],
@@ -287,11 +356,11 @@ impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize
         param_exprs: [Expr<A>; PARAMS],
     ) -> Stmt<A> {
         StmtRepr::Expr {
-            expr: ExprRepr::CallMethod {
+            expr: ExprRepr::Call {
                 operation: self.operation.clone(),
                 self_type,
                 generic_types: Vec::from(generic_types),
-                self_expr,
+                self_expr: Some(self_expr),
                 param_exprs: Vec::from(param_exprs),
             }
             .into(),
@@ -346,21 +415,14 @@ pub enum ExprRepr<A: Ast> {
         expr: Expr<A>,
         field: A::Field,
     },
-    CallBuiltin {
-        operation: A::Operation,
-        self_expr: Expr<A>,
+    Deref {
+        expr: Expr<A>,
     },
-    CallFunction {
+    Call {
         operation: A::Operation,
         self_type: A::Type,
         generic_types: Vec<A::Type>,
-        param_exprs: Vec<Expr<A>>,
-    },
-    CallMethod {
-        operation: A::Operation,
-        self_type: A::Type,
-        generic_types: Vec<A::Type>,
-        self_expr: Expr<A>,
+        self_expr: Option<Expr<A>>,
         param_exprs: Vec<Expr<A>>,
     },
     Neg {
@@ -403,6 +465,10 @@ impl<A: Ast> Expr<A> {
 
     pub fn literal(value: A::Literal) -> Self {
         ExprRepr::Literal { value }.into()
+    }
+
+    pub fn deref(self) -> Self {
+        ExprRepr::Deref { expr: self }.into()
     }
 }
 

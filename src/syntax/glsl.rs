@@ -1,4 +1,6 @@
-use crate::ast::{Ast, Expr, ExprRepr, Implementation, Item, Ownership, Stmt, StmtRepr, Structure};
+use crate::ast::{
+    Ast, Expr, ExprRepr, Implementation, Item, OperationName, Ownership, Stmt, StmtRepr, Structure,
+};
 use crate::syntax::{Stringifier, Syntax, Writer};
 use itertools::{Itertools, Position};
 
@@ -78,7 +80,7 @@ impl Syntax for GLSLLang {
                 .map(|return_type| stringifier.stringify_type(return_type))
                 .unwrap_or("void"),
             mangled_fn = mangle(
-                stringifier.stringify_operation_fn(operation),
+                operation,
                 stringifier.stringify_type(self_type),
                 generic_items.iter().map(
                     |Item {
@@ -183,44 +185,10 @@ impl Syntax for GLSLLang {
                     field = stringifier.stringify_field(field)
                 )?;
             }
-            ExprRepr::CallBuiltin {
-                operation,
-                self_expr,
-            } => {
-                write!(
-                    writer.buffer(),
-                    "{operation_fn}(",
-                    operation_fn = stringifier.stringify_operation_fn(operation),
-                )?;
-                self.emit_expr(writer, stringifier, self_expr)?;
-                write!(writer.buffer(), ")")?;
+            ExprRepr::Deref { expr } => {
+                self.emit_expr(writer, stringifier, expr)?;
             }
-            ExprRepr::CallFunction {
-                operation,
-                self_type,
-                generic_types,
-                param_exprs,
-            } => {
-                write!(
-                    writer.buffer(),
-                    "{mangled_fn}(",
-                    mangled_fn = mangle(
-                        stringifier.stringify_operation_fn(operation),
-                        stringifier.stringify_type(self_type),
-                        generic_types
-                            .iter()
-                            .map(|generic_type| stringifier.stringify_type(generic_type)),
-                    ),
-                )?;
-                for (position, param_expr) in param_exprs.iter().with_position() {
-                    self.emit_expr(writer, stringifier, param_expr)?;
-                    if matches!(position, Position::First | Position::Middle) {
-                        write!(writer.buffer(), ", ")?;
-                    }
-                }
-                write!(writer.buffer(), ")")?;
-            }
-            ExprRepr::CallMethod {
+            ExprRepr::Call {
                 operation,
                 self_type,
                 generic_types,
@@ -231,17 +199,14 @@ impl Syntax for GLSLLang {
                     writer.buffer(),
                     "{mangled_fn}(",
                     mangled_fn = mangle(
-                        stringifier.stringify_operation_fn(operation),
+                        operation,
                         stringifier.stringify_type(self_type),
                         generic_types
                             .iter()
                             .map(|generic_type| stringifier.stringify_type(generic_type)),
                     ),
                 )?;
-                for (position, param_expr) in std::iter::once(self_expr)
-                    .chain(param_exprs)
-                    .with_position()
-                {
+                for (position, param_expr) in self_expr.iter().chain(param_exprs).with_position() {
                     self.emit_expr(writer, stringifier, param_expr)?;
                     if matches!(position, Position::First | Position::Middle) {
                         write!(writer.buffer(), ", ")?;
@@ -318,13 +283,17 @@ impl Syntax for GLSLLang {
 }
 
 fn mangle<'s>(
-    operation_fn: &'s str,
+    operation: &'s impl OperationName,
     self_type: &'s str,
     generic_types: impl IntoIterator<Item = &'s str>,
 ) -> String {
-    [self_type, operation_fn]
-        .into_iter()
-        .chain(generic_types)
-        .join("_")
-        .to_lowercase()
+    if operation.is_builtin() {
+        operation.fn_name().to_lowercase()
+    } else {
+        [self_type, operation.fn_name()]
+            .into_iter()
+            .chain(generic_types)
+            .join("_")
+            .to_lowercase()
+    }
 }
