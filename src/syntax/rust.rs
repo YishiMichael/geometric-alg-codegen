@@ -14,7 +14,9 @@ impl Syntax for RustLang {
             env!("CARGO_PKG_NAME"),
         )?;
         writer.newline()?;
+        writer.newline()?;
         write!(writer.buffer(), "#![allow(unused_variables)]")?;
+        writer.newline()?;
         writer.newline()?;
         write!(writer.buffer(), "use crate::traits::*;")?;
         writer.newline()?;

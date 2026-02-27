@@ -88,13 +88,6 @@ enum Space {
 }
 
 impl Space {
-    fn null() -> Self {
-        Self::Mixed {
-            even: false,
-            odd: false,
-        }
-    }
-
     fn contains(self, blade: Blade) -> bool {
         match self {
             Self::Homogeneous { grade } => blade.grade() == grade,
@@ -121,63 +114,44 @@ impl Space {
         }
     }
 
-    fn sum_space<const N: usize>(spaces: [Self; N]) -> Self {
-        if let Ok(space) = spaces.into_iter().all_equal_value() {
-            space
+    fn add(self, other: Self) -> Self {
+        if self == other {
+            self
         } else {
             Self::Mixed {
-                even: spaces.into_iter().any(|space| space.contains_even_grade()),
-                odd: spaces.into_iter().any(|space| space.contains_odd_grade()),
+                even: self.contains_even_grade() || other.contains_even_grade(),
+                odd: self.contains_odd_grade() || other.contains_odd_grade(),
             }
         }
     }
 
-    fn product_space<const N: usize>(spaces: [Self; N]) -> Self {
+    fn mul(self, other: Self) -> Self {
         Self::Mixed {
-            even: std::iter::repeat_n([false, true], N)
-                .multi_cartesian_product()
-                .filter(|oddnesses| oddnesses.iter().fold(false, std::ops::BitXor::bitxor))
-                .any(|oddnesses| {
-                    oddnesses.iter().enumerate().all(|(index, &oddness)| {
-                        if oddness {
-                            spaces[index].contains_odd_grade()
-                        } else {
-                            spaces[index].contains_even_grade()
-                        }
-                    })
-                }),
-            odd: std::iter::repeat_n([false, true], N)
-                .multi_cartesian_product()
-                .filter(|oddnesses| oddnesses.iter().fold(true, std::ops::BitXor::bitxor))
-                .any(|oddnesses| {
-                    oddnesses.iter().enumerate().all(|(index, &oddness)| {
-                        if oddness {
-                            spaces[index].contains_odd_grade()
-                        } else {
-                            spaces[index].contains_even_grade()
-                        }
-                    })
-                }),
+            even: self.contains_even_grade() && other.contains_even_grade()
+                || self.contains_odd_grade() && other.contains_odd_grade(),
+            odd: self.contains_even_grade() && other.contains_odd_grade()
+                || self.contains_odd_grade() && other.contains_even_grade(),
         }
     }
 
-    fn homogeneous_space<const N: usize>(
-        spaces: [Self; N],
-        homogeneous_fn: impl Fn([usize; N]) -> Option<usize>,
-    ) -> Option<Self> {
-        spaces
-            .map(|space| match space {
-                Self::Homogeneous { grade } => Some(grade),
-                _ => None,
-            })
-            .into_iter()
-            .collect::<Option<Vec<_>>>()
-            .map(
-                |grades| match homogeneous_fn(grades.try_into().ok().unwrap()) {
+    fn zip_homogeneous(
+        self,
+        other: Self,
+        homogeneous_fn: impl FnOnce(usize, usize) -> Option<usize>,
+        inhomogeneous_fn: impl FnOnce(Self, Self) -> Self,
+    ) -> Self {
+        match (self, other) {
+            (Self::Homogeneous { grade: grade_0 }, Self::Homogeneous { grade: grade_1 }) => {
+                match homogeneous_fn(grade_0, grade_1) {
                     Some(grade) => Self::Homogeneous { grade },
-                    None => Self::null(),
-                },
-            )
+                    None => Self::Mixed {
+                        even: false,
+                        odd: false,
+                    },
+                }
+            }
+            (space_0, space_1) => inhomogeneous_fn(space_0, space_1),
+        }
     }
 }
 
@@ -186,27 +160,6 @@ enum Class {
     Base,
     Space(Space),
 }
-
-// impl Class {
-//     fn product_space(self, other: Self) -> Self {
-//         fn contains_even_grade(space: Space) -> bool {
-//             matches!(space, Space::Homogeneous {grade} if grade & 1 == 0)
-//                 || matches!(space, Space::Mixed { even: true, odd: _ })
-//         }
-
-//         fn contains_odd_grade(space: Space) -> bool {
-//             matches!(space, Space::Homogeneous {grade} if grade & 1 == 1)
-//                 || matches!(space, Space::Mixed { even: _, odd: true })
-//         }
-
-//         Self::Mixed {
-//             even: contains_even_grade(self) && contains_even_grade(other)
-//                 || contains_odd_grade(self) && contains_odd_grade(other),
-//             odd: contains_even_grade(self) && contains_odd_grade(other)
-//                 || contains_odd_grade(self) && contains_even_grade(other),
-//         }
-//     }
-// }
 
 type NullaryConstructorSignature = OperationSignature<GeometricAlgebra, 0, 0, 0, 0, 1>;
 type UnaryConstructorSignature = OperationSignature<GeometricAlgebra, 1, 0, 0, 1, 1>;
@@ -420,25 +373,6 @@ impl BinaryInplaceSignature {
         self.call_stmt(class_0, [class_1], expr_0, [expr_1])
     }
 }
-
-// impl NullaryConstructorSignature {
-//     fn impl_for<Body>(
-//         &self,
-//         dim: usize,
-//         associate_types: impl Fn([Class; 1]) -> Option<[Class; 0]>,
-//         body_fn: impl Fn([Class; 1], [<GeometricAlgebra as Ast>::Param; 0]) -> Body,
-//     ) -> Vec<Implementation<GeometricAlgebra>>
-//     where
-//         Body: Into<ImplementationBody<GeometricAlgebra>>,
-//     {
-//         self.implementations(
-//             Class::iter(dim),
-//             |_| [],
-//             |self_class, []| associate_types([self_class]),
-//             |self_class, [], [], [], []| body_fn([self_class], []),
-//         )
-//     }
-// }
 
 #[derive(Clone, Copy, EnumIter, EnumProperty)]
 enum Operation {
@@ -710,10 +644,7 @@ impl<const VARIABLE: usize, const DEGREE: usize> Multinomial<VARIABLE, DEGREE> {
                 .filter_map(|(multi_index, coeff)| {
                     multi_index
                         .iter()
-                        .map(|&(variable, blade)| {
-                            blade_expr_fn((variable, blade))
-                            // classes[index].access(Expr::param(params[index]), blade)
-                        })
+                        .map(|&(variable, blade)| blade_expr_fn((variable, blade)))
                         .collect::<Option<Vec<_>>>()
                         .map(|exprs| (exprs.into_iter(), *coeff))
                 })
@@ -805,7 +736,9 @@ impl Ast for GeometricAlgebra {
 
 impl GeometricAlgebra {
     fn blades(&self) -> impl Iterator<Item = Blade> + Clone {
-        (0..1 << self.dim).map(|generator_bits| Blade { generator_bits })
+        (0..1 << self.dim)
+            .map(|generator_bits| Blade { generator_bits })
+            .sorted_by_key(|blade| blade.grade())
     }
 
     fn blade_generators(&self, blade: Blade) -> impl Iterator<Item = usize> {
@@ -905,24 +838,6 @@ impl GeometricAlgebra {
         }
     }
 
-    // fn construct(
-    //     self,
-    //     field: impl Fn(Blade) -> Expr<GeometricAlgebra>,
-    // ) -> Expr<GeometricAlgebra> {
-
-    // }
-
-    // fn access(
-    //     self,
-    //     expr: Expr<GeometricAlgebra>,
-    //     blade: Blade,
-    // ) -> Option<Expr<GeometricAlgebra>> {
-    //     self.contains(blade)
-    //         .then(|| TemplateSignature { template: self }.access(expr, blade))
-    // }
-
-    // fn multinomial_filter_metric
-
     fn multinomial<const VARIABLE: usize, const DEGREE: usize>(
         &self,
         prototype: [usize; DEGREE],
@@ -932,7 +847,6 @@ impl GeometricAlgebra {
     ) -> Multinomial<VARIABLE, DEGREE> {
         std::iter::repeat_n(self.blades(), DEGREE)
             .multi_cartesian_product()
-            // .map(|blades| -> [Blade; DEGREE] { blades.try_into().ok().unwrap() })
             .filter_map(|blades| {
                 let (input_signs, input_blades): (Vec<_>, Vec<_>) = blades
                     .iter()
@@ -940,48 +854,19 @@ impl GeometricAlgebra {
                     .unzip();
                 let input_blades = input_blades.try_into().ok().unwrap();
                 term_sign(input_blades).map(|term_sign| {
-                    // let multi_index: [_; DEGREE] = prototype
-                    //     .into_iter()
-                    //     .zip(blades)
-                    //     .sorted()
-                    //     .collect_vec()
-                    //     .try_into()
-                    //     .ok()
-                    //     .unwrap();
-                    // let input_sign = input_signs
-                    //     .into_iter()
-                    //     .chain(input_blades.iter().map(|input_blade| {
-                    //         self.blade_intrinsic_signs[input_blade.generator_bits]
-                    //     }))
-                    //     .fold(
-                    //         self.parity(input_blades.try_into().ok().unwrap()),
-                    //         std::ops::BitXor::bitxor,
-                    //     );
-                    let (output_blade, square_product) = input_blades
-                        .into_iter()
-                        // .map(|input_blade| {
-                        //     let (input_sign, input_blade) = input_blades_remap[index](blade);
-                        //     (
-                        //         Coefficient::from(
-                        //             input_sign
-                        //                 ^ self.blade_intrinsic_signs[input_blade.generator_bits],
-                        //         ),
-                        //         input_blade,
-                        //     )
-                        // })
-                        .fold(
-                            (Blade::zero(), 1),
-                            |(output_blade, square_product), input_blade| {
-                                (
-                                    output_blade ^ input_blade,
-                                    square_product
-                                        * self
-                                            .blade_generators(output_blade & input_blade)
-                                            .map(|generator| self.generator_squares[generator])
-                                            .product::<Coefficient>(),
-                                )
-                            },
-                        );
+                    let (output_blade, square_product) = input_blades.into_iter().fold(
+                        (Blade::zero(), 1),
+                        |(output_blade, square_product), input_blade| {
+                            (
+                                output_blade ^ input_blade,
+                                square_product
+                                    * self
+                                        .blade_generators(output_blade & input_blade)
+                                        .map(|generator| self.generator_squares[generator])
+                                        .product::<Coefficient>(),
+                            )
+                        },
+                    );
                     let (output_sign, blade) = output_blade_remap(output_blade);
                     let coeff = square_product
                         * Coefficient::from(
@@ -1037,272 +922,6 @@ impl GeometricAlgebra {
         }
     }
 
-    // fn dual(self) -> Self {
-    //     Self {
-    //         alg: self.alg,
-    //         polynomials: self
-    //             .polynomials
-    //             .into_iter()
-    //             .map(|(blade, polynomial)| (blade.dual_blade(self.alg.dim), polynomial)) // TODO: change sign by blade.parity(!blade) ?
-    //             .collect(),
-    //     }
-    // }
-
-    // fn unary_operator_implementations(
-    //     &self,
-    //     signature: &UnarySignature,
-    //     op: fn(Expr<GeometricAlgebra>) -> Expr<GeometricAlgebra>,
-    // ) -> Vec<Implementation<GeometricAlgebra>> {
-    //     Space::spaces(self.dim)
-    //         .map(|space_0| {
-    //             signature.implementation(
-    //                 Class::Space(space_0),
-    //                 [],
-    //                 [Class::Space(space_0)],
-    //                 |[param_0], []| {
-    //                     space_0.construct(self.dim, |blade| {
-    //                         op(space_0.access(Expr::param(param_0), blade))
-    //                     })
-    //                 },
-    //             )
-    //         })
-    //         .collect()
-    // }
-
-    // fn binary_operator_implementations(
-    //     &self,
-    //     signature: &BinarySignature,
-    //     op: fn(Expr<GeometricAlgebra>, Expr<GeometricAlgebra>) -> Expr<GeometricAlgebra>,
-    // ) -> Vec<Implementation<GeometricAlgebra>> {
-    //     signature.implementations(
-    //         Space::spaces(self.dim).map(|space| (Class::Space(space), [])),
-    //         |&class_0, &[]| match class_0 {
-    //             Class::Space(space_0) => [class_fn([space_0])],
-    //             _ => unreachable!(),
-    //         },
-    //         |&class_0, &[], &[class], [param_0], []| {
-    //             class.construct(self.dim, |blade| {
-    //                 multinomial.blade_expr(
-    //                     blade,
-    //                     [Box::new(move |blade_0| {
-    //                         class_0.access(Expr::param(param_0), blade_0)
-    //                     })],
-    //                 )
-    //             })
-    //         },
-    //     )
-    //     // Space::iter(self.dim)
-    //     //     .map(|space| {
-    //     //         signature.implementation(
-    //     //             Class::Space(space),
-    //     //             [Class::Space(space)],
-    //     //             [Class::Space(space)],
-    //     //             |[param_0], [param_1]| {
-    //     //                 space.construct(self.dim, |blade| {
-    //     //                     op(
-    //     //                         space.access(Expr::param(param_0), blade),
-    //     //                         space.access(Expr::param(param_1), blade),
-    //     //                     )
-    //     //                 })
-    //     //             },
-    //     //         )
-    //     //     })
-    //     //     .chain(Space::iter(self.dim).map(|space| {
-    //     //         signature.implementation(
-    //     //             Class::Space(space),
-    //     //             [Class::Base],
-    //     //             [Class::Space(space)],
-    //     //             |[param_0], [param_1]| {
-    //     //                 space.construct(self.dim, |blade| {
-    //     //                     op(
-    //     //                         space.access(Expr::param(param_0), blade),
-    //     //                         Expr::param(param_1),
-    //     //                     )
-    //     //                 })
-    //     //             },
-    //     //         )
-    //     //     }))
-    //     //     .chain(Space::iter(self.dim).map(|space| {
-    //     //         signature.implementation(
-    //     //             Class::Base,
-    //     //             [Class::Space(space)],
-    //     //             [Class::Space(space)],
-    //     //             |[param_0], [param_1]| {
-    //     //                 space.construct(self.dim, |blade| {
-    //     //                     op(
-    //     //                         Expr::param(param_0),
-    //     //                         space.access(Expr::param(param_1), blade),
-    //     //                     )
-    //     //                 })
-    //     //             },
-    //     //         )
-    //     //     }))
-    //     //     .collect()
-    // }
-
-    // fn binary_inplace_operator_implementations(
-    //     &self,
-    //     signature: &BinaryInplaceSignature,
-    //     op: fn(Expr<GeometricAlgebra>, Expr<GeometricAlgebra>) -> Stmt<GeometricAlgebra>,
-    // ) -> Vec<Implementation<GeometricAlgebra>> {
-    //     Space::spaces(self.dim)
-    //         .map(|space| {
-    //             signature.implementation(
-    //                 Class::Space(space),
-    //                 [Class::Space(space)],
-    //                 [],
-    //                 |[param_0], [param_1]| {
-    //                     space
-    //                         .space_blades(self.dim)
-    //                         .map(|blade| {
-    //                             op(
-    //                                 space.access(Expr::param(param_0), blade),
-    //                                 space.access(Expr::param(param_1), blade),
-    //                             )
-    //                         })
-    //                         .collect_vec()
-    //                 },
-    //             )
-    //         })
-    //         .chain(Space::spaces(self.dim).map(|space| {
-    //             signature.implementation(
-    //                 Class::Space(space),
-    //                 [Class::Base],
-    //                 [],
-    //                 |[param_0], [param_1]| {
-    //                     space
-    //                         .space_blades(self.dim)
-    //                         .map(|blade| {
-    //                             op(
-    //                                 space.access(Expr::param(param_0), blade),
-    //                                 Expr::param(param_1),
-    //                             )
-    //                         })
-    //                         .collect_vec()
-    //                 },
-    //             )
-    //         }))
-    //         .collect()
-    // }
-
-    // fn unary_multinomial_implementations<const DEGREE: usize>(
-    //     &self,
-    //     signature: &UnarySignature,
-    //     class_fn: fn([Space; 1]) -> Class,
-    //     multinomial: Multinomial<UnaryVariable, DEGREE>,
-    // ) -> Vec<Implementation<GeometricAlgebra>> {
-    //     signature.implementations(
-    //         self.classes(),
-    //         |_| std::iter::once([]),
-    //         |class_0, []| match class_0 {
-    //             Class::Space(space_0) => Some([class_fn([space_0])]),
-    //             _ => None,
-    //         },
-    //         |class_0, [], [class], [param_0], []| {
-    //             self.construct(class, |blade| {
-    //                 multinomial.blade_expr(blade, |item| match item {
-    //                     (UnaryVariable::Index0, blade_0) => {
-    //                         self.access(class_0, blade_0, Expr::param(param_0))
-    //                     }
-    //                 })
-    //             })
-    //         },
-    //     )
-    // }
-
-    // fn binary_multinomial_implementations<const DEGREE: usize>(
-    //     &self,
-    //     signature: &BinarySignature,
-    //     class_fn: fn([Space; 2]) -> Class,
-    //     multinomial: Multinomial<BinaryVariable, DEGREE>,
-    // ) -> Vec<Implementation<GeometricAlgebra>> {
-    //     signature.implementations(
-    //         self.classes(),
-    //         |_| self.classes().map(|class| [class]),
-    //         |class_0, [class_1]| match (class_0, class_1) {
-    //             (Class::Space(space_0), Class::Space(space_1)) => {
-    //                 Some([class_fn([space_0, space_1])])
-    //             }
-    //             _ => None,
-    //         },
-    //         |class_0, [class_1], [class], [param_0], [param_1]| {
-    //             self.construct(class, |blade| {
-    //                 multinomial.blade_expr(blade, |item| match item {
-    //                     (BinaryVariable::Index0, blade_0) => {
-    //                         self.access(class_0, blade_0, Expr::param(param_0))
-    //                     }
-    //                     (BinaryVariable::Index1, blade_1) => {
-    //                         self.access(class_1, blade_1, Expr::param(param_1))
-    //                     }
-    //                 })
-    //             })
-    //         },
-    //     )
-    // }
-
-    // fn transform_multinomial_implementations<const DEGREE: usize>(
-    //     &self,
-    //     signature: &BinarySignature,
-    //     class_fn: fn([Space; 2]) -> Class,
-    //     multinomial: Multinomial<BinaryVariable, DEGREE>,
-    // ) -> Vec<Implementation<GeometricAlgebra>> {
-    //     signature.implementations(
-    //         self.classes(),
-    //         |_| self.classes().map(|class| [class]),
-    //         |class_0, [class_1]| match (class_0, class_1) {
-    //             (Class::Space(space_0), Class::Space(space_1)) => {
-    //                 Some([class_fn([space_0, space_1])])
-    //             }
-    //             _ => None,
-    //         },
-    //         |class_0, [class_1], [class], [param_0], [param_1]| {
-    //             self.construct(class, |blade| {
-    //                 multinomial.blade_expr(blade, |item| match item {
-    //                     (BinaryVariable::Index0, blade_0) => (blade.grade() == blade_0.grade())
-    //                         .then(|| self.access(class_0, blade_0, Expr::param(param_0)))
-    //                         .flatten(),
-    //                     (BinaryVariable::Index1, blade_1) => {
-    //                         self.access(class_1, blade_1, Expr::param(param_1))
-    //                     }
-    //                 })
-    //             })
-    //         },
-    //     )
-    // }
-
-    // fn unary_inherited_implementations(
-    //     &self,
-    //     signature: &UnarySignature,
-    //     class_fn: fn([Space; 1]) -> Class,
-    //     expr_fn: fn([Space; 1], [<GeometricAlgebra as Ast>::Param; 1]) -> Expr<GeometricAlgebra>,
-    // ) -> Vec<Implementation<GeometricAlgebra>> {
-    //     Space::spaces(self.dim)
-    //         .map(|space_0| {
-    //             let class = class_fn([space_0]);
-    //             signature.implementation(Class::Space(space_0), [], [class], |[param_0], []| {
-    //                 expr_fn([space_0], [param_0])
-    //             })
-    //         })
-    //         .collect()
-    // }
-
-    // fn unary_inplace_inherited_implementations(
-    //     &self,
-    //     signature: &UnaryInplaceSignature,
-    //     stmts_fn: fn(
-    //         [Space; 1],
-    //         [<GeometricAlgebra as Ast>::Param; 1],
-    //     ) -> Vec<Stmt<GeometricAlgebra>>,
-    // ) -> Vec<Implementation<GeometricAlgebra>> {
-    //     Space::spaces(self.dim)
-    //         .map(|space_0| {
-    //             signature.implementation(Class::Space(space_0), [], [], |[param_0], []| {
-    //                 stmts_fn([space_0], [param_0])
-    //             })
-    //         })
-    //         .collect()
-    // }
-
     fn operation_implementations(
         &self,
         operation: Operation,
@@ -1357,16 +976,14 @@ impl GeometricAlgebra {
             Operation::Add => ADD.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Base, Class::Space(space_1)] => Some(Class::Space(Space::sum_space([
-                        Space::Homogeneous { grade: 0 },
-                        space_1,
-                    ]))),
-                    [Class::Space(space_0), Class::Base] => Some(Class::Space(Space::sum_space([
-                        space_0,
-                        Space::Homogeneous { grade: 0 },
-                    ]))),
+                    [Class::Base, Class::Space(space_1)] => {
+                        Some(Class::Space(Space::Homogeneous { grade: 0 }.add(space_1)))
+                    }
+                    [Class::Space(space_0), Class::Base] => {
+                        Some(Class::Space(space_0.add(Space::Homogeneous { grade: 0 })))
+                    }
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Some(Class::Space(Space::sum_space([space_0, space_1])))
+                        Some(Class::Space(space_0.add(space_1)))
                     }
                     _ => None,
                 },
@@ -1388,16 +1005,14 @@ impl GeometricAlgebra {
             Operation::Sub => SUB.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Base, Class::Space(space_1)] => Some(Class::Space(Space::sum_space([
-                        Space::Homogeneous { grade: 0 },
-                        space_1,
-                    ]))),
-                    [Class::Space(space_0), Class::Base] => Some(Class::Space(Space::sum_space([
-                        space_0,
-                        Space::Homogeneous { grade: 0 },
-                    ]))),
+                    [Class::Base, Class::Space(space_1)] => {
+                        Some(Class::Space(Space::Homogeneous { grade: 0 }.add(space_1)))
+                    }
+                    [Class::Space(space_0), Class::Base] => {
+                        Some(Class::Space(space_0.add(Space::Homogeneous { grade: 0 })))
+                    }
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Some(Class::Space(Space::sum_space([space_0, space_1])))
+                        Some(Class::Space(space_0.add(space_1)))
                     }
                     _ => None,
                 },
@@ -1422,7 +1037,7 @@ impl GeometricAlgebra {
                     [Class::Space(space_0), Class::Base] => Some(Class::Space(space_0)),
                     [Class::Base, Class::Space(space_1)] => Some(Class::Space(space_1)),
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Some(Class::Space(Space::product_space([space_0, space_1])))
+                        Some(Class::Space(space_0.mul(space_1)))
                     }
                     _ => None,
                 },
@@ -1470,14 +1085,14 @@ impl GeometricAlgebra {
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
                     [Class::Base, Class::Space(space_1)] => {
-                        Space::sum_space([Space::Homogeneous { grade: 0 }, space_1])
+                        Space::Homogeneous { grade: 0 }.add(space_1)
                             == Space::Homogeneous { grade: 0 }
                     }
                     [Class::Space(space_0), Class::Base] => {
-                        Space::sum_space([space_0, Space::Homogeneous { grade: 0 }]) == space_0
+                        space_0.add(Space::Homogeneous { grade: 0 }) == space_0
                     }
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Space::sum_space([space_0, space_1]) == space_0
+                        space_0.add(space_1) == space_0
                     }
                     _ => false,
                 },
@@ -1500,14 +1115,14 @@ impl GeometricAlgebra {
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
                     [Class::Base, Class::Space(space_1)] => {
-                        Space::sum_space([Space::Homogeneous { grade: 0 }, space_1])
+                        Space::Homogeneous { grade: 0 }.add(space_1)
                             == Space::Homogeneous { grade: 0 }
                     }
                     [Class::Space(space_0), Class::Base] => {
-                        Space::sum_space([space_0, Space::Homogeneous { grade: 0 }]) == space_0
+                        space_0.add(Space::Homogeneous { grade: 0 }) == space_0
                     }
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Space::sum_space([space_0, space_1]) == space_0
+                        space_0.add(space_1) == space_0
                     }
                     _ => false,
                 },
@@ -1645,7 +1260,7 @@ impl GeometricAlgebra {
                     |[blade_0, blade_1]| {
                         (blade_0 == blade_1).then_some(Sign::from_count(blade_1.grade() >> 1))
                     },
-                    self.undual_blade_remap(),
+                    self.identity_blade_remap(),
                 )
                 .body_fn(self),
             ),
@@ -1698,7 +1313,7 @@ impl GeometricAlgebra {
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Some(Class::Space(Space::product_space([space_0, space_1])))
+                        Some(Class::Space(space_0.mul(space_1)))
                     }
                     _ => None,
                 },
@@ -1729,12 +1344,13 @@ impl GeometricAlgebra {
             Operation::LeftInnerProduct => LEFT_INNER_PRODUCT.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Space(space_0), Class::Space(space_1)] => Some(Class::Space(
-                        Space::homogeneous_space([space_0, space_1], |[grade_0, grade_1]| {
-                            grade_1.checked_sub(grade_0)
-                        })
-                        .unwrap_or_else(|| Space::product_space([space_0, space_1])),
-                    )),
+                    [Class::Space(space_0), Class::Space(space_1)] => {
+                        Some(Class::Space(space_0.zip_homogeneous(
+                            space_1,
+                            |grade_0, grade_1| grade_1.checked_sub(grade_0),
+                            Space::mul,
+                        )))
+                    }
                     _ => None,
                 },
                 self.multinomial(
@@ -1749,12 +1365,13 @@ impl GeometricAlgebra {
             Operation::RightInnerProduct => RIGHT_INNER_PRODUCT.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Space(space_0), Class::Space(space_1)] => Some(Class::Space(
-                        Space::homogeneous_space([space_0, space_1], |[grade_0, grade_1]| {
-                            grade_0.checked_sub(grade_1)
-                        })
-                        .unwrap_or_else(|| Space::product_space([space_0, space_1])),
-                    )),
+                    [Class::Space(space_0), Class::Space(space_1)] => {
+                        Some(Class::Space(space_0.zip_homogeneous(
+                            space_1,
+                            |grade_0, grade_1| grade_0.checked_sub(grade_1),
+                            Space::mul,
+                        )))
+                    }
                     _ => None,
                 },
                 self.multinomial(
@@ -1769,12 +1386,13 @@ impl GeometricAlgebra {
             Operation::InnerProduct => INNER_PRODUCT.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Space(space_0), Class::Space(space_1)] => Some(Class::Space(
-                        Space::homogeneous_space([space_0, space_1], |[grade_0, grade_1]| {
-                            Some(grade_0.abs_diff(grade_1))
-                        })
-                        .unwrap_or_else(|| Space::product_space([space_0, space_1])),
-                    )),
+                    [Class::Space(space_0), Class::Space(space_1)] => {
+                        Some(Class::Space(space_0.zip_homogeneous(
+                            space_1,
+                            |grade_0, grade_1| Some(grade_0.abs_diff(grade_1)),
+                            Space::mul,
+                        )))
+                    }
                     _ => None,
                 },
                 self.multinomial(
@@ -1792,12 +1410,15 @@ impl GeometricAlgebra {
             Operation::OuterProduct => OUTER_PRODUCT.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Space(space_0), Class::Space(space_1)] => Some(Class::Space(
-                        Space::homogeneous_space([space_0, space_1], |[grade_0, grade_1]| {
-                            Some(grade_0 + grade_1).filter(|&grade| grade <= self.dim)
-                        })
-                        .unwrap_or_else(|| Space::product_space([space_0, space_1])),
-                    )),
+                    [Class::Space(space_0), Class::Space(space_1)] => {
+                        Some(Class::Space(space_0.zip_homogeneous(
+                            space_1,
+                            |grade_0, grade_1| {
+                                Some(grade_0 + grade_1).filter(|&grade| grade <= self.dim)
+                            },
+                            Space::mul,
+                        )))
+                    }
                     _ => None,
                 },
                 self.multinomial(
@@ -1813,20 +1434,13 @@ impl GeometricAlgebra {
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
                     [Class::Space(space_0), Class::Space(space_1)] => Some(Class::Space(
-                        self.dual_space(
-                            Space::homogeneous_space(
-                                [self.dual_space(space_0), self.dual_space(space_1)],
-                                |[grade_0, grade_1]| {
-                                    Some(grade_0 + grade_1).filter(|&grade| grade <= self.dim)
-                                },
-                            )
-                            .unwrap_or_else(|| {
-                                Space::product_space([
-                                    self.dual_space(space_0),
-                                    self.dual_space(space_1),
-                                ])
-                            }),
-                        ),
+                        self.dual_space(self.dual_space(space_0).zip_homogeneous(
+                            self.dual_space(space_1),
+                            |grade_0, grade_1| {
+                                Some(grade_0 + grade_1).filter(|&grade| grade <= self.dim)
+                            },
+                            Space::mul,
+                        )),
                     )),
                     _ => None,
                 },
@@ -1843,7 +1457,7 @@ impl GeometricAlgebra {
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Some(Class::Space(Space::product_space([space_0, space_1])))
+                        Some(Class::Space(space_0.mul(space_1)))
                     }
                     _ => None,
                 },
@@ -1863,7 +1477,7 @@ impl GeometricAlgebra {
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Some(Class::Space(Space::product_space([space_0, space_1])))
+                        Some(Class::Space(space_0.mul(space_1)))
                     }
                     _ => None,
                 },
@@ -1882,21 +1496,18 @@ impl GeometricAlgebra {
             Operation::Transform => TRANSFORM.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Space(space_0), Class::Space(_)] => {
-                        Space::homogeneous_space([space_0], |[grade_0]| Some(grade_0))
-                            .map(Class::Space)
-                    }
+                    [Class::Space(space_0), Class::Space(_)] => Some(Class::Space(space_0)),
                     _ => None,
                 },
                 self.multinomial(
                     [1, 0, 1],
                     self.identity_blade_remap(),
                     |[blade_0, blade_1, blade_2]| {
-                        Some(
+                        ((blade_0 ^ blade_1 ^ blade_2).grade() == blade_1.grade()).then(|| {
                             Sign::from_count(blade_0.grade())
                                 ^ Sign::from_count(blade_1.grade())
-                                ^ Sign::from_count(blade_2.grade() >> 1),
-                        )
+                                ^ Sign::from_count(blade_2.grade() >> 1)
+                        })
                     },
                     self.identity_blade_remap(),
                 )
@@ -1907,11 +1518,11 @@ impl GeometricAlgebra {
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Space::homogeneous_space([space_0, space_1], |[grade_0, grade_1]| {
-                            (grade_0 <= grade_1).then_some(grade_0)
-                        })
-                        .or_else(|| Space::homogeneous_space([space_0], |[grade_0]| Some(grade_0)))
-                        .map(Class::Space)
+                        Some(Class::Space(space_0.zip_homogeneous(
+                            space_1,
+                            |grade_0, grade_1| (grade_0 <= grade_1).then_some(grade_0),
+                            |space_0, _| space_0,
+                        )))
                     }
                     _ => None,
                 },
@@ -1920,12 +1531,13 @@ impl GeometricAlgebra {
                     self.identity_blade_remap(),
                     |[blade_0, blade_1, blade_2]| {
                         (blade_0 & blade_1 == blade_0
-                            && (blade_0 ^ blade_1) & blade_2 == blade_0 ^ blade_1)
-                            .then(|| {
-                                Sign::from_count(blade_0.grade())
-                                    ^ Sign::from_count(blade_1.grade())
-                                    ^ Sign::from_count(blade_2.grade() >> 1)
-                            })
+                            && (blade_0 ^ blade_1) & blade_2 == blade_0 ^ blade_1
+                            && (blade_0 ^ blade_1 ^ blade_2).grade() == blade_0.grade())
+                        .then(|| {
+                            Sign::from_count(blade_0.grade())
+                                ^ Sign::from_count(blade_1.grade())
+                                ^ Sign::from_count(blade_2.grade() >> 1)
+                        })
                     },
                     self.identity_blade_remap(),
                 )
@@ -1936,11 +1548,11 @@ impl GeometricAlgebra {
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
                     [Class::Space(space_0), Class::Space(space_1)] => {
-                        Space::homogeneous_space([space_0, space_1], |[grade_0, grade_1]| {
-                            (grade_0 + grade_1 <= self.dim).then_some(grade_0)
-                        })
-                        .or_else(|| Space::homogeneous_space([space_0], |[grade_0]| Some(grade_0)))
-                        .map(Class::Space)
+                        Some(Class::Space(space_0.zip_homogeneous(
+                            space_1,
+                            |grade_0, grade_1| (grade_0 + grade_1 <= self.dim).then_some(grade_0),
+                            |space_0, _| space_0,
+                        )))
                     }
                     _ => None,
                 },
@@ -1949,12 +1561,13 @@ impl GeometricAlgebra {
                     self.identity_blade_remap(),
                     |[blade_0, blade_1, blade_2]| {
                         (blade_0 & blade_1 == Blade::zero()
-                            && (blade_0 ^ blade_1) & blade_2 == blade_2)
-                            .then(|| {
-                                Sign::from_count(blade_0.grade())
-                                    ^ Sign::from_count(blade_1.grade())
-                                    ^ Sign::from_count(blade_2.grade() >> 1)
-                            })
+                            && (blade_0 ^ blade_1) & blade_2 == blade_2
+                            && (blade_0 ^ blade_1 ^ blade_2).grade() == blade_0.grade())
+                        .then(|| {
+                            Sign::from_count(blade_0.grade())
+                                ^ Sign::from_count(blade_1.grade())
+                                ^ Sign::from_count(blade_2.grade() >> 1)
+                        })
                     },
                     self.identity_blade_remap(),
                 )
