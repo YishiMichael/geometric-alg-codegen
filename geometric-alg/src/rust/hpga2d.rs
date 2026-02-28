@@ -3686,13 +3686,6 @@ impl Div<Trivector> for f32 {
     }
 }
 
-impl Div<Null> for f32 {
-    type Output = Null;
-    fn div(self, other: Null) -> Null {
-        self.mul(other.inverse())
-    }
-}
-
 impl Div<OddMultivector> for f32 {
     type Output = OddMultivector;
     fn div(self, other: OddMultivector) -> OddMultivector {
@@ -5044,6 +5037,98 @@ impl Normalize for EvenMultivector {
 impl Normalize for Multivector {
     fn normalize(&mut self) {
         self.div_assign(self.norm());
+    }
+}
+
+impl Inverse for Scalar {
+    type Output = EvenMultivector;
+    fn inverse(self) -> EvenMultivector {
+        let mut inverse = EvenMultivector::from(self);
+        inverse.s *= 1.0 - 4.0 / 1.0;
+        inverse = self.geometric_product(inverse);
+        inverse.s *= 1.0 - 4.0 / 2.0;
+        inverse = self.geometric_product(inverse);
+        inverse.s *= 1.0 - 4.0 / 3.0;
+        inverse /= self.scalar_product(inverse);
+        inverse
+    }
+}
+
+impl Inverse for Vector {
+    type Output = OddMultivector;
+    fn inverse(self) -> OddMultivector {
+        let mut inverse = OddMultivector::from(self);
+        let mut complement = self.geometric_product(inverse);
+        complement.s *= 1.0 - 4.0 / 2.0;
+        inverse = self.geometric_product(complement);
+        inverse /= self.scalar_product(inverse);
+        inverse
+    }
+}
+
+impl Inverse for Bivector {
+    type Output = EvenMultivector;
+    fn inverse(self) -> EvenMultivector {
+        let mut inverse = EvenMultivector::from(self);
+        inverse.s *= 1.0 - 4.0 / 1.0;
+        inverse = self.geometric_product(inverse);
+        inverse.s *= 1.0 - 4.0 / 2.0;
+        inverse = self.geometric_product(inverse);
+        inverse.s *= 1.0 - 4.0 / 3.0;
+        inverse /= self.scalar_product(inverse);
+        inverse
+    }
+}
+
+impl Inverse for Trivector {
+    type Output = OddMultivector;
+    fn inverse(self) -> OddMultivector {
+        let mut inverse = OddMultivector::from(self);
+        let mut complement = self.geometric_product(inverse);
+        complement.s *= 1.0 - 4.0 / 2.0;
+        inverse = self.geometric_product(complement);
+        inverse /= self.scalar_product(inverse);
+        inverse
+    }
+}
+
+impl Inverse for OddMultivector {
+    type Output = OddMultivector;
+    fn inverse(self) -> OddMultivector {
+        let mut inverse = self;
+        let mut complement = self.geometric_product(inverse);
+        complement.s *= 1.0 - 4.0 / 2.0;
+        inverse = self.geometric_product(complement);
+        inverse /= self.scalar_product(inverse);
+        inverse
+    }
+}
+
+impl Inverse for EvenMultivector {
+    type Output = EvenMultivector;
+    fn inverse(self) -> EvenMultivector {
+        let mut inverse = self;
+        inverse.s *= 1.0 - 4.0 / 1.0;
+        inverse = self.geometric_product(inverse);
+        inverse.s *= 1.0 - 4.0 / 2.0;
+        inverse = self.geometric_product(inverse);
+        inverse.s *= 1.0 - 4.0 / 3.0;
+        inverse /= self.scalar_product(inverse);
+        inverse
+    }
+}
+
+impl Inverse for Multivector {
+    type Output = Multivector;
+    fn inverse(self) -> Multivector {
+        let mut inverse = self;
+        inverse.s *= 1.0 - 4.0 / 1.0;
+        inverse = self.geometric_product(inverse);
+        inverse.s *= 1.0 - 4.0 / 2.0;
+        inverse = self.geometric_product(inverse);
+        inverse.s *= 1.0 - 4.0 / 3.0;
+        inverse /= self.scalar_product(inverse);
+        inverse
     }
 }
 

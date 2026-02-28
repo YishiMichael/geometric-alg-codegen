@@ -257,6 +257,38 @@ impl Syntax for WGSLLang {
                 self.emit_expr(writer, stringifier, expr)?;
                 write!(writer.buffer(), ";")?;
             }
+            StmtRepr::Let {
+                param,
+                param_type,
+                expr,
+            } => {
+                write!(
+                    writer.buffer(),
+                    "let {param}: {param_type} = ",
+                    param_type = stringifier.stringify_type(param_type),
+                )?;
+                self.emit_expr(writer, stringifier, expr)?;
+                write!(writer.buffer(), ";")?;
+            }
+            StmtRepr::LetMut {
+                param,
+                param_type,
+                expr,
+            } => {
+                write!(
+                    writer.buffer(),
+                    "var {param}: {param_type} = ",
+                    param_type = stringifier.stringify_type(param_type),
+                )?;
+                self.emit_expr(writer, stringifier, expr)?;
+                write!(writer.buffer(), ";")?;
+            }
+            StmtRepr::Assign { lhs, rhs } => {
+                self.emit_expr(writer, stringifier, lhs)?;
+                write!(writer.buffer(), " = ")?;
+                self.emit_expr(writer, stringifier, rhs)?;
+                write!(writer.buffer(), ";")?;
+            }
             StmtRepr::AddAssign { lhs, rhs } => {
                 self.emit_expr(writer, stringifier, lhs)?;
                 write!(writer.buffer(), " += ")?;

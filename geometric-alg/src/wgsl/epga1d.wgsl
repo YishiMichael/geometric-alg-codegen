@@ -1746,10 +1746,6 @@ fn f32_div_bivector(self: f32, other: Bivector) -> EvenMultivector {
     return f32_mul_evenmultivector(self, bivector_inverse(other));
 }
 
-fn f32_div_null(self: f32, other: Null) -> Null {
-    return f32_mul_null(self, null_inverse(other));
-}
-
 fn f32_div_oddmultivector(self: f32, other: OddMultivector) -> OddMultivector {
     return f32_mul_oddmultivector(self, oddmultivector_inverse(other));
 }
@@ -2484,6 +2480,46 @@ fn evenmultivector_normalize(self: ptr<function, EvenMultivector>) {
 
 fn multivector_normalize(self: ptr<function, Multivector>) {
     multivector_div_assign_f32(self, multivector_norm(self));
+}
+
+fn scalar_inverse(self: Scalar) -> EvenMultivector {
+    var inverse: EvenMultivector = evenmultivector_from_scalar(self);
+    inverse.s *= 1.0 - 2.0 / 1.0;
+    inverse /= scalar_scalar_product_evenmultivector(self, inverse);
+    return inverse;
+}
+
+fn vector_inverse(self: Vector) -> OddMultivector {
+    var inverse: OddMultivector = oddmultivector_from_vector(self);
+    inverse /= vector_scalar_product_oddmultivector(self, inverse);
+    return inverse;
+}
+
+fn bivector_inverse(self: Bivector) -> EvenMultivector {
+    var inverse: EvenMultivector = evenmultivector_from_bivector(self);
+    inverse.s *= 1.0 - 2.0 / 1.0;
+    inverse /= bivector_scalar_product_evenmultivector(self, inverse);
+    return inverse;
+}
+
+fn oddmultivector_inverse(self: OddMultivector) -> OddMultivector {
+    var inverse: OddMultivector = self;
+    inverse /= oddmultivector_scalar_product_oddmultivector(self, inverse);
+    return inverse;
+}
+
+fn evenmultivector_inverse(self: EvenMultivector) -> EvenMultivector {
+    var inverse: EvenMultivector = self;
+    inverse.s *= 1.0 - 2.0 / 1.0;
+    inverse /= evenmultivector_scalar_product_evenmultivector(self, inverse);
+    return inverse;
+}
+
+fn multivector_inverse(self: Multivector) -> Multivector {
+    var inverse: Multivector = self;
+    inverse.s *= 1.0 - 2.0 / 1.0;
+    inverse /= multivector_scalar_product_multivector(self, inverse);
+    return inverse;
 }
 
 fn scalar_geometric_product_scalar(self: Scalar, other: Scalar) -> EvenMultivector {

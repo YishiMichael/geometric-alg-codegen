@@ -318,6 +318,30 @@ impl Syntax for RustLang {
                 self.emit_expr(writer, stringifier, expr)?;
                 write!(writer.buffer(), ";")?;
             }
+            StmtRepr::Let {
+                param,
+                param_type: _,
+                expr,
+            } => {
+                write!(writer.buffer(), "let {param} = ")?;
+                self.emit_expr(writer, stringifier, expr)?;
+                write!(writer.buffer(), ";")?;
+            }
+            StmtRepr::LetMut {
+                param,
+                param_type: _,
+                expr,
+            } => {
+                write!(writer.buffer(), "let mut {param} = ")?;
+                self.emit_expr(writer, stringifier, expr)?;
+                write!(writer.buffer(), ";")?;
+            }
+            StmtRepr::Assign { lhs, rhs } => {
+                self.emit_expr(writer, stringifier, lhs)?;
+                write!(writer.buffer(), " = ")?;
+                self.emit_expr(writer, stringifier, rhs)?;
+                write!(writer.buffer(), ";")?;
+            }
             StmtRepr::AddAssign { lhs, rhs } => {
                 self.emit_expr(writer, stringifier, lhs)?;
                 write!(writer.buffer(), " += ")?;

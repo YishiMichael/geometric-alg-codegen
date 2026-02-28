@@ -2802,10 +2802,6 @@ fn f32_div_trivector(self: f32, other: Trivector) -> OddMultivector {
     return f32_mul_oddmultivector(self, trivector_inverse(other));
 }
 
-fn f32_div_null(self: f32, other: Null) -> Null {
-    return f32_mul_null(self, null_inverse(other));
-}
-
 fn f32_div_oddmultivector(self: f32, other: OddMultivector) -> OddMultivector {
     return f32_mul_oddmultivector(self, oddmultivector_inverse(other));
 }
@@ -3777,6 +3773,77 @@ fn evenmultivector_normalize(self: ptr<function, EvenMultivector>) {
 
 fn multivector_normalize(self: ptr<function, Multivector>) {
     multivector_div_assign_f32(self, multivector_norm(self));
+}
+
+fn scalar_inverse(self: Scalar) -> EvenMultivector {
+    var inverse: EvenMultivector = evenmultivector_from_scalar(self);
+    inverse.s *= 1.0 - 4.0 / 1.0;
+    inverse = scalar_geometric_product_evenmultivector(self, inverse);
+    inverse.s *= 1.0 - 4.0 / 2.0;
+    inverse = scalar_geometric_product_evenmultivector(self, inverse);
+    inverse.s *= 1.0 - 4.0 / 3.0;
+    inverse /= scalar_scalar_product_evenmultivector(self, inverse);
+    return inverse;
+}
+
+fn vector_inverse(self: Vector) -> OddMultivector {
+    var inverse: OddMultivector = oddmultivector_from_vector(self);
+    var complement: EvenMultivector = vector_geometric_product_oddmultivector(self, inverse);
+    complement.s *= 1.0 - 4.0 / 2.0;
+    inverse = vector_geometric_product_evenmultivector(self, complement);
+    inverse /= vector_scalar_product_oddmultivector(self, inverse);
+    return inverse;
+}
+
+fn bivector_inverse(self: Bivector) -> EvenMultivector {
+    var inverse: EvenMultivector = evenmultivector_from_bivector(self);
+    inverse.s *= 1.0 - 4.0 / 1.0;
+    inverse = bivector_geometric_product_evenmultivector(self, inverse);
+    inverse.s *= 1.0 - 4.0 / 2.0;
+    inverse = bivector_geometric_product_evenmultivector(self, inverse);
+    inverse.s *= 1.0 - 4.0 / 3.0;
+    inverse /= bivector_scalar_product_evenmultivector(self, inverse);
+    return inverse;
+}
+
+fn trivector_inverse(self: Trivector) -> OddMultivector {
+    var inverse: OddMultivector = oddmultivector_from_trivector(self);
+    var complement: EvenMultivector = trivector_geometric_product_oddmultivector(self, inverse);
+    complement.s *= 1.0 - 4.0 / 2.0;
+    inverse = trivector_geometric_product_evenmultivector(self, complement);
+    inverse /= trivector_scalar_product_oddmultivector(self, inverse);
+    return inverse;
+}
+
+fn oddmultivector_inverse(self: OddMultivector) -> OddMultivector {
+    var inverse: OddMultivector = self;
+    var complement: EvenMultivector = oddmultivector_geometric_product_oddmultivector(self, inverse);
+    complement.s *= 1.0 - 4.0 / 2.0;
+    inverse = oddmultivector_geometric_product_evenmultivector(self, complement);
+    inverse /= oddmultivector_scalar_product_oddmultivector(self, inverse);
+    return inverse;
+}
+
+fn evenmultivector_inverse(self: EvenMultivector) -> EvenMultivector {
+    var inverse: EvenMultivector = self;
+    inverse.s *= 1.0 - 4.0 / 1.0;
+    inverse = evenmultivector_geometric_product_evenmultivector(self, inverse);
+    inverse.s *= 1.0 - 4.0 / 2.0;
+    inverse = evenmultivector_geometric_product_evenmultivector(self, inverse);
+    inverse.s *= 1.0 - 4.0 / 3.0;
+    inverse /= evenmultivector_scalar_product_evenmultivector(self, inverse);
+    return inverse;
+}
+
+fn multivector_inverse(self: Multivector) -> Multivector {
+    var inverse: Multivector = self;
+    inverse.s *= 1.0 - 4.0 / 1.0;
+    inverse = multivector_geometric_product_multivector(self, inverse);
+    inverse.s *= 1.0 - 4.0 / 2.0;
+    inverse = multivector_geometric_product_multivector(self, inverse);
+    inverse.s *= 1.0 - 4.0 / 3.0;
+    inverse /= multivector_scalar_product_multivector(self, inverse);
+    return inverse;
 }
 
 fn scalar_geometric_product_scalar(self: Scalar, other: Scalar) -> EvenMultivector {

@@ -513,6 +513,28 @@ impl<A: Ast> std::ops::Div for Expr<A> {
 }
 
 impl<A: Ast> Expr<A> {
+    pub fn bind(param: A::Param, param_type: A::Type, expr: Expr<A>) -> Stmt<A> {
+        StmtRepr::Let {
+            param,
+            param_type,
+            expr,
+        }
+        .into()
+    }
+
+    pub fn bind_mut(param: A::Param, param_type: A::Type, expr: Expr<A>) -> Stmt<A> {
+        StmtRepr::LetMut {
+            param,
+            param_type,
+            expr,
+        }
+        .into()
+    }
+
+    pub fn assign(self, rhs: Expr<A>) -> Stmt<A> {
+        StmtRepr::Assign { lhs: self, rhs }.into()
+    }
+
     pub fn add_assign(self, rhs: Expr<A>) -> Stmt<A> {
         StmtRepr::AddAssign { lhs: self, rhs }.into()
     }
@@ -531,11 +553,39 @@ impl<A: Ast> Expr<A> {
 }
 
 pub enum StmtRepr<A: Ast> {
-    Expr { expr: Expr<A> },
-    AddAssign { lhs: Expr<A>, rhs: Expr<A> },
-    SubAssign { lhs: Expr<A>, rhs: Expr<A> },
-    MulAssign { lhs: Expr<A>, rhs: Expr<A> },
-    DivAssign { lhs: Expr<A>, rhs: Expr<A> },
+    Expr {
+        expr: Expr<A>,
+    },
+    Let {
+        param: A::Param,
+        param_type: A::Type,
+        expr: Expr<A>,
+    },
+    LetMut {
+        param: A::Param,
+        param_type: A::Type,
+        expr: Expr<A>,
+    },
+    Assign {
+        lhs: Expr<A>,
+        rhs: Expr<A>,
+    },
+    AddAssign {
+        lhs: Expr<A>,
+        rhs: Expr<A>,
+    },
+    SubAssign {
+        lhs: Expr<A>,
+        rhs: Expr<A>,
+    },
+    MulAssign {
+        lhs: Expr<A>,
+        rhs: Expr<A>,
+    },
+    DivAssign {
+        lhs: Expr<A>,
+        rhs: Expr<A>,
+    },
 }
 
 pub struct Stmt<A: Ast> {

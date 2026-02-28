@@ -112,6 +112,13 @@ enum Space {
 }
 
 impl Space {
+    fn null() -> Self {
+        Self::Mixed {
+            even: false,
+            odd: false,
+        }
+    }
+
     fn contains(self, blade: Blade) -> bool {
         match self {
             Self::Homogeneous { grade } => blade.grade() == grade,
@@ -129,13 +136,6 @@ impl Space {
     fn contains_odd_grade(self) -> bool {
         matches!(self, Self::Homogeneous {grade} if grade & 1 == 1)
             || matches!(self, Self::Mixed { even: _, odd: true })
-    }
-
-    fn to_mixed(self) -> Self {
-        Self::Mixed {
-            even: self.contains_even_grade(),
-            odd: self.contains_odd_grade(),
-        }
     }
 
     fn add(self, other: Self) -> Self {
@@ -168,10 +168,7 @@ impl Space {
             (Self::Homogeneous { grade: grade_0 }, Self::Homogeneous { grade: grade_1 }) => {
                 match homogeneous_fn(grade_0, grade_1) {
                     Some(grade) => Self::Homogeneous { grade },
-                    None => Self::Mixed {
-                        even: false,
-                        odd: false,
-                    },
+                    None => Self::null(),
                 }
             }
             (space_0, space_1) => inhomogeneous_fn(space_0, space_1),
@@ -183,6 +180,15 @@ impl Space {
 enum Class {
     Base,
     Space(Space),
+}
+
+impl From<Class> for Space {
+    fn from(class: Class) -> Self {
+        match class {
+            Class::Base => Self::Homogeneous { grade: 0 },
+            Class::Space(space) => space,
+        }
+    }
 }
 
 type NullaryConstructorSignature = OperationSignature<GeometricAlgebra, 0, 0, 0, 0, 1>;
@@ -442,12 +448,12 @@ enum Operation {
     NormSquared,
     #[strum(props(trait = "Norm", fn = "norm"))]
     Norm,
-    #[strum(props(trait = "Inverse", fn = "inverse"))]
-    Inverse,
     #[strum(props(trait = "Normalized", fn = "normalized"))]
     Normalized,
     #[strum(props(trait = "Normalize", fn = "normalize"))]
     Normalize,
+    #[strum(props(trait = "Inverse", fn = "inverse"))]
+    Inverse,
     #[strum(props(trait = "GeometricProduct", fn = "geometric_product"))]
     GeometricProduct,
     #[strum(props(trait = "ScalarProduct", fn = "scalar_product"))]
@@ -962,16 +968,10 @@ impl GeometricAlgebra {
             Operation::Add => ADD.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Base, Class::Space(space_1)] => {
-                        Some(Class::Space(Space::Homogeneous { grade: 0 }.add(space_1)))
+                    [Class::Base, Class::Base] => None,
+                    [class_0, class_1] => {
+                        Some(Class::Space(Space::from(class_0).add(Space::from(class_1))))
                     }
-                    [Class::Space(space_0), Class::Base] => {
-                        Some(Class::Space(space_0.add(Space::Homogeneous { grade: 0 })))
-                    }
-                    [Class::Space(space_0), Class::Space(space_1)] => {
-                        Some(Class::Space(space_0.add(space_1)))
-                    }
-                    _ => None,
                 },
                 |class, [(param_0, class_0), (param_1, class_1)]| {
                     self.construct(class, |blade| {
@@ -979,10 +979,10 @@ impl GeometricAlgebra {
                             self.access(class_0, blade, Expr::param(param_0)),
                             self.access(class_1, blade, Expr::param(param_1)),
                         ) {
-                            (None, None) => Expr::literal(0),
-                            (None, Some(expr_1)) => expr_1,
-                            (Some(expr_0), None) => expr_0,
                             (Some(expr_0), Some(expr_1)) => expr_0 + expr_1,
+                            (Some(expr_0), None) => expr_0,
+                            (None, Some(expr_1)) => expr_1,
+                            (None, None) => Expr::literal(0),
                         }
                     })
                 },
@@ -991,16 +991,10 @@ impl GeometricAlgebra {
             Operation::Sub => SUB.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Base, Class::Space(space_1)] => {
-                        Some(Class::Space(Space::Homogeneous { grade: 0 }.add(space_1)))
+                    [Class::Base, Class::Base] => None,
+                    [class_0, class_1] => {
+                        Some(Class::Space(Space::from(class_0).add(Space::from(class_1))))
                     }
-                    [Class::Space(space_0), Class::Base] => {
-                        Some(Class::Space(space_0.add(Space::Homogeneous { grade: 0 })))
-                    }
-                    [Class::Space(space_0), Class::Space(space_1)] => {
-                        Some(Class::Space(space_0.add(space_1)))
-                    }
-                    _ => None,
                 },
                 |class, [(param_0, class_0), (param_1, class_1)]| {
                     self.construct(class, |blade| {
@@ -1008,10 +1002,10 @@ impl GeometricAlgebra {
                             self.access(class_0, blade, Expr::param(param_0)),
                             self.access(class_1, blade, Expr::param(param_1)),
                         ) {
-                            (None, None) => Expr::literal(0),
-                            (None, Some(expr_1)) => -expr_1,
-                            (Some(expr_0), None) => expr_0,
                             (Some(expr_0), Some(expr_1)) => expr_0 - expr_1,
+                            (Some(expr_0), None) => expr_0,
+                            (None, Some(expr_1)) => -expr_1,
+                            (None, None) => Expr::literal(0),
                         }
                     })
                 },
@@ -1020,14 +1014,18 @@ impl GeometricAlgebra {
             Operation::Mul => MUL.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Space(space_0), Class::Base] => Some(Class::Space(space_0)),
-                    [Class::Base, Class::Space(space_1)] => Some(Class::Space(space_1)),
                     [Class::Space(space_0), Class::Space(space_1)] => {
                         Some(Class::Space(space_0.mul(space_1)))
                     }
+                    [Class::Space(space_0), Class::Base] => Some(Class::Space(space_0)),
+                    [Class::Base, Class::Space(space_1)] => Some(Class::Space(space_1)),
                     _ => None,
                 },
                 |class, [(param_0, class_0), (param_1, class_1)]| match [class_0, class_1] {
+                    [Class::Space(_), Class::Space(_)] => GEOMETRIC_PRODUCT.call([
+                        (Expr::param(param_0), class_0),
+                        (Expr::param(param_1), class_1),
+                    ]),
                     [Class::Space(_), Class::Base] => self.construct(class, |blade| {
                         self.access(class_0, blade, Expr::param(param_0)).unwrap()
                             * Expr::param(param_1)
@@ -1036,10 +1034,6 @@ impl GeometricAlgebra {
                         Expr::param(param_0)
                             * self.access(class_1, blade, Expr::param(param_1)).unwrap()
                     }),
-                    [Class::Space(_), Class::Space(_)] => GEOMETRIC_PRODUCT.call([
-                        (Expr::param(param_0), class_0),
-                        (Expr::param(param_1), class_1),
-                    ]),
                     _ => unreachable!(),
                 },
             ),
@@ -1048,7 +1042,9 @@ impl GeometricAlgebra {
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
                     [Class::Space(space_0), Class::Base] => Some(Class::Space(space_0)),
-                    [Class::Base, Class::Space(space_1)] => Some(Class::Space(space_1.to_mixed())),
+                    [Class::Base, Class::Space(space_1)] if space_1 != Space::null() => {
+                        Some(Class::Space(space_1.add(Space::null())))
+                    }
                     _ => None,
                 },
                 |class, [(param_0, class_0), (param_1, class_1)]| match [class_0, class_1] {
@@ -1056,12 +1052,9 @@ impl GeometricAlgebra {
                         self.access(class_0, blade, Expr::param(param_0)).unwrap()
                             / Expr::param(param_1)
                     }),
-                    [Class::Base, Class::Space(space_1)] => MUL.call([
+                    [Class::Base, Class::Space(_)] => MUL.call([
                         (Expr::param(param_0), Class::Base),
-                        (
-                            INVERSE.call([(Expr::param(param_1), class_1)]),
-                            Class::Space(space_1.to_mixed()),
-                        ),
+                        (INVERSE.call([(Expr::param(param_1), class_1)]), class),
                     ]),
                     _ => unreachable!(),
                 },
@@ -1070,68 +1063,50 @@ impl GeometricAlgebra {
             Operation::AddAssign => ADD_ASSIGN.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Base, Class::Space(space_1)] => {
-                        Space::Homogeneous { grade: 0 }.add(space_1)
-                            == Space::Homogeneous { grade: 0 }
+                    [Class::Base, Class::Base] => false,
+                    [class_0, class_1] => {
+                        Space::from(class_0).add(Space::from(class_1)) == Space::from(class_0)
                     }
-                    [Class::Space(space_0), Class::Base] => {
-                        space_0.add(Space::Homogeneous { grade: 0 }) == space_0
-                    }
-                    [Class::Space(space_0), Class::Space(space_1)] => {
-                        space_0.add(space_1) == space_0
-                    }
-                    _ => false,
                 },
                 |[(param_0, class_0), (param_1, class_1)]| {
-                    match class_1 {
-                        Class::Base => Vec::from([Blade::zero()]),
-                        Class::Space(space_1) => self.space_blades(space_1).collect(),
-                    }
-                    .into_iter()
-                    .map(|blade| {
-                        self.access_deref(class_0, blade, Expr::param(param_0))
-                            .unwrap()
-                            .add_assign(self.access(class_1, blade, Expr::param(param_1)).unwrap())
-                    })
-                    .collect_vec()
+                    self.space_blades(Space::from(class_1))
+                        .map(|blade| {
+                            self.access_deref(class_0, blade, Expr::param(param_0))
+                                .unwrap()
+                                .add_assign(
+                                    self.access(class_1, blade, Expr::param(param_1)).unwrap(),
+                                )
+                        })
+                        .collect_vec()
                 },
             ),
 
             Operation::SubAssign => SUB_ASSIGN.impl_for(
                 self,
                 |[class_0, class_1]| match [class_0, class_1] {
-                    [Class::Base, Class::Space(space_1)] => {
-                        Space::Homogeneous { grade: 0 }.add(space_1)
-                            == Space::Homogeneous { grade: 0 }
+                    [Class::Base, Class::Base] => false,
+                    [class_0, class_1] => {
+                        Space::from(class_0).add(Space::from(class_1)) == Space::from(class_0)
                     }
-                    [Class::Space(space_0), Class::Base] => {
-                        space_0.add(Space::Homogeneous { grade: 0 }) == space_0
-                    }
-                    [Class::Space(space_0), Class::Space(space_1)] => {
-                        space_0.add(space_1) == space_0
-                    }
-                    _ => false,
                 },
                 |[(param_0, class_0), (param_1, class_1)]| {
-                    match class_1 {
-                        Class::Base => Vec::from([Blade::zero()]),
-                        Class::Space(space_1) => self.space_blades(space_1).collect(),
-                    }
-                    .into_iter()
-                    .map(|blade| {
-                        self.access_deref(class_0, blade, Expr::param(param_0))
-                            .unwrap()
-                            .sub_assign(self.access(class_1, blade, Expr::param(param_1)).unwrap())
-                    })
-                    .collect_vec()
+                    self.space_blades(Space::from(class_1))
+                        .map(|blade| {
+                            self.access_deref(class_0, blade, Expr::param(param_0))
+                                .unwrap()
+                                .sub_assign(
+                                    self.access(class_1, blade, Expr::param(param_1)).unwrap(),
+                                )
+                        })
+                        .collect_vec()
                 },
             ),
 
             Operation::MulAssign => MUL_ASSIGN.impl_for(
                 self,
                 |[class_0, class_1]| matches!([class_0, class_1], [Class::Space(_), Class::Base]),
-                |[(param_0, class_0), (param_1, _)]| match class_0 {
-                    Class::Space(space_0) => self
+                |[(param_0, class_0), (param_1, class_1)]| match [class_0, class_1] {
+                    [Class::Space(space_0), Class::Base] => self
                         .space_blades(space_0)
                         .map(|blade| {
                             self.access_deref(class_0, blade, Expr::param(param_0))
@@ -1146,8 +1121,8 @@ impl GeometricAlgebra {
             Operation::DivAssign => DIV_ASSIGN.impl_for(
                 self,
                 |[class_0, class_1]| matches!([class_0, class_1], [Class::Space(_), Class::Base]),
-                |[(param_0, class_0), (param_1, _)]| match class_0 {
-                    Class::Space(space_0) => self
+                |[(param_0, class_0), (param_1, class_1)]| match [class_0, class_1] {
+                    [Class::Space(space_0), Class::Base] => self
                         .space_blades(space_0)
                         .map(|blade| {
                             self.access_deref(class_0, blade, Expr::param(param_0))
@@ -1255,8 +1230,6 @@ impl GeometricAlgebra {
                 },
             ),
 
-            Operation::Inverse => Vec::new(), // TODO
-
             Operation::Normalized => NORMALIZED.impl_for(
                 self,
                 |[class_0]| match [class_0] {
@@ -1279,6 +1252,77 @@ impl GeometricAlgebra {
                         (Expr::param(param_0), class_0),
                         (NORM.call([(Expr::param(param_0), class_0)]), Class::Base),
                     ])])
+                },
+            ),
+
+            Operation::Inverse => INVERSE.impl_for(
+                self,
+                |[class_0]| match [class_0] {
+                    [Class::Space(space_0)] if space_0 != Space::null() => {
+                        Some(Class::Space(space_0.add(Space::null())))
+                    }
+                    _ => None,
+                },
+                |class, [(param_0, class_0)]| {
+                    let inverse_param = "inverse";
+                    let complement_param = "complement";
+                    let k = 1 << ((self.dim + 1) >> 1);
+                    let mut param_map = std::collections::HashMap::new();
+                    ImplementationBody {
+                        stmts: std::iter::successors(Some(Class::Base), |&prev_class| {
+                            Some(match prev_class {
+                                Class::Base => Class::Space(Space::from(class).add(Space::null())),
+                                Class::Space(space) => Class::Space(Space::from(class).mul(space)),
+                            })
+                        })
+                        .tuple_windows()
+                        .zip(1..k)
+                        .flat_map(|((rhs_class, lhs_class), i)| {
+                            let expr = match rhs_class {
+                                Class::Base => {
+                                    if lhs_class == class_0 {
+                                        Expr::param(param_0)
+                                    } else {
+                                        FROM.call(lhs_class, [(Expr::param(param_0), class_0)])
+                                    }
+                                }
+                                rhs_class => GEOMETRIC_PRODUCT.call([
+                                    (Expr::param(param_0), class_0),
+                                    (Expr::param(param_map[&(rhs_class == class)]), rhs_class),
+                                ]),
+                            };
+                            let (lhs_param, stmt) = match param_map.entry(lhs_class == class) {
+                                std::collections::hash_map::Entry::Occupied(entry) => {
+                                    let lhs_param = *entry.get();
+                                    (lhs_param, Expr::param(lhs_param).assign(expr))
+                                }
+                                std::collections::hash_map::Entry::Vacant(entry) => {
+                                    let lhs_param = *entry.insert(if lhs_class == class {
+                                        inverse_param
+                                    } else {
+                                        complement_param
+                                    });
+                                    (lhs_param, Expr::bind_mut(lhs_param, lhs_class, expr))
+                                }
+                            };
+                            std::iter::once(stmt).chain(
+                                self.access_deref(lhs_class, Blade::zero(), Expr::param(lhs_param))
+                                    .map(|expr| {
+                                        expr.mul_assign(
+                                            Expr::literal(1) - Expr::literal(k) / Expr::literal(i),
+                                        )
+                                    }),
+                            )
+                        })
+                        .chain(std::iter::once(Expr::param(inverse_param).div_assign(
+                            SCALAR_PRODUCT.call([
+                                (Expr::param(param_0), class_0),
+                                (Expr::param(inverse_param), class),
+                            ]),
+                        )))
+                        .collect(),
+                        expr: Some(Expr::param(param_map[&true])),
+                    }
                 },
             ),
 
