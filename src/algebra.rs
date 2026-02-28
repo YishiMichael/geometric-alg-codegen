@@ -8,7 +8,7 @@ use strum::{EnumIter, EnumProperty, IntoEnumIterator};
 
 type Coefficient = i32;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 enum Sign {
     Pos,
     Neg,
@@ -46,7 +46,17 @@ impl From<Sign> for Coefficient {
     }
 }
 
-#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
+struct Generator {
+    generator: usize,
+}
+
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
+struct Grade {
+    grade: usize,
+}
+
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
 struct Blade {
     generator_bits: usize,
 }
@@ -76,8 +86,22 @@ impl Blade {
         Self { generator_bits: 0 }
     }
 
-    fn grade(self) -> usize {
-        self.generator_bits.count_ones() as usize
+    fn grade(self) -> Grade {
+        Grade {
+            grade: self.generator_bits.count_ones() as usize,
+        }
+    }
+
+    fn involute_sign(self) -> Sign {
+        Sign::from_count(self.grade().grade)
+    }
+
+    fn reverse_sign(self) -> Sign {
+        Sign::from_count(self.grade().grade >> 1)
+    }
+
+    fn conjugate_sign(self) -> Sign {
+        Sign::from_count((self.grade().grade + 1) >> 1)
     }
 
     fn parity<const N: usize>(blades: [Blade; N]) -> Sign {
@@ -105,9 +129,9 @@ impl Blade {
     }
 }
 
-#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
 enum Space {
-    Homogeneous { grade: usize },
+    Homogeneous { grade: Grade },
     Mixed { even: bool, odd: bool },
 }
 
@@ -123,19 +147,23 @@ impl Space {
         match self {
             Self::Homogeneous { grade } => blade.grade() == grade,
             Self::Mixed { even, odd } => {
-                even && blade.grade() & 1 == 0 || odd && blade.grade() & 1 == 1
+                even && blade.grade().grade & 1 == 0 || odd && blade.grade().grade & 1 == 1
             }
         }
     }
 
     fn contains_even_grade(self) -> bool {
-        matches!(self, Self::Homogeneous {grade} if grade & 1 == 0)
-            || matches!(self, Self::Mixed { even: true, odd: _ })
+        match self {
+            Self::Homogeneous { grade } => grade.grade & 1 == 0,
+            Self::Mixed { even, odd: _ } => even,
+        }
     }
 
     fn contains_odd_grade(self) -> bool {
-        matches!(self, Self::Homogeneous {grade} if grade & 1 == 1)
-            || matches!(self, Self::Mixed { even: _, odd: true })
+        match self {
+            Self::Homogeneous { grade } => grade.grade & 1 == 1,
+            Self::Mixed { even: _, odd } => odd,
+        }
     }
 
     fn add(self, other: Self) -> Self {
@@ -161,7 +189,7 @@ impl Space {
     fn zip_homogeneous(
         self,
         other: Self,
-        homogeneous_fn: impl FnOnce(usize, usize) -> Option<usize>,
+        homogeneous_fn: impl FnOnce(Grade, Grade) -> Option<Grade>,
         inhomogeneous_fn: impl FnOnce(Self, Self) -> Self,
     ) -> Self {
         match (self, other) {
@@ -176,7 +204,7 @@ impl Space {
     }
 }
 
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
 enum Class {
     Base,
     Space(Space),
@@ -185,7 +213,9 @@ enum Class {
 impl From<Class> for Space {
     fn from(class: Class) -> Self {
         match class {
-            Class::Base => Self::Homogeneous { grade: 0 },
+            Class::Base => Self::Homogeneous {
+                grade: Grade { grade: 0 },
+            },
             Class::Space(space) => space,
         }
     }
@@ -667,7 +697,7 @@ impl<const DEGREE: usize> MultinomialConfig<DEGREE> {
                                 square_product
                                     * alg
                                         .blade_generators(output_blade & input_blade)
-                                        .map(|generator| alg.generator_squares[generator])
+                                        .map(|generator| alg.generator_squares[&generator])
                                         .product::<Coefficient>(),
                             )
                         },
@@ -682,9 +712,9 @@ impl<const DEGREE: usize> MultinomialConfig<DEGREE> {
                                     .fold(output_sign, std::ops::BitXor::bitxor)
                                 ^ blades
                                     .iter()
-                                    .map(|blade| alg.blade_intrinsic_signs[blade.generator_bits])
+                                    .map(|&blade| alg.blade_intrinsic_signs[&blade])
                                     .fold(
-                                        alg.blade_intrinsic_signs[blade.generator_bits],
+                                        alg.blade_intrinsic_signs[&blade],
                                         std::ops::BitXor::bitxor,
                                     ),
                         );
@@ -693,7 +723,9 @@ impl<const DEGREE: usize> MultinomialConfig<DEGREE> {
                         prototype
                             .into_iter()
                             .zip(blades)
-                            .sorted()
+                            .sorted_by_key(|(variable, blade)| {
+                                (*variable, alg.blade_intrinsic_signs.get_index_of(blade))
+                            })
                             .collect_vec()
                             .try_into()
                             .ok()
@@ -703,18 +735,18 @@ impl<const DEGREE: usize> MultinomialConfig<DEGREE> {
                 })
             })
             .fold(
-                std::collections::BTreeMap::<
+                std::collections::HashMap::<
                     Blade,
-                    std::collections::BTreeMap<[(usize, Blade); DEGREE], Coefficient>,
+                    std::collections::HashMap<[(usize, Blade); DEGREE], Coefficient>,
                 >::new(),
                 |mut polynomials, (blade, multi_index, coeff)| {
                     if coeff != 0 {
                         let polynomial = polynomials.entry(blade).or_default();
                         match polynomial.entry(multi_index) {
-                            std::collections::btree_map::Entry::Vacant(vacant) => {
+                            std::collections::hash_map::Entry::Vacant(vacant) => {
                                 vacant.insert(coeff);
                             }
-                            std::collections::btree_map::Entry::Occupied(mut occupied) => {
+                            std::collections::hash_map::Entry::Occupied(mut occupied) => {
                                 let slot = occupied.get_mut();
                                 *slot += coeff;
                                 if *slot == 0 {
@@ -728,7 +760,22 @@ impl<const DEGREE: usize> MultinomialConfig<DEGREE> {
                     }
                     polynomials
                 },
-            );
+            )
+            .into_iter()
+            .map(|(blade, polynomial)| {
+                (
+                    blade,
+                    polynomial
+                        .into_iter()
+                        .sorted_by_key(|(multi_index, _)| {
+                            multi_index.each_ref().map(|(variable, blade)| {
+                                (*variable, alg.blade_intrinsic_signs.get_index_of(blade))
+                            })
+                        })
+                        .collect_vec(),
+                )
+            })
+            .collect::<std::collections::HashMap<_, _>>();
 
         move |class, param_items| {
             alg.construct(class, |blade| {
@@ -789,8 +836,8 @@ impl<const DEGREE: usize> MultinomialConfig<DEGREE> {
 
 struct GeometricAlgebra {
     dim: usize,
-    generator_squares: Vec<Coefficient>,
-    blade_intrinsic_signs: Vec<Sign>,
+    generator_squares: indexmap::IndexMap<Generator, Coefficient>,
+    blade_intrinsic_signs: indexmap::IndexMap<Blade, Sign>,
 }
 
 impl Ast for GeometricAlgebra {
@@ -820,14 +867,27 @@ impl Ast for GeometricAlgebra {
 }
 
 impl GeometricAlgebra {
-    fn blades(&self) -> impl Iterator<Item = Blade> + Clone {
-        (0..1 << self.dim)
-            .map(|generator_bits| Blade { generator_bits })
-            .sorted_by_key(|blade| blade.grade())
+    fn grade_add(&self, grade_0: Grade, grade_1: Grade) -> Option<Grade> {
+        Some(grade_0.grade + grade_1.grade)
+            .filter(|&grade| grade <= self.dim)
+            .map(|grade| Grade { grade })
     }
 
-    fn blade_generators(&self, blade: Blade) -> impl Iterator<Item = usize> {
-        (0..self.dim).filter(move |generator| blade.generator_bits & 1 << generator != 0)
+    fn grade_sub(&self, grade_0: Grade, grade_1: Grade) -> Option<Grade> {
+        grade_0
+            .grade
+            .checked_sub(grade_1.grade)
+            .map(|grade| Grade { grade })
+    }
+
+    fn blades(&self) -> impl Iterator<Item = Blade> + Clone {
+        self.blade_intrinsic_signs.keys().cloned()
+    }
+
+    fn blade_generators(&self, blade: Blade) -> impl Iterator<Item = Generator> {
+        (0..self.dim)
+            .filter(move |generator| blade.generator_bits & 1 << generator != 0)
+            .map(|generator| Generator { generator })
     }
 
     fn dual_blade(&self, blade: Blade) -> (Sign, Blade) {
@@ -846,7 +906,9 @@ impl GeometricAlgebra {
 
     fn spaces(&self) -> impl Iterator<Item = Space> {
         (0..=self.dim)
-            .map(|grade| Space::Homogeneous { grade })
+            .map(|grade| Space::Homogeneous {
+                grade: Grade { grade },
+            })
             .chain(
                 [false, true]
                     .into_iter()
@@ -861,8 +923,12 @@ impl GeometricAlgebra {
 
     fn dual_space(&self, space: Space) -> Space {
         match space {
-            Space::Homogeneous { grade } => Space::Homogeneous {
-                grade: self.dim - grade,
+            Space::Homogeneous {
+                grade: Grade { grade },
+            } => Space::Homogeneous {
+                grade: Grade {
+                    grade: self.dim - grade,
+                },
             },
             Space::Mixed { even, odd } if self.dim & 1 == 0 => Space::Mixed { even, odd },
             Space::Mixed { even, odd } => Space::Mixed {
@@ -1141,7 +1207,7 @@ impl GeometricAlgebra {
                     _ => None,
                 },
                 MultinomialConfig {
-                    term_sign: |[blade_0]| Sign::from_count(blade_0.grade()),
+                    term_sign: |[blade_0]| blade_0.involute_sign(),
                     ..Default::default()
                 }
                 .body_fn(self, [0]),
@@ -1154,7 +1220,7 @@ impl GeometricAlgebra {
                     _ => None,
                 },
                 MultinomialConfig {
-                    term_sign: |[blade_0]| Sign::from_count(blade_0.grade() >> 1),
+                    term_sign: |[blade_0]| blade_0.reverse_sign(),
                     ..Default::default()
                 }
                 .body_fn(self, [0]),
@@ -1167,7 +1233,7 @@ impl GeometricAlgebra {
                     _ => None,
                 },
                 MultinomialConfig {
-                    term_sign: |[blade_0]| Sign::from_count((blade_0.grade() + 1) >> 1),
+                    term_sign: |[blade_0]| blade_0.conjugate_sign(),
                     ..Default::default()
                 }
                 .body_fn(self, [0]),
@@ -1207,7 +1273,7 @@ impl GeometricAlgebra {
                 },
                 MultinomialConfig {
                     term_filter: |[blade_0, blade_1]| blade_0 == blade_1,
-                    term_sign: |[_, blade_1]| Sign::from_count(blade_1.grade() >> 1),
+                    term_sign: |[_, blade_1]| blade_1.reverse_sign(),
                     ..Default::default()
                 }
                 .body_fn(self, [0, 0]),
@@ -1288,14 +1354,10 @@ impl GeometricAlgebra {
                                 }
                                 rhs_class => GEOMETRIC_PRODUCT.call([
                                     (Expr::param(param_0), class_0),
-                                    (Expr::param(param_map[&(rhs_class == class)]), rhs_class),
+                                    (Expr::param(param_map[&rhs_class]), rhs_class),
                                 ]),
                             };
-                            let (lhs_param, stmt) = match param_map.entry(lhs_class == class) {
-                                std::collections::hash_map::Entry::Occupied(entry) => {
-                                    let lhs_param = *entry.get();
-                                    (lhs_param, Expr::param(lhs_param).assign(expr))
-                                }
+                            let (lhs_param, stmt) = match param_map.entry(lhs_class) {
                                 std::collections::hash_map::Entry::Vacant(entry) => {
                                     let lhs_param = *entry.insert(if lhs_class == class {
                                         inverse_param
@@ -1303,6 +1365,10 @@ impl GeometricAlgebra {
                                         complement_param
                                     });
                                     (lhs_param, Expr::bind_mut(lhs_param, lhs_class, expr))
+                                }
+                                std::collections::hash_map::Entry::Occupied(entry) => {
+                                    let lhs_param = *entry.get();
+                                    (lhs_param, Expr::param(lhs_param).assign(expr))
                                 }
                             };
                             std::iter::once(stmt).chain(
@@ -1321,7 +1387,7 @@ impl GeometricAlgebra {
                             ]),
                         )))
                         .collect(),
-                        expr: Some(Expr::param(param_map[&true])),
+                        expr: Some(Expr::param(param_map[&class])),
                     }
                 },
             ),
@@ -1356,7 +1422,7 @@ impl GeometricAlgebra {
                     [Class::Space(space_0), Class::Space(space_1)] => {
                         Some(Class::Space(space_0.zip_homogeneous(
                             space_1,
-                            |grade_0, grade_1| grade_1.checked_sub(grade_0),
+                            |grade_0, grade_1| self.grade_sub(grade_1, grade_0),
                             Space::mul,
                         )))
                     }
@@ -1375,7 +1441,7 @@ impl GeometricAlgebra {
                     [Class::Space(space_0), Class::Space(space_1)] => {
                         Some(Class::Space(space_0.zip_homogeneous(
                             space_1,
-                            |grade_0, grade_1| grade_0.checked_sub(grade_1),
+                            |grade_0, grade_1| self.grade_sub(grade_0, grade_1),
                             Space::mul,
                         )))
                     }
@@ -1394,7 +1460,10 @@ impl GeometricAlgebra {
                     [Class::Space(space_0), Class::Space(space_1)] => {
                         Some(Class::Space(space_0.zip_homogeneous(
                             space_1,
-                            |grade_0, grade_1| Some(grade_0.abs_diff(grade_1)),
+                            |grade_0, grade_1| {
+                                self.grade_sub(grade_0, grade_1)
+                                    .or(self.grade_sub(grade_1, grade_0))
+                            },
                             Space::mul,
                         )))
                     }
@@ -1415,9 +1484,7 @@ impl GeometricAlgebra {
                     [Class::Space(space_0), Class::Space(space_1)] => {
                         Some(Class::Space(space_0.zip_homogeneous(
                             space_1,
-                            |grade_0, grade_1| {
-                                Some(grade_0 + grade_1).filter(|&grade| grade <= self.dim)
-                            },
+                            |grade_0, grade_1| self.grade_add(grade_0, grade_1),
                             Space::mul,
                         )))
                     }
@@ -1436,9 +1503,7 @@ impl GeometricAlgebra {
                     [Class::Space(space_0), Class::Space(space_1)] => Some(Class::Space(
                         self.dual_space(self.dual_space(space_0).zip_homogeneous(
                             self.dual_space(space_1),
-                            |grade_0, grade_1| {
-                                Some(grade_0 + grade_1).filter(|&grade| grade <= self.dim)
-                            },
+                            |grade_0, grade_1| self.grade_add(grade_0, grade_1),
                             Space::mul,
                         )),
                     )),
@@ -1498,9 +1563,7 @@ impl GeometricAlgebra {
                         (blade_0 ^ blade_1 ^ blade_2).grade() == blade_1.grade()
                     },
                     term_sign: |[blade_0, blade_1, blade_2]| {
-                        Sign::from_count(blade_0.grade())
-                            ^ Sign::from_count(blade_1.grade())
-                            ^ Sign::from_count(blade_2.grade() >> 1)
+                        blade_0.involute_sign() ^ blade_1.involute_sign() ^ blade_2.reverse_sign()
                     },
                     ..Default::default()
                 }
@@ -1513,7 +1576,11 @@ impl GeometricAlgebra {
                     [Class::Space(space_0), Class::Space(space_1)] => {
                         Some(Class::Space(space_0.zip_homogeneous(
                             space_1,
-                            |grade_0, grade_1| (grade_0 <= grade_1).then_some(grade_0),
+                            |grade_0, grade_1| {
+                                self.grade_sub(grade_1, grade_0)
+                                    .is_some()
+                                    .then_some(grade_0)
+                            },
                             |space_0, _| space_0,
                         )))
                     }
@@ -1525,11 +1592,7 @@ impl GeometricAlgebra {
                             && (blade_0 ^ blade_1) & blade_2 == blade_0 ^ blade_1
                             && (blade_0 ^ blade_1 ^ blade_2).grade() == blade_0.grade()
                     },
-                    term_sign: |[blade_0, blade_1, blade_2]| {
-                        Sign::from_count(blade_0.grade())
-                            ^ Sign::from_count(blade_1.grade())
-                            ^ Sign::from_count(blade_2.grade() >> 1)
-                    },
+                    term_sign: |[_, _, blade_2]| blade_2.reverse_sign(),
                     ..Default::default()
                 }
                 .body_fn(self, [0, 1, 1]),
@@ -1541,7 +1604,11 @@ impl GeometricAlgebra {
                     [Class::Space(space_0), Class::Space(space_1)] => {
                         Some(Class::Space(space_0.zip_homogeneous(
                             space_1,
-                            |grade_0, grade_1| (grade_0 + grade_1 <= self.dim).then_some(grade_0),
+                            |grade_0, grade_1| {
+                                self.grade_sub(grade_0, grade_1)
+                                    .is_some()
+                                    .then_some(grade_0)
+                            },
                             |space_0, _| space_0,
                         )))
                     }
@@ -1553,11 +1620,7 @@ impl GeometricAlgebra {
                             && (blade_0 ^ blade_1) & blade_2 == blade_2
                             && (blade_0 ^ blade_1 ^ blade_2).grade() == blade_0.grade()
                     },
-                    term_sign: |[blade_0, blade_1, blade_2]| {
-                        Sign::from_count(blade_0.grade())
-                            ^ Sign::from_count(blade_1.grade())
-                            ^ Sign::from_count(blade_2.grade() >> 1)
-                    },
+                    term_sign: |[_, _, blade_2]| blade_2.reverse_sign(),
                     ..Default::default()
                 }
                 .body_fn(self, [0, 1, 1]),
@@ -1566,139 +1629,26 @@ impl GeometricAlgebra {
     }
 }
 
-struct GeometricAlgebraNames {
-    blade_names: Vec<String>,
-    graded_spaces: Vec<String>,
-    null_space: String,
-    even_space: String,
-    odd_space: String,
-    full_space: String,
+struct GeometricAlgebraStringifier<'s, S> {
+    blade_names: &'s indexmap::IndexMap<Blade, S>,
+    precision: S,
 }
 
-struct GeometricAlgebraStringifier<'n> {
-    names: &'n GeometricAlgebraNames,
-    precision: &'static str,
-}
-
-impl Stringifier<GeometricAlgebra> for GeometricAlgebraStringifier<'_> {
+impl<S: AsRef<str>> Stringifier<GeometricAlgebra> for GeometricAlgebraStringifier<'_, S> {
     fn stringify_type(&self, r#type: &<GeometricAlgebra as Ast>::Type) -> &str {
         match r#type {
-            Class::Base => self.precision,
+            Class::Base => self.precision.as_ref(),
             Class::Space(space) => self.stringify_template(space),
         }
     }
 
     fn stringify_template(&self, template: &<GeometricAlgebra as Ast>::Template) -> &str {
-        match template {
-            Space::Homogeneous { grade } => &self.names.graded_spaces[*grade],
-            Space::Mixed {
-                even: false,
-                odd: false,
-            } => &self.names.null_space,
-            Space::Mixed {
-                even: true,
-                odd: false,
-            } => &self.names.even_space,
-            Space::Mixed {
-                even: false,
-                odd: true,
-            } => &self.names.odd_space,
-            Space::Mixed {
-                even: true,
-                odd: true,
-            } => &self.names.full_space,
-        }
-    }
-
-    fn stringify_field(&self, field: &<GeometricAlgebra as Ast>::Field) -> &str {
-        &self.names.blade_names[field.generator_bits]
-    }
-}
-
-pub struct GeometricAlgeberaRecord {
-    record: Record<GeometricAlgebra>,
-    names: GeometricAlgebraNames,
-}
-
-impl GeometricAlgeberaRecord {
-    pub fn write<Lang, Buffer>(
-        &self,
-        lang: Lang,
-        buffer: &mut Buffer,
-        precision: &'static str,
-    ) -> std::io::Result<()>
-    where
-        Buffer: std::io::Write,
-        Lang: Syntax,
-    {
-        let stringifier = GeometricAlgebraStringifier {
-            names: &self.names,
-            precision,
-        };
-        let mut writer = Writer::new(buffer);
-        lang.emit_record(&mut writer, &stringifier, &self.record)
-    }
-}
-
-pub struct GeometricAlgebraBuilder {
-    alg: GeometricAlgebra,
-    names: GeometricAlgebraNames,
-}
-
-impl GeometricAlgebraBuilder {
-    pub fn new(
-        generator_squares: impl IntoIterator<Item = Coefficient>,
-        blades: impl IntoIterator<Item = impl AsRef<str>>,
-    ) -> Self {
-        let generator_squares = generator_squares.into_iter().collect_vec();
-        let dim = generator_squares.len();
-        let blades = blades.into_iter().collect_vec();
-        assert_eq!(blades.len(), 1 << dim);
-        let (blade_names, blade_intrinsic_signs): (Vec<_>, Vec<_>) = blades
-            .into_iter()
-            .map(|name| match name.as_ref().strip_prefix('-') {
-                None => (name.as_ref().to_string(), Sign::Pos),
-                Some(name) => (name.to_string(), Sign::Neg),
-            })
-            .unzip();
-        Self {
-            alg: GeometricAlgebra {
-                dim,
-                generator_squares,
-                blade_intrinsic_signs,
-            },
-            names: GeometricAlgebraNames {
-                blade_names,
-                graded_spaces: (0..=dim)
-                    .map(|grade| Self::space_name_default(Space::Homogeneous { grade }))
-                    .collect(),
-                null_space: Self::space_name_default(Space::Mixed {
-                    even: false,
-                    odd: false,
-                }),
-                even_space: Self::space_name_default(Space::Mixed {
-                    even: true,
-                    odd: false,
-                }),
-                odd_space: Self::space_name_default(Space::Mixed {
-                    even: false,
-                    odd: true,
-                }),
-                full_space: Self::space_name_default(Space::Mixed {
-                    even: true,
-                    odd: true,
-                }),
-            },
-        }
-    }
-
-    fn space_name_default(space: Space) -> String {
-        const GRADED_SPACES: [&str; 13] = [
+        const GRADED_SPACES: [&str; 17] = [
             "Scalar",
             "Vector",
             "Bivector",
             "Trivector",
-            "FourVector",
+            "QuadVector",
             "FiveVector",
             "SixVector",
             "SevenVector",
@@ -1707,61 +1657,121 @@ impl GeometricAlgebraBuilder {
             "TenVector",
             "ElevenVector",
             "TwelveVector",
+            "ThirteenVector",
+            "FourteenVector",
+            "FifteenVector",
+            "SixteenVector",
         ];
-        match space {
-            Space::Homogeneous { grade } => GRADED_SPACES
-                .get(grade)
-                .map_or_else(|| format!("Vector{grade}"), |name| name.to_string()),
+        match template {
+            Space::Homogeneous {
+                grade: Grade { grade },
+            } => GRADED_SPACES[*grade],
             Space::Mixed {
                 even: false,
                 odd: false,
-            } => String::from("Null"),
+            } => "Null",
             Space::Mixed {
                 even: true,
                 odd: false,
-            } => String::from("EvenMultivector"),
+            } => "EvenMultivector",
             Space::Mixed {
                 even: false,
                 odd: true,
-            } => String::from("OddMultivector"),
+            } => "OddMultivector",
             Space::Mixed {
                 even: true,
                 odd: true,
-            } => String::from("Multivector"),
+            } => "Multivector",
         }
     }
 
-    pub fn graded_spaces(
-        mut self,
-        graded_spaces: impl IntoIterator<Item = impl AsRef<str>>,
-    ) -> Self {
-        let graded_spaces = graded_spaces
-            .into_iter()
-            .map(|graded_space| graded_space.as_ref().to_string())
-            .collect_vec();
-        assert_eq!(graded_spaces.len(), self.alg.dim + 1);
-        self.names.graded_spaces = graded_spaces;
-        self
+    fn stringify_field(&self, field: &<GeometricAlgebra as Ast>::Field) -> &str {
+        self.blade_names[field].as_ref()
     }
+}
 
-    pub fn saturated_spaces(
-        mut self,
-        null_space: impl AsRef<str>,
-        even_space: impl AsRef<str>,
-        odd_space: impl AsRef<str>,
-        full_space: impl AsRef<str>,
-    ) -> Self {
-        self.names.null_space = null_space.as_ref().to_string();
-        self.names.even_space = even_space.as_ref().to_string();
-        self.names.odd_space = odd_space.as_ref().to_string();
-        self.names.full_space = full_space.as_ref().to_string();
-        self
-    }
+pub struct GeometricAlgebraRecord<S> {
+    record: Record<GeometricAlgebra>,
+    blade_names: indexmap::IndexMap<Blade, S>,
+}
 
-    pub fn build(self) -> GeometricAlgeberaRecord {
-        GeometricAlgeberaRecord {
-            record: self.alg.record(),
-            names: self.names,
+impl<S> GeometricAlgebraRecord<S> {
+    pub fn new<G>(
+        generators: indexmap::IndexMap<G, Coefficient>,
+        blades: indexmap::IndexMap<S, Vec<G>>,
+    ) -> Self
+    where
+        G: Eq + std::hash::Hash,
+        S: std::hash::Hash,
+    {
+        let dim = generators.len();
+        assert_eq!(1 << dim, blades.len());
+        let alg = GeometricAlgebra {
+            dim,
+            generator_squares: generators
+                .values()
+                .enumerate()
+                .map(|(generator, generator_square)| (Generator { generator }, *generator_square))
+                .collect(),
+            blade_intrinsic_signs: blades
+                .values()
+                .map(|generator_names| {
+                    let indices = generator_names
+                        .iter()
+                        .map(|generator_name| generators.get_index_of(generator_name).unwrap())
+                        .collect_vec();
+                    let blade = Blade {
+                        generator_bits: indices
+                            .iter()
+                            .map(|index| 1 << index)
+                            .fold(0, std::ops::BitXor::bitxor),
+                    };
+                    let sign = Sign::from_count(
+                        indices
+                            .iter()
+                            .tuple_combinations()
+                            .filter(|(index_0, index_1)| index_0 > index_1)
+                            .count(),
+                    );
+                    (blade, sign)
+                })
+                .collect(),
+        };
+        assert_eq!(alg.blade_intrinsic_signs.len(), blades.len());
+        assert!(alg
+            .blade_intrinsic_signs
+            .keys()
+            .map(|blade| blade.generator_bits)
+            .sorted()
+            .enumerate()
+            .all(|(index, generator_bits)| index == generator_bits));
+        Self {
+            record: alg.record(),
+            blade_names: alg
+                .blade_intrinsic_signs
+                .keys()
+                .cloned()
+                .zip(blades.into_keys())
+                .collect(),
         }
+    }
+
+    pub fn write<Lang, Buffer>(
+        &self,
+        lang: Lang,
+        buffer: &mut Buffer,
+        precision: S,
+    ) -> std::io::Result<()>
+    where
+        Buffer: std::io::Write,
+        Lang: Syntax,
+        S: AsRef<str>,
+    {
+        let stringifier = GeometricAlgebraStringifier {
+            blade_names: &self.blade_names,
+            precision,
+        };
+        let mut writer = Writer::new(buffer);
+        lang.emit_record(&mut writer, &stringifier, &self.record)
     }
 }

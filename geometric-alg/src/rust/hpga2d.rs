@@ -4876,7 +4876,7 @@ impl NormSquared for EvenMultivector {
 impl NormSquared for Multivector {
     type Output = f32;
     fn norm_squared(self) -> f32 {
-        self.s * self.s + self.e0 * self.e0 + self.e1 * self.e1 + self.e01 * self.e01 + self.e2 * self.e2 + self.e20 * self.e20 + self.e12 * self.e12 + self.e012 * self.e012
+        self.s * self.s + self.e0 * self.e0 + self.e1 * self.e1 + self.e2 * self.e2 + self.e01 * self.e01 + self.e20 * self.e20 + self.e12 * self.e12 + self.e012 * self.e012
     }
 }
 
@@ -5865,14 +5865,14 @@ impl GeometricProduct<Multivector> for Multivector {
     type Output = Multivector;
     fn geometric_product(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01 + self.e2 * other.e2 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
-            e0: self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e01 * other.e1 + self.e2 * other.e20 - self.e20 * other.e2 - self.e12 * other.e012 - self.e012 * other.e12,
-            e1: self.s * other.e1 + self.e0 * other.e01 + self.e1 * other.s - self.e01 * other.e0 - self.e2 * other.e12 - self.e20 * other.e012 + self.e12 * other.e2 - self.e012 * other.e20,
-            e2: self.s * other.e2 - self.e0 * other.e20 + self.e1 * other.e12 - self.e01 * other.e012 + self.e2 * other.s + self.e20 * other.e0 - self.e12 * other.e1 - self.e012 * other.e01,
-            e01: self.s * other.e01 + self.e0 * other.e1 - self.e1 * other.e0 + self.e01 * other.s + self.e2 * other.e012 + self.e20 * other.e12 - self.e12 * other.e20 + self.e012 * other.e2,
-            e20: self.s * other.e20 - self.e0 * other.e2 + self.e1 * other.e012 - self.e01 * other.e12 + self.e2 * other.e0 + self.e20 * other.s + self.e12 * other.e01 + self.e012 * other.e1,
-            e12: self.s * other.e12 + self.e0 * other.e012 + self.e1 * other.e2 + self.e01 * other.e20 - self.e2 * other.e1 - self.e20 * other.e01 + self.e12 * other.s + self.e012 * other.e0,
-            e012: self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e01 * other.e2 + self.e2 * other.e01 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
+            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 - self.e01 * other.e01 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
+            e0: self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e2 * other.e20 + self.e01 * other.e1 - self.e20 * other.e2 - self.e12 * other.e012 - self.e012 * other.e12,
+            e1: self.s * other.e1 + self.e0 * other.e01 + self.e1 * other.s - self.e2 * other.e12 - self.e01 * other.e0 - self.e20 * other.e012 + self.e12 * other.e2 - self.e012 * other.e20,
+            e2: self.s * other.e2 - self.e0 * other.e20 + self.e1 * other.e12 + self.e2 * other.s - self.e01 * other.e012 + self.e20 * other.e0 - self.e12 * other.e1 - self.e012 * other.e01,
+            e01: self.s * other.e01 + self.e0 * other.e1 - self.e1 * other.e0 + self.e2 * other.e012 + self.e01 * other.s + self.e20 * other.e12 - self.e12 * other.e20 + self.e012 * other.e2,
+            e20: self.s * other.e20 - self.e0 * other.e2 + self.e1 * other.e012 + self.e2 * other.e0 - self.e01 * other.e12 + self.e20 * other.s + self.e12 * other.e01 + self.e012 * other.e1,
+            e12: self.s * other.e12 + self.e0 * other.e012 + self.e1 * other.e2 - self.e2 * other.e1 + self.e01 * other.e20 - self.e20 * other.e01 + self.e12 * other.s + self.e012 * other.e0,
+            e012: self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e2 * other.e01 + self.e01 * other.e2 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
         }
     }
 }
@@ -6321,7 +6321,7 @@ impl ScalarProduct<EvenMultivector> for Multivector {
 impl ScalarProduct<Multivector> for Multivector {
     type Output = f32;
     fn scalar_product(self, other: Multivector) -> f32 {
-        self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01 + self.e2 * other.e2 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012
+        self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 - self.e01 * other.e01 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012
     }
 }
 
@@ -7008,7 +7008,7 @@ impl LeftInnerProduct<Multivector> for Multivector {
     type Output = Multivector;
     fn left_inner_product(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01 + self.e2 * other.e2 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
+            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 - self.e01 * other.e01 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
             e0: self.s * other.e0 - self.e1 * other.e01 + self.e2 * other.e20 - self.e12 * other.e012,
             e1: self.s * other.e1 + self.e0 * other.e01 - self.e2 * other.e12 - self.e20 * other.e012,
             e2: self.s * other.e2 - self.e0 * other.e20 + self.e1 * other.e12 - self.e01 * other.e012,
@@ -7703,7 +7703,7 @@ impl RightInnerProduct<Multivector> for Multivector {
     type Output = Multivector;
     fn right_inner_product(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01 + self.e2 * other.e2 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
+            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 - self.e01 * other.e01 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
             e0: self.e0 * other.s + self.e01 * other.e1 - self.e20 * other.e2 - self.e012 * other.e12,
             e1: self.e1 * other.s - self.e01 * other.e0 + self.e12 * other.e2 - self.e012 * other.e20,
             e2: self.e2 * other.s + self.e20 * other.e0 - self.e12 * other.e1 - self.e012 * other.e01,
@@ -8420,11 +8420,11 @@ impl InnerProduct<Multivector> for Multivector {
     type Output = Multivector;
     fn inner_product(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01 + self.e2 * other.e2 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
-            e0: self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e01 * other.e1 + self.e2 * other.e20 - self.e20 * other.e2 - self.e12 * other.e012 - self.e012 * other.e12,
-            e1: self.s * other.e1 + self.e0 * other.e01 + self.e1 * other.s - self.e01 * other.e0 - self.e2 * other.e12 - self.e20 * other.e012 + self.e12 * other.e2 - self.e012 * other.e20,
-            e2: self.s * other.e2 - self.e0 * other.e20 + self.e1 * other.e12 - self.e01 * other.e012 + self.e2 * other.s + self.e20 * other.e0 - self.e12 * other.e1 - self.e012 * other.e01,
-            e01: self.s * other.e01 + self.e01 * other.s + self.e2 * other.e012 + self.e012 * other.e2,
+            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 - self.e01 * other.e01 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
+            e0: self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e2 * other.e20 + self.e01 * other.e1 - self.e20 * other.e2 - self.e12 * other.e012 - self.e012 * other.e12,
+            e1: self.s * other.e1 + self.e0 * other.e01 + self.e1 * other.s - self.e2 * other.e12 - self.e01 * other.e0 - self.e20 * other.e012 + self.e12 * other.e2 - self.e012 * other.e20,
+            e2: self.s * other.e2 - self.e0 * other.e20 + self.e1 * other.e12 + self.e2 * other.s - self.e01 * other.e012 + self.e20 * other.e0 - self.e12 * other.e1 - self.e012 * other.e01,
+            e01: self.s * other.e01 + self.e2 * other.e012 + self.e01 * other.s + self.e012 * other.e2,
             e20: self.s * other.e20 + self.e1 * other.e012 + self.e20 * other.s + self.e012 * other.e1,
             e12: self.s * other.e12 + self.e0 * other.e012 + self.e12 * other.s + self.e012 * other.e0,
             e012: self.s * other.e012 + self.e012 * other.s,
@@ -9122,7 +9122,7 @@ impl OuterProduct<Multivector> for Multivector {
             e01: self.s * other.e01 + self.e0 * other.e1 - self.e1 * other.e0 + self.e01 * other.s,
             e20: self.s * other.e20 - self.e0 * other.e2 + self.e2 * other.e0 + self.e20 * other.s,
             e12: self.s * other.e12 + self.e1 * other.e2 - self.e2 * other.e1 + self.e12 * other.s,
-            e012: self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e01 * other.e2 + self.e2 * other.e01 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
+            e012: self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e2 * other.e01 + self.e01 * other.e2 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
         }
     }
 }
@@ -9810,7 +9810,7 @@ impl RegressiveProduct<Multivector> for Multivector {
     type Output = Multivector;
     fn regressive_product(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e01 * other.e2 + self.e2 * other.e01 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
+            s: self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e2 * other.e01 + self.e01 * other.e2 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
             e0: self.e0 * other.e012 - self.e01 * other.e20 + self.e20 * other.e01 + self.e012 * other.e0,
             e1: self.e1 * other.e012 + self.e01 * other.e12 - self.e12 * other.e01 + self.e012 * other.e1,
             e2: self.e2 * other.e012 - self.e20 * other.e12 + self.e12 * other.e20 + self.e012 * other.e2,
@@ -10556,12 +10556,12 @@ impl Commutator<Multivector> for Multivector {
     fn commutator(self, other: Multivector) -> Multivector {
         Multivector {
             s: 0.0,
-            e0: -self.e1 * other.e01 + self.e01 * other.e1 + self.e2 * other.e20 - self.e20 * other.e2,
-            e1: self.e0 * other.e01 - self.e01 * other.e0 - self.e2 * other.e12 + self.e12 * other.e2,
+            e0: -self.e1 * other.e01 + self.e2 * other.e20 + self.e01 * other.e1 - self.e20 * other.e2,
+            e1: self.e0 * other.e01 - self.e2 * other.e12 - self.e01 * other.e0 + self.e12 * other.e2,
             e2: -self.e0 * other.e20 + self.e1 * other.e12 + self.e20 * other.e0 - self.e12 * other.e1,
             e01: self.e0 * other.e1 - self.e1 * other.e0 + self.e20 * other.e12 - self.e12 * other.e20,
-            e20: -self.e0 * other.e2 - self.e01 * other.e12 + self.e2 * other.e0 + self.e12 * other.e01,
-            e12: self.e1 * other.e2 + self.e01 * other.e20 - self.e2 * other.e1 - self.e20 * other.e01,
+            e20: -self.e0 * other.e2 + self.e2 * other.e0 - self.e01 * other.e12 + self.e12 * other.e01,
+            e12: self.e1 * other.e2 - self.e2 * other.e1 + self.e01 * other.e20 - self.e20 * other.e01,
             e012: 0.0,
         }
     }
@@ -11300,14 +11300,14 @@ impl Anticommutator<Multivector> for Multivector {
     type Output = Multivector;
     fn anticommutator(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 - self.e01 * other.e01 + self.e2 * other.e2 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
+            s: self.s * other.s + self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 - self.e01 * other.e01 - self.e20 * other.e20 - self.e12 * other.e12 - self.e012 * other.e012,
             e0: self.s * other.e0 + self.e0 * other.s - self.e12 * other.e012 - self.e012 * other.e12,
             e1: self.s * other.e1 + self.e1 * other.s - self.e20 * other.e012 - self.e012 * other.e20,
-            e2: self.s * other.e2 - self.e01 * other.e012 + self.e2 * other.s - self.e012 * other.e01,
-            e01: self.s * other.e01 + self.e01 * other.s + self.e2 * other.e012 + self.e012 * other.e2,
+            e2: self.s * other.e2 + self.e2 * other.s - self.e01 * other.e012 - self.e012 * other.e01,
+            e01: self.s * other.e01 + self.e2 * other.e012 + self.e01 * other.s + self.e012 * other.e2,
             e20: self.s * other.e20 + self.e1 * other.e012 + self.e20 * other.s + self.e012 * other.e1,
             e12: self.s * other.e12 + self.e0 * other.e012 + self.e12 * other.s + self.e012 * other.e0,
-            e012: self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e01 * other.e2 + self.e2 * other.e01 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
+            e012: self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e2 * other.e01 + self.e01 * other.e2 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
         }
     }
 }
@@ -11379,7 +11379,7 @@ impl Transform<Multivector> for Scalar {
     type Output = Scalar;
     fn transform(self, other: Multivector) -> Scalar {
         Scalar {
-            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
+            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
         }
     }
 }
@@ -11465,9 +11465,9 @@ impl Transform<Multivector> for Vector {
     type Output = Vector;
     fn transform(self, other: Multivector) -> Vector {
         Vector {
-            e0: -self.e0 * other.s * other.s + self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 + self.e0 * other.e01 * other.e01 - self.e0 * other.e2 * other.e2 + self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 + self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
-            e1: 2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + 2.0 * self.e0 * other.e2 * other.e012 - 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 - self.e1 * other.e2 * other.e2 - self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 - 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 - 2.0 * self.e2 * other.e01 * other.e20,
-            e2: -2.0 * self.e0 * other.s * other.e20 + 2.0 * self.e0 * other.e0 * other.e2 - 2.0 * self.e0 * other.e1 * other.e012 - 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 + 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 - 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 - self.e2 * other.e01 * other.e01 + self.e2 * other.e2 * other.e2 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
+            e0: -self.e0 * other.s * other.s + self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e2 * other.e2 + self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 + self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
+            e1: 2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + 2.0 * self.e0 * other.e2 * other.e012 - 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e2 * other.e2 + self.e1 * other.e01 * other.e01 - self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 - 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 - 2.0 * self.e2 * other.e01 * other.e20,
+            e2: -2.0 * self.e0 * other.s * other.e20 + 2.0 * self.e0 * other.e0 * other.e2 - 2.0 * self.e0 * other.e1 * other.e012 - 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 + 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 - 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 + self.e2 * other.e2 * other.e2 - self.e2 * other.e01 * other.e01 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
         }
     }
 }
@@ -11553,9 +11553,9 @@ impl Transform<Multivector> for Bivector {
     type Output = Bivector;
     fn transform(self, other: Multivector) -> Bivector {
         Bivector {
-            e01: self.e01 * other.s * other.s + self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 + self.e01 * other.e01 * other.e01 - self.e01 * other.e2 * other.e2 - self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 - self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 - 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 + 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
-            e20: 2.0 * self.e01 * other.s * other.e12 + 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 + 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s + self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 - self.e20 * other.e01 * other.e01 + self.e20 * other.e2 * other.e2 + self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 - self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
-            e12: -2.0 * self.e01 * other.s * other.e20 - 2.0 * self.e01 * other.e0 * other.e2 - 2.0 * self.e01 * other.e1 * other.e012 + 2.0 * self.e01 * other.e01 * other.e12 + 2.0 * self.e20 * other.s * other.e01 - 2.0 * self.e20 * other.e0 * other.e1 + 2.0 * self.e20 * other.e2 * other.e012 + 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 - self.e12 * other.e01 * other.e01 + self.e12 * other.e2 * other.e2 - self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
+            e01: self.e01 * other.s * other.s + self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 - self.e01 * other.e2 * other.e2 + self.e01 * other.e01 * other.e01 - self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 - self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 - 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 + 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
+            e20: 2.0 * self.e01 * other.s * other.e12 + 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 + 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s + self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 + self.e20 * other.e2 * other.e2 - self.e20 * other.e01 * other.e01 + self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 - self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
+            e12: -2.0 * self.e01 * other.s * other.e20 - 2.0 * self.e01 * other.e0 * other.e2 - 2.0 * self.e01 * other.e1 * other.e012 + 2.0 * self.e01 * other.e01 * other.e12 + 2.0 * self.e20 * other.s * other.e01 - 2.0 * self.e20 * other.e0 * other.e1 + 2.0 * self.e20 * other.e2 * other.e012 + 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 + self.e12 * other.e2 * other.e2 - self.e12 * other.e01 * other.e01 - self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
         }
     }
 }
@@ -11627,7 +11627,7 @@ impl Transform<Multivector> for Trivector {
     type Output = Trivector;
     fn transform(self, other: Multivector) -> Trivector {
         Trivector {
-            e012: -self.e012 * other.s * other.s + self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 - self.e012 * other.e01 * other.e01 + self.e012 * other.e2 * other.e2 - self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 + self.e012 * other.e012 * other.e012,
+            e012: -self.e012 * other.s * other.s + self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 + self.e012 * other.e2 * other.e2 - self.e012 * other.e01 * other.e01 - self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 + self.e012 * other.e012 * other.e012,
         }
     }
 }
@@ -11776,10 +11776,10 @@ impl Transform<Multivector> for OddMultivector {
     type Output = OddMultivector;
     fn transform(self, other: Multivector) -> OddMultivector {
         OddMultivector {
-            e0: -self.e0 * other.s * other.s + self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 + self.e0 * other.e01 * other.e01 - self.e0 * other.e2 * other.e2 + self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 + self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
-            e1: 2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + 2.0 * self.e0 * other.e2 * other.e012 - 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 - self.e1 * other.e2 * other.e2 - self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 - 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 - 2.0 * self.e2 * other.e01 * other.e20,
-            e2: -2.0 * self.e0 * other.s * other.e20 + 2.0 * self.e0 * other.e0 * other.e2 - 2.0 * self.e0 * other.e1 * other.e012 - 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 + 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 - 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 - self.e2 * other.e01 * other.e01 + self.e2 * other.e2 * other.e2 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
-            e012: -self.e012 * other.s * other.s + self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 - self.e012 * other.e01 * other.e01 + self.e012 * other.e2 * other.e2 - self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 + self.e012 * other.e012 * other.e012,
+            e0: -self.e0 * other.s * other.s + self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e2 * other.e2 + self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 + self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
+            e1: 2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + 2.0 * self.e0 * other.e2 * other.e012 - 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e2 * other.e2 + self.e1 * other.e01 * other.e01 - self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 - 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 - 2.0 * self.e2 * other.e01 * other.e20,
+            e2: -2.0 * self.e0 * other.s * other.e20 + 2.0 * self.e0 * other.e0 * other.e2 - 2.0 * self.e0 * other.e1 * other.e012 - 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 + 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 - 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 + self.e2 * other.e2 * other.e2 - self.e2 * other.e01 * other.e01 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
+            e012: -self.e012 * other.s * other.s + self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 + self.e012 * other.e2 * other.e2 - self.e012 * other.e01 * other.e01 - self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 + self.e012 * other.e012 * other.e012,
         }
     }
 }
@@ -11872,10 +11872,10 @@ impl Transform<Multivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn transform(self, other: Multivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
-            e01: self.e01 * other.s * other.s + self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 + self.e01 * other.e01 * other.e01 - self.e01 * other.e2 * other.e2 - self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 - self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 - 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 + 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
-            e20: 2.0 * self.e01 * other.s * other.e12 + 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 + 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s + self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 - self.e20 * other.e01 * other.e01 + self.e20 * other.e2 * other.e2 + self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 - self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
-            e12: -2.0 * self.e01 * other.s * other.e20 - 2.0 * self.e01 * other.e0 * other.e2 - 2.0 * self.e01 * other.e1 * other.e012 + 2.0 * self.e01 * other.e01 * other.e12 + 2.0 * self.e20 * other.s * other.e01 - 2.0 * self.e20 * other.e0 * other.e1 + 2.0 * self.e20 * other.e2 * other.e012 + 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 - self.e12 * other.e01 * other.e01 + self.e12 * other.e2 * other.e2 - self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
+            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
+            e01: self.e01 * other.s * other.s + self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 - self.e01 * other.e2 * other.e2 + self.e01 * other.e01 * other.e01 - self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 - self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 - 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 + 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
+            e20: 2.0 * self.e01 * other.s * other.e12 + 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 + 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s + self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 + self.e20 * other.e2 * other.e2 - self.e20 * other.e01 * other.e01 + self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 - self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
+            e12: -2.0 * self.e01 * other.s * other.e20 - 2.0 * self.e01 * other.e0 * other.e2 - 2.0 * self.e01 * other.e1 * other.e012 + 2.0 * self.e01 * other.e01 * other.e12 + 2.0 * self.e20 * other.s * other.e01 - 2.0 * self.e20 * other.e0 * other.e1 + 2.0 * self.e20 * other.e2 * other.e012 + 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 + self.e12 * other.e2 * other.e2 - self.e12 * other.e01 * other.e01 - self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
         }
     }
 }
@@ -11996,14 +11996,14 @@ impl Transform<Multivector> for Multivector {
     type Output = Multivector;
     fn transform(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
-            e0: -self.e0 * other.s * other.s + self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 + self.e0 * other.e01 * other.e01 - self.e0 * other.e2 * other.e2 + self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 + self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
-            e1: 2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + 2.0 * self.e0 * other.e2 * other.e012 - 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 - self.e1 * other.e2 * other.e2 - self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 - 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 - 2.0 * self.e2 * other.e01 * other.e20,
-            e2: -2.0 * self.e0 * other.s * other.e20 + 2.0 * self.e0 * other.e0 * other.e2 - 2.0 * self.e0 * other.e1 * other.e012 - 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 + 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 - 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 - self.e2 * other.e01 * other.e01 + self.e2 * other.e2 * other.e2 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
-            e01: self.e01 * other.s * other.s + self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 + self.e01 * other.e01 * other.e01 - self.e01 * other.e2 * other.e2 - self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 - self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 - 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 + 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
-            e20: 2.0 * self.e01 * other.s * other.e12 + 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 + 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s + self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 - self.e20 * other.e01 * other.e01 + self.e20 * other.e2 * other.e2 + self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 - self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
-            e12: -2.0 * self.e01 * other.s * other.e20 - 2.0 * self.e01 * other.e0 * other.e2 - 2.0 * self.e01 * other.e1 * other.e012 + 2.0 * self.e01 * other.e01 * other.e12 + 2.0 * self.e20 * other.s * other.e01 - 2.0 * self.e20 * other.e0 * other.e1 + 2.0 * self.e20 * other.e2 * other.e012 + 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 - self.e12 * other.e01 * other.e01 + self.e12 * other.e2 * other.e2 - self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
-            e012: -self.e012 * other.s * other.s + self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 - self.e012 * other.e01 * other.e01 + self.e012 * other.e2 * other.e2 - self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 + self.e012 * other.e012 * other.e012,
+            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
+            e0: -self.e0 * other.s * other.s + self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e2 * other.e2 + self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 + self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
+            e1: 2.0 * self.e0 * other.s * other.e01 + 2.0 * self.e0 * other.e0 * other.e1 + 2.0 * self.e0 * other.e2 * other.e012 - 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e2 * other.e2 + self.e1 * other.e01 * other.e01 - self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 - 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 - 2.0 * self.e2 * other.e01 * other.e20,
+            e2: -2.0 * self.e0 * other.s * other.e20 + 2.0 * self.e0 * other.e0 * other.e2 - 2.0 * self.e0 * other.e1 * other.e012 - 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 + 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 - 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 + self.e2 * other.e2 * other.e2 - self.e2 * other.e01 * other.e01 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
+            e01: self.e01 * other.s * other.s + self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 - self.e01 * other.e2 * other.e2 + self.e01 * other.e01 * other.e01 - self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 - self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 - 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 + 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
+            e20: 2.0 * self.e01 * other.s * other.e12 + 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 + 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s + self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 + self.e20 * other.e2 * other.e2 - self.e20 * other.e01 * other.e01 + self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 - self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
+            e12: -2.0 * self.e01 * other.s * other.e20 - 2.0 * self.e01 * other.e0 * other.e2 - 2.0 * self.e01 * other.e1 * other.e012 + 2.0 * self.e01 * other.e01 * other.e12 + 2.0 * self.e20 * other.s * other.e01 - 2.0 * self.e20 * other.e0 * other.e1 + 2.0 * self.e20 * other.e2 * other.e012 + 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 + self.e12 * other.e2 * other.e2 - self.e12 * other.e01 * other.e01 - self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
+            e012: -self.e012 * other.s * other.s + self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 + self.e012 * other.e2 * other.e2 - self.e012 * other.e01 * other.e01 - self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 + self.e012 * other.e012 * other.e012,
         }
     }
 }
@@ -12021,7 +12021,7 @@ impl Project<Vector> for Scalar {
     type Output = Scalar;
     fn project(self, other: Vector) -> Scalar {
         Scalar {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2,
         }
     }
 }
@@ -12039,7 +12039,7 @@ impl Project<Trivector> for Scalar {
     type Output = Scalar;
     fn project(self, other: Trivector) -> Scalar {
         Scalar {
-            s: -self.s * other.e012 * other.e012,
+            s: self.s * other.e012 * other.e012,
         }
     }
 }
@@ -12057,7 +12057,7 @@ impl Project<OddMultivector> for Scalar {
     type Output = Scalar;
     fn project(self, other: OddMultivector) -> Scalar {
         Scalar {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
         }
     }
 }
@@ -12075,7 +12075,7 @@ impl Project<Multivector> for Scalar {
     type Output = Scalar;
     fn project(self, other: Multivector) -> Scalar {
         Scalar {
-            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
+            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
         }
     }
 }
@@ -12102,9 +12102,9 @@ impl Project<Bivector> for Vector {
     type Output = Vector;
     fn project(self, other: Bivector) -> Vector {
         Vector {
-            e0: -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-            e1: self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
-            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+            e0: self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+            e1: -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
+            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
         }
     }
 }
@@ -12146,9 +12146,9 @@ impl Project<EvenMultivector> for Vector {
     type Output = Vector;
     fn project(self, other: EvenMultivector) -> Vector {
         Vector {
-            e0: -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-            e1: self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
-            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+            e0: self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+            e1: -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
+            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
         }
     }
 }
@@ -12157,9 +12157,9 @@ impl Project<Multivector> for Vector {
     type Output = Vector;
     fn project(self, other: Multivector) -> Vector {
         Vector {
-            e0: self.e0 * other.e0 * other.e0 - self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 + self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
-            e1: self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
-            e2: self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 - self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
+            e0: self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 + self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
+            e1: self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
+            e2: self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
         }
     }
 }
@@ -12193,9 +12193,9 @@ impl Project<Trivector> for Bivector {
     type Output = Bivector;
     fn project(self, other: Trivector) -> Bivector {
         Bivector {
-            e01: -self.e01 * other.e012 * other.e012,
-            e20: -self.e20 * other.e012 * other.e012,
-            e12: -self.e12 * other.e012 * other.e012,
+            e01: self.e01 * other.e012 * other.e012,
+            e20: self.e20 * other.e012 * other.e012,
+            e12: self.e12 * other.e012 * other.e012,
         }
     }
 }
@@ -12215,9 +12215,9 @@ impl Project<OddMultivector> for Bivector {
     type Output = Bivector;
     fn project(self, other: OddMultivector) -> Bivector {
         Bivector {
-            e01: -self.e01 * other.e012 * other.e012,
-            e20: -self.e20 * other.e012 * other.e012,
-            e12: -self.e12 * other.e012 * other.e012,
+            e01: self.e01 * other.e012 * other.e012,
+            e20: self.e20 * other.e012 * other.e012,
+            e12: self.e12 * other.e012 * other.e012,
         }
     }
 }
@@ -12237,9 +12237,9 @@ impl Project<Multivector> for Bivector {
     type Output = Bivector;
     fn project(self, other: Multivector) -> Bivector {
         Bivector {
-            e01: self.e01 * other.e01 * other.e01 - self.e01 * other.e012 * other.e012 + self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
-            e20: self.e01 * other.e01 * other.e20 + self.e20 * other.e20 * other.e20 - self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
-            e12: self.e01 * other.e01 * other.e12 + self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
+            e01: self.e01 * other.e01 * other.e01 + self.e01 * other.e012 * other.e012 + self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
+            e20: self.e01 * other.e01 * other.e20 + self.e20 * other.e20 * other.e20 + self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
+            e12: self.e01 * other.e01 * other.e12 + self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012,
         }
     }
 }
@@ -12394,9 +12394,9 @@ impl Project<Bivector> for OddMultivector {
     type Output = OddMultivector;
     fn project(self, other: Bivector) -> OddMultivector {
         OddMultivector {
-            e0: -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-            e1: self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
-            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+            e0: self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+            e1: -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
+            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
             e012: 0.0,
         }
     }
@@ -12442,9 +12442,9 @@ impl Project<EvenMultivector> for OddMultivector {
     type Output = OddMultivector;
     fn project(self, other: EvenMultivector) -> OddMultivector {
         OddMultivector {
-            e0: -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-            e1: self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
-            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+            e0: self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+            e1: -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
+            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
             e012: 0.0,
         }
     }
@@ -12454,9 +12454,9 @@ impl Project<Multivector> for OddMultivector {
     type Output = OddMultivector;
     fn project(self, other: Multivector) -> OddMultivector {
         OddMultivector {
-            e0: self.e0 * other.e0 * other.e0 - self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 + self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
-            e1: self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
-            e2: self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 - self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
+            e0: self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 + self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
+            e1: self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
+            e2: self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
             e012: self.e012 * other.e012 * other.e012,
         }
     }
@@ -12478,7 +12478,7 @@ impl Project<Vector> for EvenMultivector {
     type Output = EvenMultivector;
     fn project(self, other: Vector) -> EvenMultivector {
         EvenMultivector {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2,
             e01: 0.0,
             e20: 0.0,
             e12: 0.0,
@@ -12502,10 +12502,10 @@ impl Project<Trivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn project(self, other: Trivector) -> EvenMultivector {
         EvenMultivector {
-            s: -self.s * other.e012 * other.e012,
-            e01: -self.e01 * other.e012 * other.e012,
-            e20: -self.e20 * other.e012 * other.e012,
-            e12: -self.e12 * other.e012 * other.e012,
+            s: self.s * other.e012 * other.e012,
+            e01: self.e01 * other.e012 * other.e012,
+            e20: self.e20 * other.e012 * other.e012,
+            e12: self.e12 * other.e012 * other.e012,
         }
     }
 }
@@ -12526,10 +12526,10 @@ impl Project<OddMultivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn project(self, other: OddMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
-            e01: -self.e01 * other.e012 * other.e012,
-            e20: -self.e20 * other.e012 * other.e012,
-            e12: -self.e12 * other.e012 * other.e012,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
+            e01: self.e01 * other.e012 * other.e012,
+            e20: self.e20 * other.e012 * other.e012,
+            e12: self.e12 * other.e012 * other.e012,
         }
     }
 }
@@ -12550,10 +12550,10 @@ impl Project<Multivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn project(self, other: Multivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
-            e01: self.e01 * other.e01 * other.e01 - self.e01 * other.e012 * other.e012 + self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
-            e20: self.e01 * other.e01 * other.e20 + self.e20 * other.e20 * other.e20 - self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
-            e12: self.e01 * other.e01 * other.e12 + self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
+            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
+            e01: self.e01 * other.e01 * other.e01 + self.e01 * other.e012 * other.e012 + self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
+            e20: self.e01 * other.e01 * other.e20 + self.e20 * other.e20 * other.e20 + self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
+            e12: self.e01 * other.e01 * other.e12 + self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012,
         }
     }
 }
@@ -12578,7 +12578,7 @@ impl Project<Vector> for Multivector {
     type Output = Multivector;
     fn project(self, other: Vector) -> Multivector {
         Multivector {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2,
             e0: self.e0 * other.e0 * other.e0 + self.e1 * other.e0 * other.e1 + self.e2 * other.e0 * other.e2,
             e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e2 * other.e1 * other.e2,
             e2: self.e0 * other.e0 * other.e2 + self.e1 * other.e1 * other.e2 + self.e2 * other.e2 * other.e2,
@@ -12595,9 +12595,9 @@ impl Project<Bivector> for Multivector {
     fn project(self, other: Bivector) -> Multivector {
         Multivector {
             s: self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12,
-            e0: -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-            e1: self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
-            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+            e0: self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+            e1: -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
+            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
             e01: self.e01 * other.e01 * other.e01 + self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
             e20: self.e01 * other.e01 * other.e20 + self.e20 * other.e20 * other.e20 + self.e12 * other.e20 * other.e12,
             e12: self.e01 * other.e01 * other.e12 + self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12,
@@ -12610,13 +12610,13 @@ impl Project<Trivector> for Multivector {
     type Output = Multivector;
     fn project(self, other: Trivector) -> Multivector {
         Multivector {
-            s: -self.s * other.e012 * other.e012,
+            s: self.s * other.e012 * other.e012,
             e0: self.e0 * other.e012 * other.e012,
             e1: self.e1 * other.e012 * other.e012,
             e2: self.e2 * other.e012 * other.e012,
-            e01: -self.e01 * other.e012 * other.e012,
-            e20: -self.e20 * other.e012 * other.e012,
-            e12: -self.e12 * other.e012 * other.e012,
+            e01: self.e01 * other.e012 * other.e012,
+            e20: self.e20 * other.e012 * other.e012,
+            e12: self.e12 * other.e012 * other.e012,
             e012: self.e012 * other.e012 * other.e012,
         }
     }
@@ -12642,13 +12642,13 @@ impl Project<OddMultivector> for Multivector {
     type Output = Multivector;
     fn project(self, other: OddMultivector) -> Multivector {
         Multivector {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
             e0: self.e0 * other.e0 * other.e0 + self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 + self.e2 * other.e0 * other.e2,
             e1: self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2,
             e2: self.e0 * other.e0 * other.e2 + self.e1 * other.e1 * other.e2 + self.e2 * other.e2 * other.e2 + self.e2 * other.e012 * other.e012,
-            e01: -self.e01 * other.e012 * other.e012,
-            e20: -self.e20 * other.e012 * other.e012,
-            e12: -self.e12 * other.e012 * other.e012,
+            e01: self.e01 * other.e012 * other.e012,
+            e20: self.e20 * other.e012 * other.e012,
+            e12: self.e12 * other.e012 * other.e012,
             e012: self.e012 * other.e012 * other.e012,
         }
     }
@@ -12659,9 +12659,9 @@ impl Project<EvenMultivector> for Multivector {
     fn project(self, other: EvenMultivector) -> Multivector {
         Multivector {
             s: self.s * other.s * other.s + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12,
-            e0: -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-            e1: self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
-            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+            e0: self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+            e1: -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
+            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
             e01: self.e01 * other.e01 * other.e01 + self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
             e20: self.e01 * other.e01 * other.e20 + self.e20 * other.e20 * other.e20 + self.e12 * other.e20 * other.e12,
             e12: self.e01 * other.e01 * other.e12 + self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12,
@@ -12674,13 +12674,13 @@ impl Project<Multivector> for Multivector {
     type Output = Multivector;
     fn project(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
-            e0: self.e0 * other.e0 * other.e0 - self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 + self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
-            e1: self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
-            e2: self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 - self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
-            e01: self.e01 * other.e01 * other.e01 - self.e01 * other.e012 * other.e012 + self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
-            e20: self.e01 * other.e01 * other.e20 + self.e20 * other.e20 * other.e20 - self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
-            e12: self.e01 * other.e01 * other.e12 + self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
+            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
+            e0: self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 + self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
+            e1: self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
+            e2: self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 + self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 + self.e2 * other.e012 * other.e012,
+            e01: self.e01 * other.e01 * other.e01 + self.e01 * other.e012 * other.e012 + self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
+            e20: self.e01 * other.e01 * other.e20 + self.e20 * other.e20 * other.e20 + self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
+            e12: self.e01 * other.e01 * other.e12 + self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012,
             e012: self.e012 * other.e012 * other.e012,
         }
     }
@@ -12696,29 +12696,23 @@ impl Reject<Scalar> for Scalar {
 }
 
 impl Reject<Vector> for Scalar {
-    type Output = Scalar;
-    fn reject(self, other: Vector) -> Scalar {
-        Scalar {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
-        }
+    type Output = Null;
+    fn reject(self, other: Vector) -> Null {
+        Null
     }
 }
 
 impl Reject<Bivector> for Scalar {
-    type Output = Scalar;
-    fn reject(self, other: Bivector) -> Scalar {
-        Scalar {
-            s: self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12,
-        }
+    type Output = Null;
+    fn reject(self, other: Bivector) -> Null {
+        Null
     }
 }
 
 impl Reject<Trivector> for Scalar {
-    type Output = Scalar;
-    fn reject(self, other: Trivector) -> Scalar {
-        Scalar {
-            s: -self.s * other.e012 * other.e012,
-        }
+    type Output = Null;
+    fn reject(self, other: Trivector) -> Null {
+        Null
     }
 }
 
@@ -12735,7 +12729,7 @@ impl Reject<OddMultivector> for Scalar {
     type Output = Scalar;
     fn reject(self, other: OddMultivector) -> Scalar {
         Scalar {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
         }
     }
 }
@@ -12753,7 +12747,7 @@ impl Reject<Multivector> for Scalar {
     type Output = Scalar;
     fn reject(self, other: Multivector) -> Scalar {
         Scalar {
-            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
+            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
         }
     }
 }
@@ -12762,9 +12756,9 @@ impl Reject<Scalar> for Vector {
     type Output = Vector;
     fn reject(self, other: Scalar) -> Vector {
         Vector {
-            e0: -self.e0 * other.s * other.s,
-            e1: -self.e1 * other.s * other.s,
-            e2: -self.e2 * other.s * other.s,
+            e0: self.e0 * other.s * other.s,
+            e1: self.e1 * other.s * other.s,
+            e2: self.e2 * other.s * other.s,
         }
     }
 }
@@ -12781,13 +12775,9 @@ impl Reject<Vector> for Vector {
 }
 
 impl Reject<Bivector> for Vector {
-    type Output = Vector;
-    fn reject(self, other: Bivector) -> Vector {
-        Vector {
-            e0: -self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-            e1: -self.e0 * other.e20 * other.e12 - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
-            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 - self.e2 * other.e01 * other.e01,
-        }
+    type Output = Null;
+    fn reject(self, other: Bivector) -> Null {
+        Null
     }
 }
 
@@ -12824,9 +12814,9 @@ impl Reject<EvenMultivector> for Vector {
     type Output = Vector;
     fn reject(self, other: EvenMultivector) -> Vector {
         Vector {
-            e0: -self.e0 * other.s * other.s - self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-            e1: -self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
-            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e01 * other.e01,
+            e0: self.e0 * other.s * other.s + self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+            e1: self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
+            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s + self.e2 * other.e01 * other.e01,
         }
     }
 }
@@ -12835,9 +12825,9 @@ impl Reject<Multivector> for Vector {
     type Output = Vector;
     fn reject(self, other: Multivector) -> Vector {
         Vector {
-            e0: -self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
-            e1: -self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
-            e2: -self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 - self.e2 * other.e01 * other.e01,
+            e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
+            e1: -self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 + self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
+            e2: -self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01,
         }
     }
 }
@@ -12857,17 +12847,21 @@ impl Reject<Vector> for Bivector {
     type Output = Bivector;
     fn reject(self, other: Vector) -> Bivector {
         Bivector {
-            e01: -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-            e20: -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-            e12: -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0,
+            e01: self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e20: self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+            e12: self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0,
         }
     }
 }
 
 impl Reject<Bivector> for Bivector {
-    type Output = Null;
-    fn reject(self, other: Bivector) -> Null {
-        Null
+    type Output = Bivector;
+    fn reject(self, other: Bivector) -> Bivector {
+        Bivector {
+            e01: 0.0,
+            e20: 0.0,
+            e12: 0.0,
+        }
     }
 }
 
@@ -12893,9 +12887,9 @@ impl Reject<OddMultivector> for Bivector {
     type Output = Bivector;
     fn reject(self, other: OddMultivector) -> Bivector {
         Bivector {
-            e01: -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-            e20: -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-            e12: -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0,
+            e01: self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e20: self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+            e12: self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0,
         }
     }
 }
@@ -12915,9 +12909,9 @@ impl Reject<Multivector> for Bivector {
     type Output = Bivector;
     fn reject(self, other: Multivector) -> Bivector {
         Bivector {
-            e01: self.e01 * other.s * other.s - self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-            e20: -self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-            e12: -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0,
+            e01: self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e20: self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+            e12: self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0,
         }
     }
 }
@@ -12926,29 +12920,35 @@ impl Reject<Scalar> for Trivector {
     type Output = Trivector;
     fn reject(self, other: Scalar) -> Trivector {
         Trivector {
-            e012: -self.e012 * other.s * other.s,
+            e012: self.e012 * other.s * other.s,
         }
     }
 }
 
 impl Reject<Vector> for Trivector {
-    type Output = Null;
-    fn reject(self, other: Vector) -> Null {
-        Null
+    type Output = Trivector;
+    fn reject(self, other: Vector) -> Trivector {
+        Trivector {
+            e012: 0.0,
+        }
     }
 }
 
 impl Reject<Bivector> for Trivector {
-    type Output = Null;
-    fn reject(self, other: Bivector) -> Null {
-        Null
+    type Output = Trivector;
+    fn reject(self, other: Bivector) -> Trivector {
+        Trivector {
+            e012: 0.0,
+        }
     }
 }
 
 impl Reject<Trivector> for Trivector {
-    type Output = Null;
-    fn reject(self, other: Trivector) -> Null {
-        Null
+    type Output = Trivector;
+    fn reject(self, other: Trivector) -> Trivector {
+        Trivector {
+            e012: 0.0,
+        }
     }
 }
 
@@ -12974,7 +12974,7 @@ impl Reject<EvenMultivector> for Trivector {
     type Output = Trivector;
     fn reject(self, other: EvenMultivector) -> Trivector {
         Trivector {
-            e012: -self.e012 * other.s * other.s,
+            e012: self.e012 * other.s * other.s,
         }
     }
 }
@@ -12983,7 +12983,7 @@ impl Reject<Multivector> for Trivector {
     type Output = Trivector;
     fn reject(self, other: Multivector) -> Trivector {
         Trivector {
-            e012: -self.e012 * other.s * other.s,
+            e012: self.e012 * other.s * other.s,
         }
     }
 }
@@ -13048,10 +13048,10 @@ impl Reject<Scalar> for OddMultivector {
     type Output = OddMultivector;
     fn reject(self, other: Scalar) -> OddMultivector {
         OddMultivector {
-            e0: -self.e0 * other.s * other.s,
-            e1: -self.e1 * other.s * other.s,
-            e2: -self.e2 * other.s * other.s,
-            e012: -self.e012 * other.s * other.s,
+            e0: self.e0 * other.s * other.s,
+            e1: self.e1 * other.s * other.s,
+            e2: self.e2 * other.s * other.s,
+            e012: self.e012 * other.s * other.s,
         }
     }
 }
@@ -13072,9 +13072,9 @@ impl Reject<Bivector> for OddMultivector {
     type Output = OddMultivector;
     fn reject(self, other: Bivector) -> OddMultivector {
         OddMultivector {
-            e0: -self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-            e1: -self.e0 * other.e20 * other.e12 - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
-            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 - self.e2 * other.e01 * other.e01,
+            e0: self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+            e1: self.e0 * other.e20 * other.e12 + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
+            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 + self.e2 * other.e01 * other.e01,
             e012: 0.0,
         }
     }
@@ -13120,10 +13120,10 @@ impl Reject<EvenMultivector> for OddMultivector {
     type Output = OddMultivector;
     fn reject(self, other: EvenMultivector) -> OddMultivector {
         OddMultivector {
-            e0: -self.e0 * other.s * other.s - self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-            e1: -self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
-            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e01 * other.e01,
-            e012: -self.e012 * other.s * other.s,
+            e0: self.e0 * other.s * other.s + self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+            e1: self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
+            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s + self.e2 * other.e01 * other.e01,
+            e012: self.e012 * other.s * other.s,
         }
     }
 }
@@ -13132,10 +13132,10 @@ impl Reject<Multivector> for OddMultivector {
     type Output = OddMultivector;
     fn reject(self, other: Multivector) -> OddMultivector {
         OddMultivector {
-            e0: -self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
-            e1: -self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
-            e2: -self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 - self.e2 * other.e01 * other.e01,
-            e012: -self.e012 * other.s * other.s,
+            e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
+            e1: -self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 + self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
+            e2: -self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01,
+            e012: self.e012 * other.s * other.s,
         }
     }
 }
@@ -13156,10 +13156,10 @@ impl Reject<Vector> for EvenMultivector {
     type Output = EvenMultivector;
     fn reject(self, other: Vector) -> EvenMultivector {
         EvenMultivector {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
-            e01: -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-            e20: -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-            e12: -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2,
+            e01: self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e20: self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+            e12: self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0,
         }
     }
 }
@@ -13180,7 +13180,7 @@ impl Reject<Trivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn reject(self, other: Trivector) -> EvenMultivector {
         EvenMultivector {
-            s: -self.s * other.e012 * other.e012,
+            s: self.s * other.e012 * other.e012,
             e01: 0.0,
             e20: 0.0,
             e12: 0.0,
@@ -13204,10 +13204,10 @@ impl Reject<OddMultivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn reject(self, other: OddMultivector) -> EvenMultivector {
         EvenMultivector {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
-            e01: -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-            e20: -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-            e12: -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
+            e01: self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e20: self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+            e12: self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0,
         }
     }
 }
@@ -13228,10 +13228,10 @@ impl Reject<Multivector> for EvenMultivector {
     type Output = EvenMultivector;
     fn reject(self, other: Multivector) -> EvenMultivector {
         EvenMultivector {
-            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
-            e01: self.e01 * other.s * other.s - self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-            e20: -self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-            e12: -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0,
+            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
+            e01: self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e20: self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+            e12: self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0,
         }
     }
 }
@@ -13241,13 +13241,13 @@ impl Reject<Scalar> for Multivector {
     fn reject(self, other: Scalar) -> Multivector {
         Multivector {
             s: self.s * other.s * other.s,
-            e0: -self.e0 * other.s * other.s,
-            e1: -self.e1 * other.s * other.s,
-            e2: -self.e2 * other.s * other.s,
+            e0: self.e0 * other.s * other.s,
+            e1: self.e1 * other.s * other.s,
+            e2: self.e2 * other.s * other.s,
             e01: self.e01 * other.s * other.s,
             e20: self.e20 * other.s * other.s,
             e12: self.e12 * other.s * other.s,
-            e012: -self.e012 * other.s * other.s,
+            e012: self.e012 * other.s * other.s,
         }
     }
 }
@@ -13256,13 +13256,13 @@ impl Reject<Vector> for Multivector {
     type Output = Multivector;
     fn reject(self, other: Vector) -> Multivector {
         Multivector {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2,
             e0: self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e1 * other.e0 * other.e1 - self.e2 * other.e0 * other.e2,
             e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e2 * other.e1 * other.e2,
             e2: -self.e0 * other.e0 * other.e2 - self.e1 * other.e1 * other.e2 + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1,
-            e01: -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-            e20: -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-            e12: -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0,
+            e01: self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e20: self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+            e12: self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0,
             e012: 0.0,
         }
     }
@@ -13273,9 +13273,9 @@ impl Reject<Bivector> for Multivector {
     fn reject(self, other: Bivector) -> Multivector {
         Multivector {
             s: self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12,
-            e0: -self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-            e1: -self.e0 * other.e20 * other.e12 - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
-            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 - self.e2 * other.e01 * other.e01,
+            e0: self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+            e1: self.e0 * other.e20 * other.e12 + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
+            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 + self.e2 * other.e01 * other.e01,
             e01: 0.0,
             e20: 0.0,
             e12: 0.0,
@@ -13288,7 +13288,7 @@ impl Reject<Trivector> for Multivector {
     type Output = Multivector;
     fn reject(self, other: Trivector) -> Multivector {
         Multivector {
-            s: -self.s * other.e012 * other.e012,
+            s: self.s * other.e012 * other.e012,
             e0: 0.0,
             e1: 0.0,
             e2: 0.0,
@@ -13320,13 +13320,13 @@ impl Reject<OddMultivector> for Multivector {
     type Output = Multivector;
     fn reject(self, other: OddMultivector) -> Multivector {
         Multivector {
-            s: -self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
+            s: self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
             e0: self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e1 * other.e0 * other.e1 - self.e2 * other.e0 * other.e2,
             e1: -self.e0 * other.e0 * other.e1 + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e2 * other.e1 * other.e2,
             e2: -self.e0 * other.e0 * other.e2 - self.e1 * other.e1 * other.e2 + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1,
-            e01: -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-            e20: -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-            e12: -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0,
+            e01: self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e20: self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+            e12: self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0,
             e012: 0.0,
         }
     }
@@ -13337,13 +13337,13 @@ impl Reject<EvenMultivector> for Multivector {
     fn reject(self, other: EvenMultivector) -> Multivector {
         Multivector {
             s: self.s * other.s * other.s + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12,
-            e0: -self.e0 * other.s * other.s - self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-            e1: -self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
-            e2: -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e01 * other.e01,
+            e0: self.e0 * other.s * other.s + self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+            e1: self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
+            e2: self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s + self.e2 * other.e01 * other.e01,
             e01: self.e01 * other.s * other.s,
             e20: self.e20 * other.s * other.s,
             e12: self.e12 * other.s * other.s,
-            e012: -self.e012 * other.s * other.s,
+            e012: self.e012 * other.s * other.s,
         }
     }
 }
@@ -13352,14 +13352,14 @@ impl Reject<Multivector> for Multivector {
     type Output = Multivector;
     fn reject(self, other: Multivector) -> Multivector {
         Multivector {
-            s: self.s * other.s * other.s - self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 + self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
-            e0: -self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
-            e1: -self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
-            e2: -self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 - self.e2 * other.e01 * other.e01,
-            e01: self.e01 * other.s * other.s - self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-            e20: -self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-            e12: -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0,
-            e012: -self.e012 * other.s * other.s,
+            s: self.s * other.s * other.s + self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 + self.s * other.e01 * other.e01 + self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
+            e0: self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
+            e1: -self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 + self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
+            e2: -self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01,
+            e01: self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+            e20: self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+            e12: self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0,
+            e012: self.e012 * other.s * other.s,
         }
     }
 }

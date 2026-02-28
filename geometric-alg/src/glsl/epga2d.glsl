@@ -3676,7 +3676,7 @@ float evenmultivector_norm_squared(EvenMultivector self) {
 }
 
 float multivector_norm_squared(Multivector self) {
-    return self.s * self.s - self.e0 * self.e0 + self.e1 * self.e1 - self.e01 * self.e01 + self.e2 * self.e2 - self.e20 * self.e20 + self.e12 * self.e12 - self.e012 * self.e012;
+    return self.s * self.s - self.e0 * self.e0 + self.e1 * self.e1 + self.e2 * self.e2 - self.e01 * self.e01 - self.e20 * self.e20 + self.e12 * self.e12 - self.e012 * self.e012;
 }
 
 float scalar_norm(Scalar self) {
@@ -4418,14 +4418,14 @@ Multivector multivector_geometric_product_evenmultivector(Multivector self, Even
 
 Multivector multivector_geometric_product_multivector(Multivector self, Multivector other) {
     return Multivector(
-        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e01 * other.e01 + self.e2 * other.e2 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
-        self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e01 * other.e1 + self.e2 * other.e20 - self.e20 * other.e2 - self.e12 * other.e012 - self.e012 * other.e12,
-        self.s * other.e1 - self.e0 * other.e01 + self.e1 * other.s + self.e01 * other.e0 - self.e2 * other.e12 + self.e20 * other.e012 + self.e12 * other.e2 + self.e012 * other.e20,
-        self.s * other.e2 + self.e0 * other.e20 + self.e1 * other.e12 + self.e01 * other.e012 + self.e2 * other.s - self.e20 * other.e0 - self.e12 * other.e1 + self.e012 * other.e01,
-        self.s * other.e01 + self.e0 * other.e1 - self.e1 * other.e0 + self.e01 * other.s + self.e2 * other.e012 + self.e20 * other.e12 - self.e12 * other.e20 + self.e012 * other.e2,
-        self.s * other.e20 - self.e0 * other.e2 + self.e1 * other.e012 - self.e01 * other.e12 + self.e2 * other.e0 + self.e20 * other.s + self.e12 * other.e01 + self.e012 * other.e1,
-        self.s * other.e12 - self.e0 * other.e012 + self.e1 * other.e2 - self.e01 * other.e20 - self.e2 * other.e1 + self.e20 * other.e01 + self.e12 * other.s - self.e012 * other.e0,
-        self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e01 * other.e2 + self.e2 * other.e01 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s
+        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 + self.e01 * other.e01 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
+        self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e2 * other.e20 + self.e01 * other.e1 - self.e20 * other.e2 - self.e12 * other.e012 - self.e012 * other.e12,
+        self.s * other.e1 - self.e0 * other.e01 + self.e1 * other.s - self.e2 * other.e12 + self.e01 * other.e0 + self.e20 * other.e012 + self.e12 * other.e2 + self.e012 * other.e20,
+        self.s * other.e2 + self.e0 * other.e20 + self.e1 * other.e12 + self.e2 * other.s + self.e01 * other.e012 - self.e20 * other.e0 - self.e12 * other.e1 + self.e012 * other.e01,
+        self.s * other.e01 + self.e0 * other.e1 - self.e1 * other.e0 + self.e2 * other.e012 + self.e01 * other.s + self.e20 * other.e12 - self.e12 * other.e20 + self.e012 * other.e2,
+        self.s * other.e20 - self.e0 * other.e2 + self.e1 * other.e012 + self.e2 * other.e0 - self.e01 * other.e12 + self.e20 * other.s + self.e12 * other.e01 + self.e012 * other.e1,
+        self.s * other.e12 - self.e0 * other.e012 + self.e1 * other.e2 - self.e2 * other.e1 - self.e01 * other.e20 + self.e20 * other.e01 + self.e12 * other.s - self.e012 * other.e0,
+        self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e2 * other.e01 + self.e01 * other.e2 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s
     );
 }
 
@@ -4682,7 +4682,7 @@ float multivector_scalar_product_evenmultivector(Multivector self, EvenMultivect
 }
 
 float multivector_scalar_product_multivector(Multivector self, Multivector other) {
-    return self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e01 * other.e01 + self.e2 * other.e2 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012;
+    return self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 + self.e01 * other.e01 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012;
 }
 
 Scalar scalar_left_inner_product_scalar(Scalar self, Scalar other) {
@@ -5219,7 +5219,7 @@ Multivector multivector_left_inner_product_evenmultivector(Multivector self, Eve
 
 Multivector multivector_left_inner_product_multivector(Multivector self, Multivector other) {
     return Multivector(
-        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e01 * other.e01 + self.e2 * other.e2 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
+        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 + self.e01 * other.e01 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
         self.s * other.e0 - self.e1 * other.e01 + self.e2 * other.e20 - self.e12 * other.e012,
         self.s * other.e1 - self.e0 * other.e01 - self.e2 * other.e12 + self.e20 * other.e012,
         self.s * other.e2 + self.e0 * other.e20 + self.e1 * other.e12 + self.e01 * other.e012,
@@ -5764,7 +5764,7 @@ Multivector multivector_right_inner_product_evenmultivector(Multivector self, Ev
 
 Multivector multivector_right_inner_product_multivector(Multivector self, Multivector other) {
     return Multivector(
-        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e01 * other.e01 + self.e2 * other.e2 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
+        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 + self.e01 * other.e01 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
         self.e0 * other.s + self.e01 * other.e1 - self.e20 * other.e2 - self.e012 * other.e12,
         self.e1 * other.s + self.e01 * other.e0 + self.e12 * other.e2 + self.e012 * other.e20,
         self.e2 * other.s - self.e20 * other.e0 - self.e12 * other.e1 + self.e012 * other.e01,
@@ -6319,11 +6319,11 @@ Multivector multivector_inner_product_evenmultivector(Multivector self, EvenMult
 
 Multivector multivector_inner_product_multivector(Multivector self, Multivector other) {
     return Multivector(
-        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e01 * other.e01 + self.e2 * other.e2 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
-        self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e01 * other.e1 + self.e2 * other.e20 - self.e20 * other.e2 - self.e12 * other.e012 - self.e012 * other.e12,
-        self.s * other.e1 - self.e0 * other.e01 + self.e1 * other.s + self.e01 * other.e0 - self.e2 * other.e12 + self.e20 * other.e012 + self.e12 * other.e2 + self.e012 * other.e20,
-        self.s * other.e2 + self.e0 * other.e20 + self.e1 * other.e12 + self.e01 * other.e012 + self.e2 * other.s - self.e20 * other.e0 - self.e12 * other.e1 + self.e012 * other.e01,
-        self.s * other.e01 + self.e01 * other.s + self.e2 * other.e012 + self.e012 * other.e2,
+        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 + self.e01 * other.e01 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
+        self.s * other.e0 + self.e0 * other.s - self.e1 * other.e01 + self.e2 * other.e20 + self.e01 * other.e1 - self.e20 * other.e2 - self.e12 * other.e012 - self.e012 * other.e12,
+        self.s * other.e1 - self.e0 * other.e01 + self.e1 * other.s - self.e2 * other.e12 + self.e01 * other.e0 + self.e20 * other.e012 + self.e12 * other.e2 + self.e012 * other.e20,
+        self.s * other.e2 + self.e0 * other.e20 + self.e1 * other.e12 + self.e2 * other.s + self.e01 * other.e012 - self.e20 * other.e0 - self.e12 * other.e1 + self.e012 * other.e01,
+        self.s * other.e01 + self.e2 * other.e012 + self.e01 * other.s + self.e012 * other.e2,
         self.s * other.e20 + self.e1 * other.e012 + self.e20 * other.s + self.e012 * other.e1,
         self.s * other.e12 - self.e0 * other.e012 + self.e12 * other.s - self.e012 * other.e0,
         self.s * other.e012 + self.e012 * other.s
@@ -6871,7 +6871,7 @@ Multivector multivector_outer_product_multivector(Multivector self, Multivector 
         self.s * other.e01 + self.e0 * other.e1 - self.e1 * other.e0 + self.e01 * other.s,
         self.s * other.e20 - self.e0 * other.e2 + self.e2 * other.e0 + self.e20 * other.s,
         self.s * other.e12 + self.e1 * other.e2 - self.e2 * other.e1 + self.e12 * other.s,
-        self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e01 * other.e2 + self.e2 * other.e01 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s
+        self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e2 * other.e01 + self.e01 * other.e2 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s
     );
 }
 
@@ -7409,7 +7409,7 @@ Multivector multivector_regressive_product_evenmultivector(Multivector self, Eve
 
 Multivector multivector_regressive_product_multivector(Multivector self, Multivector other) {
     return Multivector(
-        self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e01 * other.e2 + self.e2 * other.e01 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
+        self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e2 * other.e01 + self.e01 * other.e2 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s,
         self.e0 * other.e012 - self.e01 * other.e20 + self.e20 * other.e01 + self.e012 * other.e0,
         self.e1 * other.e012 + self.e01 * other.e12 - self.e12 * other.e01 + self.e012 * other.e1,
         self.e2 * other.e012 - self.e20 * other.e12 + self.e12 * other.e20 + self.e012 * other.e2,
@@ -7993,12 +7993,12 @@ Multivector multivector_commutator_evenmultivector(Multivector self, EvenMultive
 Multivector multivector_commutator_multivector(Multivector self, Multivector other) {
     return Multivector(
         0.0,
-        -self.e1 * other.e01 + self.e01 * other.e1 + self.e2 * other.e20 - self.e20 * other.e2,
-        -self.e0 * other.e01 + self.e01 * other.e0 - self.e2 * other.e12 + self.e12 * other.e2,
+        -self.e1 * other.e01 + self.e2 * other.e20 + self.e01 * other.e1 - self.e20 * other.e2,
+        -self.e0 * other.e01 - self.e2 * other.e12 + self.e01 * other.e0 + self.e12 * other.e2,
         self.e0 * other.e20 + self.e1 * other.e12 - self.e20 * other.e0 - self.e12 * other.e1,
         self.e0 * other.e1 - self.e1 * other.e0 + self.e20 * other.e12 - self.e12 * other.e20,
-        -self.e0 * other.e2 - self.e01 * other.e12 + self.e2 * other.e0 + self.e12 * other.e01,
-        self.e1 * other.e2 - self.e01 * other.e20 - self.e2 * other.e1 + self.e20 * other.e01,
+        -self.e0 * other.e2 + self.e2 * other.e0 - self.e01 * other.e12 + self.e12 * other.e01,
+        self.e1 * other.e2 - self.e2 * other.e1 - self.e01 * other.e20 + self.e20 * other.e01,
         0.0
     );
 }
@@ -8575,14 +8575,14 @@ Multivector multivector_anticommutator_evenmultivector(Multivector self, EvenMul
 
 Multivector multivector_anticommutator_multivector(Multivector self, Multivector other) {
     return Multivector(
-        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e01 * other.e01 + self.e2 * other.e2 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
+        self.s * other.s - self.e0 * other.e0 + self.e1 * other.e1 + self.e2 * other.e2 + self.e01 * other.e01 + self.e20 * other.e20 - self.e12 * other.e12 + self.e012 * other.e012,
         self.s * other.e0 + self.e0 * other.s - self.e12 * other.e012 - self.e012 * other.e12,
         self.s * other.e1 + self.e1 * other.s + self.e20 * other.e012 + self.e012 * other.e20,
-        self.s * other.e2 + self.e01 * other.e012 + self.e2 * other.s + self.e012 * other.e01,
-        self.s * other.e01 + self.e01 * other.s + self.e2 * other.e012 + self.e012 * other.e2,
+        self.s * other.e2 + self.e2 * other.s + self.e01 * other.e012 + self.e012 * other.e01,
+        self.s * other.e01 + self.e2 * other.e012 + self.e01 * other.s + self.e012 * other.e2,
         self.s * other.e20 + self.e1 * other.e012 + self.e20 * other.s + self.e012 * other.e1,
         self.s * other.e12 - self.e0 * other.e012 + self.e12 * other.s - self.e012 * other.e0,
-        self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e01 * other.e2 + self.e2 * other.e01 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s
+        self.s * other.e012 + self.e0 * other.e12 + self.e1 * other.e20 + self.e2 * other.e01 + self.e01 * other.e2 + self.e20 * other.e1 + self.e12 * other.e0 + self.e012 * other.s
     );
 }
 
@@ -8630,7 +8630,7 @@ Scalar scalar_transform_evenmultivector(Scalar self, EvenMultivector other) {
 
 Scalar scalar_transform_multivector(Scalar self, Multivector other) {
     return Scalar(
-        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012
+        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012
     );
 }
 
@@ -8692,9 +8692,9 @@ Vector vector_transform_evenmultivector(Vector self, EvenMultivector other) {
 
 Vector vector_transform_multivector(Vector self, Multivector other) {
     return Vector(
-        -self.e0 * other.s * other.s - self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e01 * other.e01 - self.e0 * other.e2 * other.e2 - self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 - self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
-        -2.0 * self.e0 * other.s * other.e01 - 2.0 * self.e0 * other.e0 * other.e1 - 2.0 * self.e0 * other.e2 * other.e012 + 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01 - self.e1 * other.e2 * other.e2 + self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 + 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 + 2.0 * self.e2 * other.e01 * other.e20,
-        2.0 * self.e0 * other.s * other.e20 - 2.0 * self.e0 * other.e0 * other.e2 + 2.0 * self.e0 * other.e1 * other.e012 + 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 - 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 + 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01 + self.e2 * other.e2 * other.e2 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012
+        -self.e0 * other.s * other.s - self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e2 * other.e2 - self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 - self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
+        -2.0 * self.e0 * other.s * other.e01 - 2.0 * self.e0 * other.e0 * other.e1 - 2.0 * self.e0 * other.e2 * other.e012 + 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e2 * other.e2 - self.e1 * other.e01 * other.e01 + self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 + 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 + 2.0 * self.e2 * other.e01 * other.e20,
+        2.0 * self.e0 * other.s * other.e20 - 2.0 * self.e0 * other.e0 * other.e2 + 2.0 * self.e0 * other.e1 * other.e012 + 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 - 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 + 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 + self.e2 * other.e2 * other.e2 + self.e2 * other.e01 * other.e01 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012
     );
 }
 
@@ -8756,9 +8756,9 @@ Bivector bivector_transform_evenmultivector(Bivector self, EvenMultivector other
 
 Bivector bivector_transform_multivector(Bivector self, Multivector other) {
     return Bivector(
-        self.e01 * other.s * other.s - self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 - self.e01 * other.e01 * other.e01 - self.e01 * other.e2 * other.e2 + self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 + self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 + 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 - 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
-        2.0 * self.e01 * other.s * other.e12 - 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 - 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s - self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 + self.e20 * other.e01 * other.e01 + self.e20 * other.e2 * other.e2 - self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 + self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
-        2.0 * self.e01 * other.s * other.e20 + 2.0 * self.e01 * other.e0 * other.e2 + 2.0 * self.e01 * other.e1 * other.e012 - 2.0 * self.e01 * other.e01 * other.e12 - 2.0 * self.e20 * other.s * other.e01 + 2.0 * self.e20 * other.e0 * other.e1 - 2.0 * self.e20 * other.e2 * other.e012 - 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 + self.e12 * other.e01 * other.e01 + self.e12 * other.e2 * other.e2 + self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012
+        self.e01 * other.s * other.s - self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 - self.e01 * other.e2 * other.e2 - self.e01 * other.e01 * other.e01 + self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 + self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 + 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 - 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
+        2.0 * self.e01 * other.s * other.e12 - 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 - 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s - self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 + self.e20 * other.e2 * other.e2 + self.e20 * other.e01 * other.e01 - self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 + self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
+        2.0 * self.e01 * other.s * other.e20 + 2.0 * self.e01 * other.e0 * other.e2 + 2.0 * self.e01 * other.e1 * other.e012 - 2.0 * self.e01 * other.e01 * other.e12 - 2.0 * self.e20 * other.s * other.e01 + 2.0 * self.e20 * other.e0 * other.e1 - 2.0 * self.e20 * other.e2 * other.e012 - 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 + self.e12 * other.e2 * other.e2 + self.e12 * other.e01 * other.e01 + self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012
     );
 }
 
@@ -8806,7 +8806,7 @@ Trivector trivector_transform_evenmultivector(Trivector self, EvenMultivector ot
 
 Trivector trivector_transform_multivector(Trivector self, Multivector other) {
     return Trivector(
-        -self.e012 * other.s * other.s - self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 + self.e012 * other.e01 * other.e01 + self.e012 * other.e2 * other.e2 + self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 - self.e012 * other.e012 * other.e012
+        -self.e012 * other.s * other.s - self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 + self.e012 * other.e2 * other.e2 + self.e012 * other.e01 * other.e01 + self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 - self.e012 * other.e012 * other.e012
     );
 }
 
@@ -8923,10 +8923,10 @@ OddMultivector oddmultivector_transform_evenmultivector(OddMultivector self, Eve
 
 OddMultivector oddmultivector_transform_multivector(OddMultivector self, Multivector other) {
     return OddMultivector(
-        -self.e0 * other.s * other.s - self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e01 * other.e01 - self.e0 * other.e2 * other.e2 - self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 - self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
-        -2.0 * self.e0 * other.s * other.e01 - 2.0 * self.e0 * other.e0 * other.e1 - 2.0 * self.e0 * other.e2 * other.e012 + 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01 - self.e1 * other.e2 * other.e2 + self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 + 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 + 2.0 * self.e2 * other.e01 * other.e20,
-        2.0 * self.e0 * other.s * other.e20 - 2.0 * self.e0 * other.e0 * other.e2 + 2.0 * self.e0 * other.e1 * other.e012 + 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 - 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 + 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01 + self.e2 * other.e2 * other.e2 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012,
-        -self.e012 * other.s * other.s - self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 + self.e012 * other.e01 * other.e01 + self.e012 * other.e2 * other.e2 + self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 - self.e012 * other.e012 * other.e012
+        -self.e0 * other.s * other.s - self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e2 * other.e2 - self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 - self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
+        -2.0 * self.e0 * other.s * other.e01 - 2.0 * self.e0 * other.e0 * other.e1 - 2.0 * self.e0 * other.e2 * other.e012 + 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e2 * other.e2 - self.e1 * other.e01 * other.e01 + self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 + 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 + 2.0 * self.e2 * other.e01 * other.e20,
+        2.0 * self.e0 * other.s * other.e20 - 2.0 * self.e0 * other.e0 * other.e2 + 2.0 * self.e0 * other.e1 * other.e012 + 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 - 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 + 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 + self.e2 * other.e2 * other.e2 + self.e2 * other.e01 * other.e01 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012,
+        -self.e012 * other.s * other.s - self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 + self.e012 * other.e2 * other.e2 + self.e012 * other.e01 * other.e01 + self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 - self.e012 * other.e012 * other.e012
     );
 }
 
@@ -8995,10 +8995,10 @@ EvenMultivector evenmultivector_transform_evenmultivector(EvenMultivector self, 
 
 EvenMultivector evenmultivector_transform_multivector(EvenMultivector self, Multivector other) {
     return EvenMultivector(
-        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
-        self.e01 * other.s * other.s - self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 - self.e01 * other.e01 * other.e01 - self.e01 * other.e2 * other.e2 + self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 + self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 + 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 - 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
-        2.0 * self.e01 * other.s * other.e12 - 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 - 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s - self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 + self.e20 * other.e01 * other.e01 + self.e20 * other.e2 * other.e2 - self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 + self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
-        2.0 * self.e01 * other.s * other.e20 + 2.0 * self.e01 * other.e0 * other.e2 + 2.0 * self.e01 * other.e1 * other.e012 - 2.0 * self.e01 * other.e01 * other.e12 - 2.0 * self.e20 * other.s * other.e01 + 2.0 * self.e20 * other.e0 * other.e1 - 2.0 * self.e20 * other.e2 * other.e012 - 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 + self.e12 * other.e01 * other.e01 + self.e12 * other.e2 * other.e2 + self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012
+        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
+        self.e01 * other.s * other.s - self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 - self.e01 * other.e2 * other.e2 - self.e01 * other.e01 * other.e01 + self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 + self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 + 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 - 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
+        2.0 * self.e01 * other.s * other.e12 - 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 - 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s - self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 + self.e20 * other.e2 * other.e2 + self.e20 * other.e01 * other.e01 - self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 + self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
+        2.0 * self.e01 * other.s * other.e20 + 2.0 * self.e01 * other.e0 * other.e2 + 2.0 * self.e01 * other.e1 * other.e012 - 2.0 * self.e01 * other.e01 * other.e12 - 2.0 * self.e20 * other.s * other.e01 + 2.0 * self.e20 * other.e0 * other.e1 - 2.0 * self.e20 * other.e2 * other.e012 - 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 + self.e12 * other.e2 * other.e2 + self.e12 * other.e01 * other.e01 + self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012
     );
 }
 
@@ -9095,14 +9095,14 @@ Multivector multivector_transform_evenmultivector(Multivector self, EvenMultivec
 
 Multivector multivector_transform_multivector(Multivector self, Multivector other) {
     return Multivector(
-        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
-        -self.e0 * other.s * other.s - self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e01 * other.e01 - self.e0 * other.e2 * other.e2 - self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 - self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
-        -2.0 * self.e0 * other.s * other.e01 - 2.0 * self.e0 * other.e0 * other.e1 - 2.0 * self.e0 * other.e2 * other.e012 + 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01 - self.e1 * other.e2 * other.e2 + self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 + 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 + 2.0 * self.e2 * other.e01 * other.e20,
-        2.0 * self.e0 * other.s * other.e20 - 2.0 * self.e0 * other.e0 * other.e2 + 2.0 * self.e0 * other.e1 * other.e012 + 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 - 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 + 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01 + self.e2 * other.e2 * other.e2 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012,
-        self.e01 * other.s * other.s - self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 - self.e01 * other.e01 * other.e01 - self.e01 * other.e2 * other.e2 + self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 + self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 + 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 - 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
-        2.0 * self.e01 * other.s * other.e12 - 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 - 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s - self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 + self.e20 * other.e01 * other.e01 + self.e20 * other.e2 * other.e2 - self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 + self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
-        2.0 * self.e01 * other.s * other.e20 + 2.0 * self.e01 * other.e0 * other.e2 + 2.0 * self.e01 * other.e1 * other.e012 - 2.0 * self.e01 * other.e01 * other.e12 - 2.0 * self.e20 * other.s * other.e01 + 2.0 * self.e20 * other.e0 * other.e1 - 2.0 * self.e20 * other.e2 * other.e012 - 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 + self.e12 * other.e01 * other.e01 + self.e12 * other.e2 * other.e2 + self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012,
-        -self.e012 * other.s * other.s - self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 + self.e012 * other.e01 * other.e01 + self.e012 * other.e2 * other.e2 + self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 - self.e012 * other.e012 * other.e012
+        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
+        -self.e0 * other.s * other.s - self.e0 * other.e0 * other.e0 - self.e0 * other.e1 * other.e1 - self.e0 * other.e2 * other.e2 - self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e0 * other.e12 * other.e12 - self.e0 * other.e012 * other.e012 - 2.0 * self.e1 * other.s * other.e01 + 2.0 * self.e1 * other.e0 * other.e1 - 2.0 * self.e1 * other.e2 * other.e012 - 2.0 * self.e1 * other.e20 * other.e12 + 2.0 * self.e2 * other.s * other.e20 + 2.0 * self.e2 * other.e0 * other.e2 + 2.0 * self.e2 * other.e1 * other.e012 - 2.0 * self.e2 * other.e01 * other.e12,
+        -2.0 * self.e0 * other.s * other.e01 - 2.0 * self.e0 * other.e0 * other.e1 - 2.0 * self.e0 * other.e2 * other.e012 + 2.0 * self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e0 * other.e0 + self.e1 * other.e1 * other.e1 - self.e1 * other.e2 * other.e2 - self.e1 * other.e01 * other.e01 + self.e1 * other.e20 * other.e20 + self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 - 2.0 * self.e2 * other.s * other.e12 + 2.0 * self.e2 * other.e0 * other.e012 + 2.0 * self.e2 * other.e1 * other.e2 + 2.0 * self.e2 * other.e01 * other.e20,
+        2.0 * self.e0 * other.s * other.e20 - 2.0 * self.e0 * other.e0 * other.e2 + 2.0 * self.e0 * other.e1 * other.e012 + 2.0 * self.e0 * other.e01 * other.e12 + 2.0 * self.e1 * other.s * other.e12 - 2.0 * self.e1 * other.e0 * other.e012 + 2.0 * self.e1 * other.e1 * other.e2 + 2.0 * self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e0 * other.e0 - self.e2 * other.e1 * other.e1 + self.e2 * other.e2 * other.e2 + self.e2 * other.e01 * other.e01 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012,
+        self.e01 * other.s * other.s - self.e01 * other.e0 * other.e0 + self.e01 * other.e1 * other.e1 - self.e01 * other.e2 * other.e2 - self.e01 * other.e01 * other.e01 + self.e01 * other.e20 * other.e20 - self.e01 * other.e12 * other.e12 + self.e01 * other.e012 * other.e012 - 2.0 * self.e20 * other.s * other.e12 + 2.0 * self.e20 * other.e0 * other.e012 - 2.0 * self.e20 * other.e1 * other.e2 - 2.0 * self.e20 * other.e01 * other.e20 + 2.0 * self.e12 * other.s * other.e20 - 2.0 * self.e12 * other.e0 * other.e2 + 2.0 * self.e12 * other.e1 * other.e012 + 2.0 * self.e12 * other.e01 * other.e12,
+        2.0 * self.e01 * other.s * other.e12 - 2.0 * self.e01 * other.e0 * other.e012 - 2.0 * self.e01 * other.e1 * other.e2 - 2.0 * self.e01 * other.e01 * other.e20 + self.e20 * other.s * other.s - self.e20 * other.e0 * other.e0 - self.e20 * other.e1 * other.e1 + self.e20 * other.e2 * other.e2 + self.e20 * other.e01 * other.e01 - self.e20 * other.e20 * other.e20 - self.e20 * other.e12 * other.e12 + self.e20 * other.e012 * other.e012 - 2.0 * self.e12 * other.s * other.e01 - 2.0 * self.e12 * other.e0 * other.e1 - 2.0 * self.e12 * other.e2 * other.e012 + 2.0 * self.e12 * other.e20 * other.e12,
+        2.0 * self.e01 * other.s * other.e20 + 2.0 * self.e01 * other.e0 * other.e2 + 2.0 * self.e01 * other.e1 * other.e012 - 2.0 * self.e01 * other.e01 * other.e12 - 2.0 * self.e20 * other.s * other.e01 + 2.0 * self.e20 * other.e0 * other.e1 - 2.0 * self.e20 * other.e2 * other.e012 - 2.0 * self.e20 * other.e20 * other.e12 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0 + self.e12 * other.e1 * other.e1 + self.e12 * other.e2 * other.e2 + self.e12 * other.e01 * other.e01 + self.e12 * other.e20 * other.e20 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012,
+        -self.e012 * other.s * other.s - self.e012 * other.e0 * other.e0 + self.e012 * other.e1 * other.e1 + self.e012 * other.e2 * other.e2 + self.e012 * other.e01 * other.e01 + self.e012 * other.e20 * other.e20 - self.e012 * other.e12 * other.e12 - self.e012 * other.e012 * other.e012
     );
 }
 
@@ -9114,7 +9114,7 @@ Scalar scalar_project_scalar(Scalar self, Scalar other) {
 
 Scalar scalar_project_vector(Scalar self, Vector other) {
     return Scalar(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2
     );
 }
 
@@ -9126,7 +9126,7 @@ Scalar scalar_project_bivector(Scalar self, Bivector other) {
 
 Scalar scalar_project_trivector(Scalar self, Trivector other) {
     return Scalar(
-        self.s * other.e012 * other.e012
+        -self.s * other.e012 * other.e012
     );
 }
 
@@ -9138,7 +9138,7 @@ Scalar scalar_project_null(Scalar self, Null other) {
 
 Scalar scalar_project_oddmultivector(Scalar self, OddMultivector other) {
     return Scalar(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012
     );
 }
 
@@ -9150,7 +9150,7 @@ Scalar scalar_project_evenmultivector(Scalar self, EvenMultivector other) {
 
 Scalar scalar_project_multivector(Scalar self, Multivector other) {
     return Scalar(
-        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012
+        self.s * other.s * other.s - self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012
     );
 }
 
@@ -9170,9 +9170,9 @@ Vector vector_project_vector(Vector self, Vector other) {
 
 Vector vector_project_bivector(Vector self, Bivector other) {
     return Vector(
-        self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-        -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
-        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12
+        -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+        self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
+        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12
     );
 }
 
@@ -9202,17 +9202,17 @@ Vector vector_project_oddmultivector(Vector self, OddMultivector other) {
 
 Vector vector_project_evenmultivector(Vector self, EvenMultivector other) {
     return Vector(
-        self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-        -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
-        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12
+        -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+        self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
+        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12
     );
 }
 
 Vector vector_project_multivector(Vector self, Multivector other) {
     return Vector(
-        -self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
-        -self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
-        -self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 + self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012
+        -self.e0 * other.e0 * other.e0 - self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
+        -self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
+        -self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012
     );
 }
 
@@ -9238,9 +9238,9 @@ Bivector bivector_project_bivector(Bivector self, Bivector other) {
 
 Bivector bivector_project_trivector(Bivector self, Trivector other) {
     return Bivector(
-        self.e01 * other.e012 * other.e012,
-        self.e20 * other.e012 * other.e012,
-        self.e12 * other.e012 * other.e012
+        -self.e01 * other.e012 * other.e012,
+        -self.e20 * other.e012 * other.e012,
+        -self.e12 * other.e012 * other.e012
     );
 }
 
@@ -9254,9 +9254,9 @@ Bivector bivector_project_null(Bivector self, Null other) {
 
 Bivector bivector_project_oddmultivector(Bivector self, OddMultivector other) {
     return Bivector(
-        self.e01 * other.e012 * other.e012,
-        self.e20 * other.e012 * other.e012,
-        self.e12 * other.e012 * other.e012
+        -self.e01 * other.e012 * other.e012,
+        -self.e20 * other.e012 * other.e012,
+        -self.e12 * other.e012 * other.e012
     );
 }
 
@@ -9270,9 +9270,9 @@ Bivector bivector_project_evenmultivector(Bivector self, EvenMultivector other) 
 
 Bivector bivector_project_multivector(Bivector self, Multivector other) {
     return Bivector(
-        -self.e01 * other.e01 * other.e01 + self.e01 * other.e012 * other.e012 - self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
-        -self.e01 * other.e01 * other.e20 - self.e20 * other.e20 * other.e20 + self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
-        -self.e01 * other.e01 * other.e12 - self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012
+        -self.e01 * other.e01 * other.e01 - self.e01 * other.e012 * other.e012 - self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
+        -self.e01 * other.e01 * other.e20 - self.e20 * other.e20 * other.e20 - self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
+        -self.e01 * other.e01 * other.e12 - self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012
     );
 }
 
@@ -9392,9 +9392,9 @@ OddMultivector oddmultivector_project_vector(OddMultivector self, Vector other) 
 
 OddMultivector oddmultivector_project_bivector(OddMultivector self, Bivector other) {
     return OddMultivector(
-        self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-        -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
-        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+        -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+        self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
+        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
         0.0
     );
 }
@@ -9428,18 +9428,18 @@ OddMultivector oddmultivector_project_oddmultivector(OddMultivector self, OddMul
 
 OddMultivector oddmultivector_project_evenmultivector(OddMultivector self, EvenMultivector other) {
     return OddMultivector(
-        self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-        -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
-        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+        -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+        self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
+        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
         0.0
     );
 }
 
 OddMultivector oddmultivector_project_multivector(OddMultivector self, Multivector other) {
     return OddMultivector(
-        -self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
-        -self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
-        -self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 + self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012,
+        -self.e0 * other.e0 * other.e0 - self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
+        -self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
+        -self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012,
         -self.e012 * other.e012 * other.e012
     );
 }
@@ -9455,7 +9455,7 @@ EvenMultivector evenmultivector_project_scalar(EvenMultivector self, Scalar othe
 
 EvenMultivector evenmultivector_project_vector(EvenMultivector self, Vector other) {
     return EvenMultivector(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2,
         0.0,
         0.0,
         0.0
@@ -9473,10 +9473,10 @@ EvenMultivector evenmultivector_project_bivector(EvenMultivector self, Bivector 
 
 EvenMultivector evenmultivector_project_trivector(EvenMultivector self, Trivector other) {
     return EvenMultivector(
-        self.s * other.e012 * other.e012,
-        self.e01 * other.e012 * other.e012,
-        self.e20 * other.e012 * other.e012,
-        self.e12 * other.e012 * other.e012
+        -self.s * other.e012 * other.e012,
+        -self.e01 * other.e012 * other.e012,
+        -self.e20 * other.e012 * other.e012,
+        -self.e12 * other.e012 * other.e012
     );
 }
 
@@ -9491,10 +9491,10 @@ EvenMultivector evenmultivector_project_null(EvenMultivector self, Null other) {
 
 EvenMultivector evenmultivector_project_oddmultivector(EvenMultivector self, OddMultivector other) {
     return EvenMultivector(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
-        self.e01 * other.e012 * other.e012,
-        self.e20 * other.e012 * other.e012,
-        self.e12 * other.e012 * other.e012
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
+        -self.e01 * other.e012 * other.e012,
+        -self.e20 * other.e012 * other.e012,
+        -self.e12 * other.e012 * other.e012
     );
 }
 
@@ -9509,10 +9509,10 @@ EvenMultivector evenmultivector_project_evenmultivector(EvenMultivector self, Ev
 
 EvenMultivector evenmultivector_project_multivector(EvenMultivector self, Multivector other) {
     return EvenMultivector(
-        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
-        -self.e01 * other.e01 * other.e01 + self.e01 * other.e012 * other.e012 - self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
-        -self.e01 * other.e01 * other.e20 - self.e20 * other.e20 * other.e20 + self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
-        -self.e01 * other.e01 * other.e12 - self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012
+        self.s * other.s * other.s - self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
+        -self.e01 * other.e01 * other.e01 - self.e01 * other.e012 * other.e012 - self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
+        -self.e01 * other.e01 * other.e20 - self.e20 * other.e20 * other.e20 - self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
+        -self.e01 * other.e01 * other.e12 - self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012
     );
 }
 
@@ -9531,7 +9531,7 @@ Multivector multivector_project_scalar(Multivector self, Scalar other) {
 
 Multivector multivector_project_vector(Multivector self, Vector other) {
     return Multivector(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2,
         -self.e0 * other.e0 * other.e0 + self.e1 * other.e0 * other.e1 + self.e2 * other.e0 * other.e2,
         -self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 + self.e2 * other.e1 * other.e2,
         -self.e0 * other.e0 * other.e2 + self.e1 * other.e1 * other.e2 + self.e2 * other.e2 * other.e2,
@@ -9545,9 +9545,9 @@ Multivector multivector_project_vector(Multivector self, Vector other) {
 Multivector multivector_project_bivector(Multivector self, Bivector other) {
     return Multivector(
         -self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12,
-        self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-        -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
-        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+        -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+        self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
+        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
         -self.e01 * other.e01 * other.e01 - self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
         -self.e01 * other.e01 * other.e20 - self.e20 * other.e20 * other.e20 + self.e12 * other.e20 * other.e12,
         -self.e01 * other.e01 * other.e12 - self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12,
@@ -9557,13 +9557,13 @@ Multivector multivector_project_bivector(Multivector self, Bivector other) {
 
 Multivector multivector_project_trivector(Multivector self, Trivector other) {
     return Multivector(
-        self.s * other.e012 * other.e012,
+        -self.s * other.e012 * other.e012,
         -self.e0 * other.e012 * other.e012,
         -self.e1 * other.e012 * other.e012,
         -self.e2 * other.e012 * other.e012,
-        self.e01 * other.e012 * other.e012,
-        self.e20 * other.e012 * other.e012,
-        self.e12 * other.e012 * other.e012,
+        -self.e01 * other.e012 * other.e012,
+        -self.e20 * other.e012 * other.e012,
+        -self.e12 * other.e012 * other.e012,
         -self.e012 * other.e012 * other.e012
     );
 }
@@ -9583,13 +9583,13 @@ Multivector multivector_project_null(Multivector self, Null other) {
 
 Multivector multivector_project_oddmultivector(Multivector self, OddMultivector other) {
     return Multivector(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
         -self.e0 * other.e0 * other.e0 - self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 + self.e2 * other.e0 * other.e2,
         -self.e0 * other.e0 * other.e1 + self.e1 * other.e1 * other.e1 - self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2,
         -self.e0 * other.e0 * other.e2 + self.e1 * other.e1 * other.e2 + self.e2 * other.e2 * other.e2 - self.e2 * other.e012 * other.e012,
-        self.e01 * other.e012 * other.e012,
-        self.e20 * other.e012 * other.e012,
-        self.e12 * other.e012 * other.e012,
+        -self.e01 * other.e012 * other.e012,
+        -self.e20 * other.e012 * other.e012,
+        -self.e12 * other.e012 * other.e012,
         -self.e012 * other.e012 * other.e012
     );
 }
@@ -9597,9 +9597,9 @@ Multivector multivector_project_oddmultivector(Multivector self, OddMultivector 
 Multivector multivector_project_evenmultivector(Multivector self, EvenMultivector other) {
     return Multivector(
         self.s * other.s * other.s - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12,
-        self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
-        -self.e0 * other.e20 * other.e12 + self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 - self.e2 * other.e01 * other.e20,
-        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12,
+        -self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
+        self.e0 * other.e20 * other.e12 - self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 + self.e2 * other.e01 * other.e20,
+        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12,
         -self.e01 * other.e01 * other.e01 - self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
         -self.e01 * other.e01 * other.e20 - self.e20 * other.e20 * other.e20 + self.e12 * other.e20 * other.e12,
         -self.e01 * other.e01 * other.e12 - self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12,
@@ -9609,13 +9609,13 @@ Multivector multivector_project_evenmultivector(Multivector self, EvenMultivecto
 
 Multivector multivector_project_multivector(Multivector self, Multivector other) {
     return Multivector(
-        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
-        -self.e0 * other.e0 * other.e0 + self.e0 * other.e01 * other.e01 + self.e0 * other.e20 * other.e20 - self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
-        -self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 + self.e1 * other.e01 * other.e01 - self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
-        -self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 + self.e2 * other.e20 * other.e20 - self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012,
-        -self.e01 * other.e01 * other.e01 + self.e01 * other.e012 * other.e012 - self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
-        -self.e01 * other.e01 * other.e20 - self.e20 * other.e20 * other.e20 + self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
-        -self.e01 * other.e01 * other.e12 - self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 + self.e12 * other.e012 * other.e012,
+        self.s * other.s * other.s - self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
+        -self.e0 * other.e0 * other.e0 - self.e0 * other.e01 * other.e01 - self.e0 * other.e20 * other.e20 - self.e0 * other.e012 * other.e012 + self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 + self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
+        -self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 + self.e1 * other.e1 * other.e1 - self.e1 * other.e01 * other.e01 + self.e1 * other.e12 * other.e12 - self.e1 * other.e012 * other.e012 + self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
+        -self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 + self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 + self.e2 * other.e2 * other.e2 - self.e2 * other.e20 * other.e20 + self.e2 * other.e12 * other.e12 - self.e2 * other.e012 * other.e012,
+        -self.e01 * other.e01 * other.e01 - self.e01 * other.e012 * other.e012 - self.e20 * other.e01 * other.e20 + self.e12 * other.e01 * other.e12,
+        -self.e01 * other.e01 * other.e20 - self.e20 * other.e20 * other.e20 - self.e20 * other.e012 * other.e012 + self.e12 * other.e20 * other.e12,
+        -self.e01 * other.e01 * other.e12 - self.e20 * other.e20 * other.e12 + self.e12 * other.e12 * other.e12 - self.e12 * other.e012 * other.e012,
         -self.e012 * other.e012 * other.e012
     );
 }
@@ -9626,21 +9626,21 @@ Scalar scalar_reject_scalar(Scalar self, Scalar other) {
     );
 }
 
-Scalar scalar_reject_vector(Scalar self, Vector other) {
-    return Scalar(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2
+Null scalar_reject_vector(Scalar self, Vector other) {
+    return Null(
+        0.0
     );
 }
 
-Scalar scalar_reject_bivector(Scalar self, Bivector other) {
-    return Scalar(
-        -self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12
+Null scalar_reject_bivector(Scalar self, Bivector other) {
+    return Null(
+        0.0
     );
 }
 
-Scalar scalar_reject_trivector(Scalar self, Trivector other) {
-    return Scalar(
-        self.s * other.e012 * other.e012
+Null scalar_reject_trivector(Scalar self, Trivector other) {
+    return Null(
+        0.0
     );
 }
 
@@ -9652,7 +9652,7 @@ Scalar scalar_reject_null(Scalar self, Null other) {
 
 Scalar scalar_reject_oddmultivector(Scalar self, OddMultivector other) {
     return Scalar(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012
     );
 }
 
@@ -9664,15 +9664,15 @@ Scalar scalar_reject_evenmultivector(Scalar self, EvenMultivector other) {
 
 Scalar scalar_reject_multivector(Scalar self, Multivector other) {
     return Scalar(
-        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012
+        self.s * other.s * other.s - self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012
     );
 }
 
 Vector vector_reject_scalar(Vector self, Scalar other) {
     return Vector(
-        -self.e0 * other.s * other.s,
-        -self.e1 * other.s * other.s,
-        -self.e2 * other.s * other.s
+        self.e0 * other.s * other.s,
+        self.e1 * other.s * other.s,
+        self.e2 * other.s * other.s
     );
 }
 
@@ -9684,11 +9684,9 @@ Vector vector_reject_vector(Vector self, Vector other) {
     );
 }
 
-Vector vector_reject_bivector(Vector self, Bivector other) {
-    return Vector(
-        -self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-        self.e0 * other.e20 * other.e12 + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
-        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 + self.e2 * other.e01 * other.e01
+Null vector_reject_bivector(Vector self, Bivector other) {
+    return Null(
+        0.0
     );
 }
 
@@ -9716,17 +9714,17 @@ Vector vector_reject_oddmultivector(Vector self, OddMultivector other) {
 
 Vector vector_reject_evenmultivector(Vector self, EvenMultivector other) {
     return Vector(
-        -self.e0 * other.s * other.s - self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-        self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
-        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e01 * other.e01
+        self.e0 * other.s * other.s + self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+        -self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
+        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s - self.e2 * other.e01 * other.e01
     );
 }
 
 Vector vector_reject_multivector(Vector self, Multivector other) {
     return Vector(
-        -self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
-        self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 + self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
-        self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01
+        self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
+        self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
+        self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 - self.e2 * other.e01 * other.e01
     );
 }
 
@@ -9740,14 +9738,16 @@ Bivector bivector_reject_scalar(Bivector self, Scalar other) {
 
 Bivector bivector_reject_vector(Bivector self, Vector other) {
     return Bivector(
-        -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-        -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-        self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0
+        self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+        self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+        -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0
     );
 }
 
-Null bivector_reject_bivector(Bivector self, Bivector other) {
-    return Null(
+Bivector bivector_reject_bivector(Bivector self, Bivector other) {
+    return Bivector(
+        0.0,
+        0.0,
         0.0
     );
 }
@@ -9768,9 +9768,9 @@ Bivector bivector_reject_null(Bivector self, Null other) {
 
 Bivector bivector_reject_oddmultivector(Bivector self, OddMultivector other) {
     return Bivector(
-        -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-        -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-        self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0
+        self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+        self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+        -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0
     );
 }
 
@@ -9784,32 +9784,32 @@ Bivector bivector_reject_evenmultivector(Bivector self, EvenMultivector other) {
 
 Bivector bivector_reject_multivector(Bivector self, Multivector other) {
     return Bivector(
-        self.e01 * other.s * other.s - self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-        -self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-        self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0
+        self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+        self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+        -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0
     );
 }
 
 Trivector trivector_reject_scalar(Trivector self, Scalar other) {
     return Trivector(
-        -self.e012 * other.s * other.s
+        self.e012 * other.s * other.s
     );
 }
 
-Null trivector_reject_vector(Trivector self, Vector other) {
-    return Null(
+Trivector trivector_reject_vector(Trivector self, Vector other) {
+    return Trivector(
         0.0
     );
 }
 
-Null trivector_reject_bivector(Trivector self, Bivector other) {
-    return Null(
+Trivector trivector_reject_bivector(Trivector self, Bivector other) {
+    return Trivector(
         0.0
     );
 }
 
-Null trivector_reject_trivector(Trivector self, Trivector other) {
-    return Null(
+Trivector trivector_reject_trivector(Trivector self, Trivector other) {
+    return Trivector(
         0.0
     );
 }
@@ -9828,13 +9828,13 @@ Trivector trivector_reject_oddmultivector(Trivector self, OddMultivector other) 
 
 Trivector trivector_reject_evenmultivector(Trivector self, EvenMultivector other) {
     return Trivector(
-        -self.e012 * other.s * other.s
+        self.e012 * other.s * other.s
     );
 }
 
 Trivector trivector_reject_multivector(Trivector self, Multivector other) {
     return Trivector(
-        -self.e012 * other.s * other.s
+        self.e012 * other.s * other.s
     );
 }
 
@@ -9888,10 +9888,10 @@ Null null_reject_multivector(Null self, Multivector other) {
 
 OddMultivector oddmultivector_reject_scalar(OddMultivector self, Scalar other) {
     return OddMultivector(
-        -self.e0 * other.s * other.s,
-        -self.e1 * other.s * other.s,
-        -self.e2 * other.s * other.s,
-        -self.e012 * other.s * other.s
+        self.e0 * other.s * other.s,
+        self.e1 * other.s * other.s,
+        self.e2 * other.s * other.s,
+        self.e012 * other.s * other.s
     );
 }
 
@@ -9906,9 +9906,9 @@ OddMultivector oddmultivector_reject_vector(OddMultivector self, Vector other) {
 
 OddMultivector oddmultivector_reject_bivector(OddMultivector self, Bivector other) {
     return OddMultivector(
-        -self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-        self.e0 * other.e20 * other.e12 + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
-        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 + self.e2 * other.e01 * other.e01,
+        self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+        -self.e0 * other.e20 * other.e12 - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
+        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 - self.e2 * other.e01 * other.e01,
         0.0
     );
 }
@@ -9942,19 +9942,19 @@ OddMultivector oddmultivector_reject_oddmultivector(OddMultivector self, OddMult
 
 OddMultivector oddmultivector_reject_evenmultivector(OddMultivector self, EvenMultivector other) {
     return OddMultivector(
-        -self.e0 * other.s * other.s - self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-        self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
-        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e01 * other.e01,
-        -self.e012 * other.s * other.s
+        self.e0 * other.s * other.s + self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+        -self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
+        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s - self.e2 * other.e01 * other.e01,
+        self.e012 * other.s * other.s
     );
 }
 
 OddMultivector oddmultivector_reject_multivector(OddMultivector self, Multivector other) {
     return OddMultivector(
-        -self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
-        self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 + self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
-        self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01,
-        -self.e012 * other.s * other.s
+        self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
+        self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
+        self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 - self.e2 * other.e01 * other.e01,
+        self.e012 * other.s * other.s
     );
 }
 
@@ -9969,10 +9969,10 @@ EvenMultivector evenmultivector_reject_scalar(EvenMultivector self, Scalar other
 
 EvenMultivector evenmultivector_reject_vector(EvenMultivector self, Vector other) {
     return EvenMultivector(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
-        -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-        -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-        self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2,
+        self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+        self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+        -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0
     );
 }
 
@@ -9987,7 +9987,7 @@ EvenMultivector evenmultivector_reject_bivector(EvenMultivector self, Bivector o
 
 EvenMultivector evenmultivector_reject_trivector(EvenMultivector self, Trivector other) {
     return EvenMultivector(
-        self.s * other.e012 * other.e012,
+        -self.s * other.e012 * other.e012,
         0.0,
         0.0,
         0.0
@@ -10005,10 +10005,10 @@ EvenMultivector evenmultivector_reject_null(EvenMultivector self, Null other) {
 
 EvenMultivector evenmultivector_reject_oddmultivector(EvenMultivector self, OddMultivector other) {
     return EvenMultivector(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
-        -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-        -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-        self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
+        self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+        self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+        -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0
     );
 }
 
@@ -10023,35 +10023,35 @@ EvenMultivector evenmultivector_reject_evenmultivector(EvenMultivector self, Eve
 
 EvenMultivector evenmultivector_reject_multivector(EvenMultivector self, Multivector other) {
     return EvenMultivector(
-        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
-        self.e01 * other.s * other.s - self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-        -self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-        self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0
+        self.s * other.s * other.s - self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
+        self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+        self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+        -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0
     );
 }
 
 Multivector multivector_reject_scalar(Multivector self, Scalar other) {
     return Multivector(
         self.s * other.s * other.s,
-        -self.e0 * other.s * other.s,
-        -self.e1 * other.s * other.s,
-        -self.e2 * other.s * other.s,
+        self.e0 * other.s * other.s,
+        self.e1 * other.s * other.s,
+        self.e2 * other.s * other.s,
         self.e01 * other.s * other.s,
         self.e20 * other.s * other.s,
         self.e12 * other.s * other.s,
-        -self.e012 * other.s * other.s
+        self.e012 * other.s * other.s
     );
 }
 
 Multivector multivector_reject_vector(Multivector self, Vector other) {
     return Multivector(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2,
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2,
         self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e1 * other.e0 * other.e1 - self.e2 * other.e0 * other.e2,
         self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e2 * other.e1 * other.e2,
         self.e0 * other.e0 * other.e2 - self.e1 * other.e1 * other.e2 - self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1,
-        -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-        -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-        self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0,
+        self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+        self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+        -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0,
         0.0
     );
 }
@@ -10059,9 +10059,9 @@ Multivector multivector_reject_vector(Multivector self, Vector other) {
 Multivector multivector_reject_bivector(Multivector self, Bivector other) {
     return Multivector(
         -self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12,
-        -self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-        self.e0 * other.e20 * other.e12 + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
-        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 + self.e2 * other.e01 * other.e01,
+        self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+        -self.e0 * other.e20 * other.e12 - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
+        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 - self.e2 * other.e01 * other.e01,
         0.0,
         0.0,
         0.0,
@@ -10071,7 +10071,7 @@ Multivector multivector_reject_bivector(Multivector self, Bivector other) {
 
 Multivector multivector_reject_trivector(Multivector self, Trivector other) {
     return Multivector(
-        self.s * other.e012 * other.e012,
+        -self.s * other.e012 * other.e012,
         0.0,
         0.0,
         0.0,
@@ -10097,13 +10097,13 @@ Multivector multivector_reject_null(Multivector self, Null other) {
 
 Multivector multivector_reject_oddmultivector(Multivector self, OddMultivector other) {
     return Multivector(
-        self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e2 * other.e2 + self.s * other.e012 * other.e012,
+        -self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e012 * other.e012,
         self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e1 * other.e0 * other.e1 - self.e2 * other.e0 * other.e2,
         self.e0 * other.e0 * other.e1 - self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e2 * other.e1 * other.e2,
         self.e0 * other.e0 * other.e2 - self.e1 * other.e1 * other.e2 - self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1,
-        -self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-        -self.e01 * other.e1 * other.e2 - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-        self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.e0 * other.e0,
+        self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+        self.e01 * other.e1 * other.e2 + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+        -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 - self.e12 * other.e0 * other.e0,
         0.0
     );
 }
@@ -10111,25 +10111,25 @@ Multivector multivector_reject_oddmultivector(Multivector self, OddMultivector o
 Multivector multivector_reject_evenmultivector(Multivector self, EvenMultivector other) {
     return Multivector(
         self.s * other.s * other.s - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12,
-        -self.e0 * other.s * other.s - self.e0 * other.e12 * other.e12 - self.e1 * other.e20 * other.e12 - self.e2 * other.e01 * other.e12,
-        self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s + self.e1 * other.e20 * other.e20 + self.e2 * other.e01 * other.e20,
-        self.e0 * other.e01 * other.e12 + self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s + self.e2 * other.e01 * other.e01,
+        self.e0 * other.s * other.s + self.e0 * other.e12 * other.e12 + self.e1 * other.e20 * other.e12 + self.e2 * other.e01 * other.e12,
+        -self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s - self.e1 * other.e20 * other.e20 - self.e2 * other.e01 * other.e20,
+        -self.e0 * other.e01 * other.e12 - self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s - self.e2 * other.e01 * other.e01,
         self.e01 * other.s * other.s,
         self.e20 * other.s * other.s,
         self.e12 * other.s * other.s,
-        -self.e012 * other.s * other.s
+        self.e012 * other.s * other.s
     );
 }
 
 Multivector multivector_reject_multivector(Multivector self, Multivector other) {
     return Multivector(
-        self.s * other.s * other.s + self.s * other.e0 * other.e0 - self.s * other.e1 * other.e1 - self.s * other.e01 * other.e01 - self.s * other.e2 * other.e2 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 + self.s * other.e012 * other.e012,
-        -self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 - self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 - self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 - self.e2 * other.e01 * other.e12,
-        self.e0 * other.e0 * other.e1 + self.e0 * other.e20 * other.e12 - self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 + self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 + self.e2 * other.e01 * other.e20,
-        self.e0 * other.e0 * other.e2 + self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 + self.e1 * other.e01 * other.e20 - self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 + self.e2 * other.e01 * other.e01,
-        self.e01 * other.s * other.s - self.e01 * other.e2 * other.e2 - self.e20 * other.e1 * other.e2 - self.e12 * other.e0 * other.e2,
-        -self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s - self.e20 * other.e1 * other.e1 - self.e12 * other.e0 * other.e1,
-        self.e01 * other.e0 * other.e2 + self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s + self.e12 * other.e0 * other.e0,
-        -self.e012 * other.s * other.s
+        self.s * other.s * other.s - self.s * other.e0 * other.e0 + self.s * other.e1 * other.e1 + self.s * other.e2 * other.e2 - self.s * other.e01 * other.e01 - self.s * other.e20 * other.e20 + self.s * other.e12 * other.e12 - self.s * other.e012 * other.e012,
+        self.e0 * other.s * other.s + self.e0 * other.e1 * other.e1 + self.e0 * other.e2 * other.e2 + self.e0 * other.e12 * other.e12 - self.e1 * other.e0 * other.e1 + self.e1 * other.e20 * other.e12 - self.e2 * other.e0 * other.e2 + self.e2 * other.e01 * other.e12,
+        self.e0 * other.e0 * other.e1 - self.e0 * other.e20 * other.e12 + self.e1 * other.s * other.s - self.e1 * other.e0 * other.e0 + self.e1 * other.e2 * other.e2 - self.e1 * other.e20 * other.e20 - self.e2 * other.e1 * other.e2 - self.e2 * other.e01 * other.e20,
+        self.e0 * other.e0 * other.e2 - self.e0 * other.e01 * other.e12 - self.e1 * other.e1 * other.e2 - self.e1 * other.e01 * other.e20 + self.e2 * other.s * other.s - self.e2 * other.e0 * other.e0 + self.e2 * other.e1 * other.e1 - self.e2 * other.e01 * other.e01,
+        self.e01 * other.s * other.s + self.e01 * other.e2 * other.e2 + self.e20 * other.e1 * other.e2 + self.e12 * other.e0 * other.e2,
+        self.e01 * other.e1 * other.e2 + self.e20 * other.s * other.s + self.e20 * other.e1 * other.e1 + self.e12 * other.e0 * other.e1,
+        -self.e01 * other.e0 * other.e2 - self.e20 * other.e0 * other.e1 + self.e12 * other.s * other.s - self.e12 * other.e0 * other.e0,
+        self.e012 * other.s * other.s
     );
 }

@@ -12,7 +12,7 @@ pub trait One {
 
 /// The grade involution operation.
 ///
-/// Flip signs of `g`-grade components where `g % 2 = 1`.
+/// Flip signs of blades with grade `g` where `g % 2 = 1`.
 pub trait Involute {
     type Output;
     fn involute(self) -> Self::Output;
@@ -20,7 +20,7 @@ pub trait Involute {
 
 /// The reverse operation.
 ///
-/// Flip signs of `g`-grade components where `g % 4 = 2, 3`.
+/// Flip signs of blades with grade `g` where `g % 4 = 2, 3`.
 pub trait Reverse {
     type Output;
     fn reverse(self) -> Self::Output;
@@ -28,7 +28,7 @@ pub trait Reverse {
 
 /// The Clifford conjugation operation.
 ///
-/// Flip signs of `g`-grade components where `g % 4 = 1, 2`.
+/// Flip signs of blades with grade `g` where `g % 4 = 1, 2`.
 pub trait Conjugate {
     type Output;
     fn conjugate(self) -> Self::Output;
@@ -66,14 +66,6 @@ pub trait Norm {
     fn norm(self) -> Self::Output;
 }
 
-/// The inverse operation.
-///
-/// Equivalent to `reverse(A) / norm_squared(A)`.
-pub trait Inverse {
-    type Output;
-    fn inverse(self) -> Self::Output;
-}
-
 /// The normalization operation.
 ///
 /// Equivalent to `A / norm(A)`.
@@ -85,6 +77,14 @@ pub trait Normalized {
 /// The in-place normalization operation.
 pub trait Normalize {
     fn normalize(&mut self);
+}
+
+/// The inverse operation.
+///
+/// Satisfies `geometric_product(inverse(A), A) = geometric_product(A, inverse(A)) = 1`.
+pub trait Inverse {
+    type Output;
+    fn inverse(self) -> Self::Output;
 }
 
 /// The geometric product operation.

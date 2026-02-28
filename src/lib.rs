@@ -4,5 +4,5 @@ mod algebra;
 mod ast;
 mod syntax;
 
-pub use crate::algebra::{GeometricAlgeberaRecord, GeometricAlgebraBuilder};
+pub use crate::algebra::GeometricAlgebraRecord;
 pub use syntax::*;
