@@ -1,5 +1,10 @@
 use geometric_alg_codegen::{GeometricAlgebraRecord, Syntax};
+use std::env;
+use std::error::Error;
+use std::fs;
 use std::io::{BufWriter, Write};
+use std::path::Path;
+use std::process::Command;
 
 macro_rules! algebra {
     ($e0_squared:expr, $e1_squared:expr) => {
@@ -77,24 +82,22 @@ macro_rules! algebra_def_impl {
     };
 }
 
-fn emit_algebras(
-    items: &[(&str, GeometricAlgebraRecord<&str>)],
-) -> Result<(), Box<dyn std::error::Error>> {
-    let out_dir = std::env::var("OUT_DIR")?;
-    let out_dir = std::path::Path::new(&out_dir);
+fn emit_algebras(items: &[(&str, GeometricAlgebraRecord<&str>)]) -> Result<(), Box<dyn Error>> {
+    let out_dir = env::var("OUT_DIR")?;
+    let out_dir = Path::new(&out_dir);
 
-    let mut rust_file = BufWriter::new(std::fs::File::create(out_dir.join("rust.rs"))?);
+    let mut rust_file = BufWriter::new(fs::File::create(out_dir.join("rust.rs"))?);
     let rust_dir = out_dir.join("rust");
     let wgsl_dir = out_dir.join("wgsl");
     let glsl_dir = out_dir.join("glsl");
-    std::fs::create_dir_all(&rust_dir)?;
-    std::fs::create_dir_all(&wgsl_dir)?;
-    std::fs::create_dir_all(&glsl_dir)?;
+    fs::create_dir_all(&rust_dir)?;
+    fs::create_dir_all(&wgsl_dir)?;
+    fs::create_dir_all(&glsl_dir)?;
 
     for (name, alg) in items {
         let path = rust_dir.join(name).with_extension("rs");
         alg.emit(
-            &mut BufWriter::new(std::fs::File::create(&path)?),
+            &mut BufWriter::new(fs::File::create(&path)?),
             Syntax::Rust,
             "f32",
         )?;
@@ -105,25 +108,21 @@ fn emit_algebras(
 
         let path = wgsl_dir.join(name).with_extension("wgsl");
         alg.emit(
-            &mut BufWriter::new(std::fs::File::create(&path)?),
+            &mut BufWriter::new(fs::File::create(&path)?),
             Syntax::Wgsl,
             "f32",
         )?;
-        if !std::process::Command::new("naga")
-            .arg(&path)
-            .status()?
-            .success()
-        {
+        if !Command::new("naga").arg(&path).status()?.success() {
             panic!("WGSL validation failed");
         }
 
         let path = glsl_dir.join(name).with_extension("glsl");
         alg.emit(
-            &mut BufWriter::new(std::fs::File::create(&path)?),
+            &mut BufWriter::new(fs::File::create(&path)?),
             Syntax::Glsl,
             "float",
         )?;
-        if !std::process::Command::new("glslangValidator")
+        if !Command::new("glslangValidator")
             .args(["-S", "vert"])
             .arg(&path)
             .status()?
@@ -135,7 +134,7 @@ fn emit_algebras(
     Ok(())
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     emit_algebras(&[
         ("epga1d", algebra!(-1, 1)),
         ("ppga1d", algebra!(0, 1)),

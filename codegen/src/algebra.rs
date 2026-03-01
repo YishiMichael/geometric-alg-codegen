@@ -16,11 +16,7 @@ enum Sign {
 
 impl Sign {
     fn from_count(count: usize) -> Self {
-        if 1 & count == 0 {
-            Self::Pos
-        } else {
-            Self::Neg
-        }
+        if 1 & count == 0 { Self::Pos } else { Self::Neg }
     }
 }
 
@@ -252,6 +248,7 @@ impl NullaryConstructorSignature {
         )
     }
 
+    #[allow(dead_code)]
     fn call(
         &self,
         class: <GeometricAlgebra as Ast>::Type,
@@ -286,6 +283,7 @@ impl UnaryConstructorSignature {
         )
     }
 
+    #[allow(dead_code)]
     fn call(
         &self,
         class: <GeometricAlgebra as Ast>::Type,
@@ -322,6 +320,7 @@ impl UnarySignature {
         )
     }
 
+    #[allow(dead_code)]
     fn call(
         &self,
         exprs: [(Expr<GeometricAlgebra>, <GeometricAlgebra as Ast>::Type); 1],
@@ -359,6 +358,7 @@ impl BinarySignature {
         )
     }
 
+    #[allow(dead_code)]
     fn call(
         &self,
         exprs: [(Expr<GeometricAlgebra>, <GeometricAlgebra as Ast>::Type); 2],
@@ -391,6 +391,7 @@ impl UnaryInplaceSignature {
         )
     }
 
+    #[allow(dead_code)]
     fn call(
         &self,
         exprs: [(Expr<GeometricAlgebra>, <GeometricAlgebra as Ast>::Type); 1],
@@ -425,6 +426,7 @@ impl BinaryInplaceSignature {
         )
     }
 
+    #[allow(dead_code)]
     fn call(
         &self,
         exprs: [(Expr<GeometricAlgebra>, <GeometricAlgebra as Ast>::Type); 2],
@@ -1745,13 +1747,14 @@ impl<S> GeometricAlgebraRecord<S> {
                 .collect(),
         };
         assert_eq!(alg.blade_intrinsic_signs.len(), blades.len());
-        assert!(alg
-            .blade_intrinsic_signs
-            .keys()
-            .map(|blade| blade.generator_bits)
-            .sorted()
-            .enumerate()
-            .all(|(index, generator_bits)| index == generator_bits));
+        assert!(
+            alg.blade_intrinsic_signs
+                .keys()
+                .map(|blade| blade.generator_bits)
+                .sorted()
+                .enumerate()
+                .all(|(index, generator_bits)| index == generator_bits)
+        );
         Self {
             record: alg.record(),
             blade_names: alg

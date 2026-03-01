@@ -31,6 +31,7 @@ pub trait Stringifier<A: Ast> {
     fn stringify_field(&self, field: &A::Field) -> &str;
 }
 
+#[allow(dead_code)]
 #[derive(Clone, Copy)]
 pub enum TypeBinding<Type> {
     SelfBining,
@@ -140,13 +141,13 @@ pub struct OperationSignature<
 }
 
 impl<
-        A: Ast,
-        const GENERICS: usize,
-        const ASSOCIATES: usize,
-        const SELF: usize,
-        const PARAMS: usize,
-        const RETURN: usize,
-    > OperationSignature<A, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
+    A: Ast,
+    const GENERICS: usize,
+    const ASSOCIATES: usize,
+    const SELF: usize,
+    const PARAMS: usize,
+    const RETURN: usize,
+> OperationSignature<A, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
 {
     fn implementation<Body>(
         &self,
@@ -284,6 +285,7 @@ impl<
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 0, PARAMS, 1>
 {
+    #[allow(dead_code)]
     pub fn call_expr(
         &self,
         self_type: A::Type,
@@ -304,6 +306,7 @@ impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 1, PARAMS, 1>
 {
+    #[allow(dead_code)]
     pub fn call_expr(
         &self,
         self_type: A::Type,
@@ -325,6 +328,7 @@ impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 0, PARAMS, 0>
 {
+    #[allow(dead_code)]
     pub fn call_stmt(
         &self,
         self_type: A::Type,
@@ -348,6 +352,7 @@ impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 1, PARAMS, 0>
 {
+    #[allow(dead_code)]
     pub fn call_stmt(
         &self,
         self_type: A::Type,
