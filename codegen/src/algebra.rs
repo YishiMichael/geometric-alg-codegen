@@ -1763,15 +1763,14 @@ impl<S> GeometricAlgebraRecord<S> {
         }
     }
 
-    pub fn write<Lang, Buffer>(
+    pub fn emit<Buffer>(
         &self,
-        lang: Lang,
         buffer: &mut Buffer,
+        syntax: Syntax,
         precision: S,
     ) -> std::io::Result<()>
     where
         Buffer: std::io::Write,
-        Lang: Syntax,
         S: AsRef<str>,
     {
         let stringifier = GeometricAlgebraStringifier {
@@ -1779,6 +1778,6 @@ impl<S> GeometricAlgebraRecord<S> {
             precision,
         };
         let mut writer = Writer::new(buffer);
-        lang.emit_record(&mut writer, &stringifier, &self.record)
+        syntax.emit_record(&mut writer, &stringifier, &self.record)
     }
 }

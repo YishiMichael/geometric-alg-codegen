@@ -1,5 +1,5 @@
-use geometric_alg_codegen::*;
-use std::io::BufWriter;
+use geometric_alg_codegen::{GeometricAlgebraRecord, Syntax};
+use std::io::{BufWriter, Write};
 
 macro_rules! algebra {
     ($e0_squared:expr, $e1_squared:expr) => {
@@ -77,8 +77,66 @@ macro_rules! algebra_def_impl {
     };
 }
 
-fn main() -> std::io::Result<()> {
-    for (name, alg) in [
+fn emit_algebras(
+    items: &[(&str, GeometricAlgebraRecord<&str>)],
+) -> Result<(), Box<dyn std::error::Error>> {
+    let out_dir = std::env::var("OUT_DIR")?;
+    let out_dir = std::path::Path::new(&out_dir);
+
+    let mut rust_file = BufWriter::new(std::fs::File::create(out_dir.join("rust.rs"))?);
+    let rust_dir = out_dir.join("rust");
+    let wgsl_dir = out_dir.join("wgsl");
+    let glsl_dir = out_dir.join("glsl");
+    std::fs::create_dir_all(&rust_dir)?;
+    std::fs::create_dir_all(&wgsl_dir)?;
+    std::fs::create_dir_all(&glsl_dir)?;
+
+    for (name, alg) in items {
+        let path = rust_dir.join(name).with_extension("rs");
+        alg.emit(
+            &mut BufWriter::new(std::fs::File::create(&path)?),
+            Syntax::Rust,
+            "f32",
+        )?;
+        writeln!(
+            &mut rust_file,
+            r#"pub mod {name} {{ include!(concat!(env!("OUT_DIR"), "/rust/{name}.rs")); }}"#
+        )?;
+
+        let path = wgsl_dir.join(name).with_extension("wgsl");
+        alg.emit(
+            &mut BufWriter::new(std::fs::File::create(&path)?),
+            Syntax::Wgsl,
+            "f32",
+        )?;
+        if !std::process::Command::new("naga")
+            .arg(&path)
+            .status()?
+            .success()
+        {
+            panic!("WGSL validation failed");
+        }
+
+        let path = glsl_dir.join(name).with_extension("glsl");
+        alg.emit(
+            &mut BufWriter::new(std::fs::File::create(&path)?),
+            Syntax::Glsl,
+            "float",
+        )?;
+        if !std::process::Command::new("glslangValidator")
+            .args(["-S", "vert"])
+            .arg(&path)
+            .status()?
+            .success()
+        {
+            panic!("GLSL validation failed");
+        }
+    }
+    Ok(())
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    emit_algebras(&[
         ("epga1d", algebra!(-1, 1)),
         ("ppga1d", algebra!(0, 1)),
         ("hpga1d", algebra!(1, 1)),
@@ -88,28 +146,5 @@ fn main() -> std::io::Result<()> {
         ("epga3d", algebra!(-1, 1, 1, 1)),
         ("ppga3d", algebra!(0, 1, 1, 1)),
         ("hpga3d", algebra!(1, 1, 1, 1)),
-    ] {
-        alg.write(
-            RustLang,
-            &mut BufWriter::new(std::fs::File::create(format!(
-                "geometric-alg/src/rust/{name}.rs"
-            ))?),
-            "f32",
-        )?;
-        alg.write(
-            WGSLLang,
-            &mut BufWriter::new(std::fs::File::create(format!(
-                "geometric-alg/src/wgsl/{name}.wgsl"
-            ))?),
-            "f32",
-        )?;
-        alg.write(
-            GLSLLang,
-            &mut BufWriter::new(std::fs::File::create(format!(
-                "geometric-alg/src/glsl/{name}.glsl"
-            ))?),
-            "float",
-        )?;
-    }
-    Ok(())
+    ])
 }

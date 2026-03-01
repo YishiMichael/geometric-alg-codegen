@@ -2,19 +2,27 @@ mod glsl;
 mod rust;
 mod wgsl;
 
-pub use glsl::GLSLLang;
-pub use rust::RustLang;
-pub use wgsl::WGSLLang;
-
 use crate::ast::{Ast, Record, Stringifier};
 
-pub trait Syntax {
-    fn emit_record<A: Ast>(
+pub enum Syntax {
+    Glsl,
+    Rust,
+    Wgsl,
+}
+
+impl Syntax {
+    pub fn emit_record<A: Ast>(
         &self,
         writer: &mut Writer,
         stringifier: &dyn Stringifier<A>,
         record: &Record<A>,
-    ) -> std::io::Result<()>;
+    ) -> std::io::Result<()> {
+        match self {
+            Self::Glsl => glsl::emit_record(writer, stringifier, record),
+            Self::Rust => rust::emit_record(writer, stringifier, record),
+            Self::Wgsl => wgsl::emit_record(writer, stringifier, record),
+        }
+    }
 }
 
 pub struct Writer<'w> {

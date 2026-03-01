@@ -1,9 +1,0 @@
-pub mod epga1d;
-pub mod epga2d;
-pub mod epga3d;
-pub mod hpga1d;
-pub mod hpga2d;
-pub mod hpga3d;
-pub mod ppga1d;
-pub mod ppga2d;
-pub mod ppga3d;

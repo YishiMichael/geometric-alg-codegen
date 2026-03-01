@@ -28,3 +28,6 @@ homepage.workspace = true
 repository.workspace = true
 keywords.workspace = true
 categories.workspace = true
+
+[build-dependencies.geometric-alg-codegen]
+path = "codegen"

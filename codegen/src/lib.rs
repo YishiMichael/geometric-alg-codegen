@@ -5,4 +5,4 @@ mod ast;
 mod syntax;
 
 pub use crate::algebra::GeometricAlgebraRecord;
-pub use syntax::*;
+pub use crate::syntax::Syntax;
