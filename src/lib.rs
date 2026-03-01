@@ -1,8 +1,5 @@
-#![allow(clippy::type_complexity)]
+mod rust;
+mod traits;
 
-mod algebra;
-mod ast;
-mod syntax;
-
-pub use crate::algebra::GeometricAlgebraRecord;
-pub use syntax::*;
+pub use rust::*;
+pub use traits::*;

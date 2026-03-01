@@ -2,7 +2,7 @@
 resolver = "3"
 members = [
     ".",
-    "geometric-alg",
+    "codegen",
 ]
 
 [workspace.package]
@@ -17,8 +17,8 @@ keywords = []
 categories = []
 
 [package]
-name = "geometric-alg-codegen"
-description = "Generate Rust/GLSL/WGSL code for geometric algebra library"
+name = "geometric-alg"
+description = "Generated geometric algebra library"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -28,16 +28,3 @@ homepage.workspace = true
 repository.workspace = true
 keywords.workspace = true
 categories.workspace = true
-
-[dependencies.indexmap]
-version = "2.13.0"
-
-[dependencies.itertools]
-version = "0.14.0"
-
-[dependencies.strum]
-version = "0.27.2"
-features = ["derive"]
-
-[[example]]
-name = "generate"

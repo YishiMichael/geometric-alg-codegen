@@ -63,11 +63,11 @@ macro_rules! algebra_def_impl {
     ([$($generator:expr,)*] $blades:tt $generator_name:ident ^ 2 = $generator_square:expr, $($rest:tt)*) => {
         algebra_def_impl!([$($generator,)* (stringify!($generator_name), $generator_square),] $blades $($rest)*)
     };
-    ($generators:tt [$($blade:expr,)*] $name:ident := 1, $($rest:tt)*) => {
-        algebra_def_impl!($generators [$($blade,)* (stringify!($name), vec![]),] $($rest)*)
+    ($generators:tt [$($blade:expr,)*] $blade_name:ident := 1, $($rest:tt)*) => {
+        algebra_def_impl!($generators [$($blade,)* (stringify!($blade_name), vec![]),] $($rest)*)
     };
-    ($generators:tt [$($blade:expr,)*] $name:ident := $head:ident $(* $tail:ident)*, $($rest:tt)*) => {
-        algebra_def_impl!($generators [$($blade,)* (stringify!($name), vec![stringify!($head) $(, stringify!($tail))*]),] $($rest)*)
+    ($generators:tt [$($blade:expr,)*] $blade_name:ident := $head:ident $(* $tail:ident)*, $($rest:tt)*) => {
+        algebra_def_impl!($generators [$($blade,)* (stringify!($blade_name), vec![stringify!($head) $(, stringify!($tail))*]),] $($rest)*)
     };
     ($generators:tt $blades:tt) => {
         GeometricAlgebraRecord::new(
