@@ -2,9 +2,6 @@
 
 mod traits;
 
-mod rust {
-    include!(concat!(env!("OUT_DIR"), "/rust.rs"));
-}
-
-pub use rust::*;
 pub use traits::*;
+
+include!(concat!(env!("OUT_DIR"), "/rust.rs"));
