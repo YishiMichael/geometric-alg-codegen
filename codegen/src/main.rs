@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 #![allow(clippy::type_complexity)]
 
 mod algebra;

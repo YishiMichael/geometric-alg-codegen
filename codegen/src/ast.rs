@@ -32,7 +32,6 @@ pub trait Stringifier<A: Ast> {
     fn stringify_literal(&self, literal: &A::Literal) -> String;
 }
 
-#[allow(dead_code)]
 #[derive(Clone, Copy)]
 pub enum TypeBinding<Type> {
     SelfBining,
@@ -286,7 +285,6 @@ impl<
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 0, PARAMS, 1>
 {
-    #[allow(dead_code)]
     pub fn call_expr(
         &self,
         self_type: A::Type,
@@ -307,7 +305,6 @@ impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 1, PARAMS, 1>
 {
-    #[allow(dead_code)]
     pub fn call_expr(
         &self,
         self_type: A::Type,
@@ -329,7 +326,6 @@ impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 0, PARAMS, 0>
 {
-    #[allow(dead_code)]
     pub fn call_stmt(
         &self,
         self_type: A::Type,
@@ -353,7 +349,6 @@ impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize
 impl<A: Ast, const GENERICS: usize, const ASSOCIATES: usize, const PARAMS: usize>
     OperationSignature<A, GENERICS, ASSOCIATES, 1, PARAMS, 0>
 {
-    #[allow(dead_code)]
     pub fn call_stmt(
         &self,
         self_type: A::Type,
