@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+mkdir -p ./geometric-alg/src/generated/rust
+mkdir -p ./geometric-alg/src/generated/wgsl
+mkdir -p ./geometric-alg/src/generated/glsl
+
 for file in ./geometric-alg/src/algebra/*.txt; do
     name="$(basename "$file" .txt)"
 

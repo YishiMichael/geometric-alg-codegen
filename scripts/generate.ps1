@@ -1,3 +1,7 @@
+mkdir -Force ./geometric-alg/src/generated/rust | Out-Null
+mkdir -Force ./geometric-alg/src/generated/wgsl | Out-Null
+mkdir -Force ./geometric-alg/src/generated/glsl | Out-Null
+
 Get-ChildItem ./geometric-alg/src/algebra/*.txt | ForEach-Object {
     $name = $_.BaseName
 

@@ -6,27 +6,27 @@ jobs:
   codegen:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - name: Checkout
+      uses: actions/checkout@v6
     - name: Build codegen
       run: cargo build --manifest-path codegen/Cargo.toml
     - name: Fmt codegen
       run: cargo fmt --manifest-path codegen/Cargo.toml -- --check
     - name: Clippy codegen
       run: cargo clippy --manifest-path codegen/Cargo.toml --all-targets
-    - run: chmod +x scripts/generate.sh
     - name: Generate
-      run: ./scripts/generate.sh
+      run: chmod +x scripts/generate.sh && ./scripts/generate.sh
     - name: Check rust lib
       run: cargo build --manifest-path geometric-alg/Cargo.toml --all-targets
-    - run: cargo install naga-cli
     - name: Check wgsl lib
       run: |
+        cargo install naga-cli
         for f in $(find ./geometric-alg/src/generated/wgsl -name "*.wgsl"); do
           naga "$f"
         done
-    - run: sudo apt-get install -y glslang-tools
     - name: Check glsl lib
       run: |
+        sudo apt-get install -y glslang-tools
         for f in $(find ./geometric-alg/src/generated/glsl -name "*.glsl"); do
           glslangValidator -S vert "$f"
         done
