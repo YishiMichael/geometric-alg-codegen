@@ -25,15 +25,18 @@ jobs:
   codegen:
     runs-on: ubuntu-latest
     needs: codegen-build
+    steps:
     - run: chmod +x scripts/generate.sh
     - run: ./generate.sh
   lib-rust:
     runs-on: ubuntu-latest
     needs: codegen
+    steps:
     - run: cargo build --manifest-path geometric-alg/Cargo.toml --all-targets
   lib-wgsl:
     runs-on: ubuntu-latest
     needs: codegen
+    steps:
     - run: cargo install naga-cli
     - run: |
       for f in $(find ./geometric-alg/src/generated/wgsl -name "*.wgsl"); do
@@ -42,6 +45,7 @@ jobs:
   lib-glsl:
     runs-on: ubuntu-latest
     needs: codegen
+    steps:
     - run: sudo apt-get install -y glslang-tools
     - run: |
       for f in $(find ./geometric-alg/src/generated/glsl -name "*.glsl"); do
