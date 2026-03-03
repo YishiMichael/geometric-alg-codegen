@@ -152,7 +152,11 @@ fn emit_expr<A: Ast>(
             write!(writer.buffer(), "{param}")?;
         }
         ExprRepr::Literal { value } => {
-            write!(writer.buffer(), "{value}.0")?;
+            write!(
+                writer.buffer(),
+                "{value}",
+                value = stringifier.stringify_literal(value),
+            )?;
         }
         ExprRepr::Struct { template, fields } => {
             write!(
@@ -335,8 +339,7 @@ fn mangle<'s>(
         [self_type, operation.fn_name()]
             .into_iter()
             .chain(generic_types)
-            .map(|s| s.replace('_', ""))
+            .map(|s| s.replace('_', "").to_lowercase())
             .join("_")
-            .to_lowercase()
     }
 }

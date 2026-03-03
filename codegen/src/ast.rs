@@ -29,6 +29,7 @@ pub trait Stringifier<A: Ast> {
     fn stringify_type(&self, r#type: &A::Type) -> &str;
     fn stringify_template(&self, template: &A::Template) -> &str;
     fn stringify_field(&self, field: &A::Field) -> &str;
+    fn stringify_literal(&self, literal: &A::Literal) -> String;
 }
 
 #[allow(dead_code)]
@@ -141,13 +142,13 @@ pub struct OperationSignature<
 }
 
 impl<
-    A: Ast,
-    const GENERICS: usize,
-    const ASSOCIATES: usize,
-    const SELF: usize,
-    const PARAMS: usize,
-    const RETURN: usize,
-> OperationSignature<A, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
+        A: Ast,
+        const GENERICS: usize,
+        const ASSOCIATES: usize,
+        const SELF: usize,
+        const PARAMS: usize,
+        const RETURN: usize,
+    > OperationSignature<A, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
 {
     fn implementation<Body>(
         &self,

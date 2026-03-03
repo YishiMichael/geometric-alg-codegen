@@ -210,7 +210,11 @@ fn emit_expr<A: Ast>(
             write!(writer.buffer(), "{param}")?;
         }
         ExprRepr::Literal { value } => {
-            write!(writer.buffer(), "{value}.0")?;
+            write!(
+                writer.buffer(),
+                "{value}",
+                value = stringifier.stringify_literal(value),
+            )?;
         }
         ExprRepr::Struct { template, fields } => {
             if fields.is_empty() {

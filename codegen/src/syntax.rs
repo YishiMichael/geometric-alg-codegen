@@ -1,6 +1,6 @@
-mod glsl;
-mod rust;
-mod wgsl;
+pub mod glsl;
+pub mod rust;
+pub mod wgsl;
 
 use crate::ast::{Ast, Record, Stringifier};
 

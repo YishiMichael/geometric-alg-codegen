@@ -16,7 +16,11 @@ enum Sign {
 
 impl Sign {
     fn from_count(count: usize) -> Self {
-        if 1 & count == 0 { Self::Pos } else { Self::Neg }
+        if 1 & count == 0 {
+            Self::Pos
+        } else {
+            Self::Neg
+        }
     }
 }
 
@@ -836,6 +840,7 @@ impl<const DEGREE: usize> MultinomialConfig<DEGREE> {
     }
 }
 
+#[derive(Clone)]
 struct GeometricAlgebra {
     dim: usize,
     generator_squares: indexmap::IndexMap<Generator, Coefficient>,
@@ -1638,12 +1643,15 @@ impl GeometricAlgebra {
     }
 }
 
-struct GeometricAlgebraStringifier<'s, S> {
-    blade_names: &'s indexmap::IndexMap<Blade, S>,
-    precision: S,
+struct GeometricAlgebraStringifier<'s, BladeName> {
+    blade_names: &'s indexmap::IndexMap<Blade, BladeName>,
+    precision: &'s dyn AsRef<str>,
+    precision_suffix: &'s dyn AsRef<str>,
 }
 
-impl<S: AsRef<str>> Stringifier<GeometricAlgebra> for GeometricAlgebraStringifier<'_, S> {
+impl<BladeName: AsRef<str>> Stringifier<GeometricAlgebra>
+    for GeometricAlgebraStringifier<'_, BladeName>
+{
     fn stringify_type(&self, r#type: &<GeometricAlgebra as Ast>::Type) -> &str {
         match r#type {
             Class::Base => self.precision.as_ref(),
@@ -1697,90 +1705,245 @@ impl<S: AsRef<str>> Stringifier<GeometricAlgebra> for GeometricAlgebraStringifie
     fn stringify_field(&self, field: &<GeometricAlgebra as Ast>::Field) -> &str {
         self.blade_names[field].as_ref()
     }
+
+    fn stringify_literal(&self, literal: &<GeometricAlgebra as Ast>::Literal) -> String {
+        format!(
+            "{literal}.0{suffix}",
+            suffix = self.precision_suffix.as_ref(),
+        )
+    }
 }
 
-pub struct GeometricAlgebraRecord<S> {
+#[derive(Clone)]
+pub struct NamedGeometricAlgebra<BladeName = String> {
+    alg: GeometricAlgebra,
+    blade_names: indexmap::IndexMap<Blade, BladeName>,
+}
+
+pub struct NamedGeometricAlgebraRecord<'s, BladeName = String> {
     record: Record<GeometricAlgebra>,
-    blade_names: indexmap::IndexMap<Blade, S>,
+    blade_names: &'s indexmap::IndexMap<Blade, BladeName>,
 }
 
-impl<S> GeometricAlgebraRecord<S> {
-    pub fn new<G>(
-        generators: indexmap::IndexMap<G, Coefficient>,
-        blades: indexmap::IndexMap<S, Vec<G>>,
-    ) -> Self
-    where
-        G: Eq + std::hash::Hash,
-        S: std::hash::Hash,
-    {
-        let dim = generators.len();
-        assert_eq!(1 << dim, blades.len());
-        let alg = GeometricAlgebra {
-            dim,
-            generator_squares: generators
-                .values()
-                .enumerate()
-                .map(|(generator, generator_square)| (Generator { generator }, *generator_square))
-                .collect(),
-            blade_intrinsic_signs: blades
-                .values()
-                .map(|generator_names| {
-                    let indices = generator_names
-                        .iter()
-                        .map(|generator_name| generators.get_index_of(generator_name).unwrap())
-                        .collect_vec();
-                    let blade = Blade {
-                        generator_bits: indices
-                            .iter()
-                            .map(|index| 1 << index)
-                            .fold(0, std::ops::BitXor::bitxor),
-                    };
-                    let sign = Sign::from_count(
-                        indices
-                            .iter()
-                            .tuple_combinations()
-                            .filter(|(index_0, index_1)| index_0 > index_1)
-                            .count(),
-                    );
-                    (blade, sign)
-                })
-                .collect(),
-        };
-        assert_eq!(alg.blade_intrinsic_signs.len(), blades.len());
-        assert!(
-            alg.blade_intrinsic_signs
-                .keys()
-                .map(|blade| blade.generator_bits)
-                .sorted()
-                .enumerate()
-                .all(|(index, generator_bits)| index == generator_bits)
-        );
-        Self {
-            record: alg.record(),
-            blade_names: alg
-                .blade_intrinsic_signs
-                .keys()
-                .cloned()
-                .zip(blades.into_keys())
-                .collect(),
+impl<BladeName> NamedGeometricAlgebra<BladeName> {
+    pub fn record<'s>(&'s self) -> NamedGeometricAlgebraRecord<'s, BladeName> {
+        NamedGeometricAlgebraRecord {
+            record: self.alg.record(),
+            blade_names: &self.blade_names,
         }
     }
+}
 
+impl<BladeName> NamedGeometricAlgebraRecord<'_, BladeName> {
     pub fn emit<Buffer>(
         &self,
         buffer: &mut Buffer,
         syntax: Syntax,
-        precision: S,
+        precision: &dyn AsRef<str>,
+        precision_suffix: &dyn AsRef<str>,
     ) -> std::io::Result<()>
     where
         Buffer: std::io::Write,
-        S: AsRef<str>,
+        BladeName: AsRef<str>,
     {
         let stringifier = GeometricAlgebraStringifier {
-            blade_names: &self.blade_names,
+            blade_names: self.blade_names,
             precision,
+            precision_suffix,
         };
         let mut writer = Writer::new(buffer);
         syntax.emit_record(&mut writer, &stringifier, &self.record)
+    }
+}
+
+mod parse {
+    use super::{Blade, Generator, GeometricAlgebra, NamedGeometricAlgebra, Sign};
+    use itertools::Itertools;
+    use winnow::ascii::{dec_int, line_ending, space0};
+    use winnow::combinator::{alt, opt, separated, separated_pair};
+    use winnow::prelude::*;
+    use winnow::token::take_while;
+
+    #[derive(Debug)]
+    pub enum ParseError {
+        Winnow(String),
+        RedundantGenerator(String),
+        RedundantBlade(String),
+        UncoveredBlade(Vec<String>),
+        CollidedBlade(Vec<String>, Vec<String>),
+    }
+
+    impl std::fmt::Display for ParseError {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                Self::Winnow(error) => write!(f, "{error}"),
+                Self::RedundantGenerator(name) => write!(f, "redundant generator `{name}`"),
+                Self::RedundantBlade(name) => write!(f, "redundant blade `{name}`"),
+                Self::UncoveredBlade(generators) => write!(
+                    f,
+                    "blade `{blade_expr}` uncovered",
+                    blade_expr = generators.iter().join(" * "),
+                ),
+                Self::CollidedBlade(generators, names) => write!(
+                    f,
+                    "blade `{blade_expr}` collided by {names}",
+                    blade_expr = generators.iter().join(" * "),
+                    names = names.iter().map(|name| format!("`{name}`")).join(", "),
+                ),
+            }
+        }
+    }
+
+    impl std::error::Error for ParseError {}
+
+    enum Rule {
+        Generator {
+            name: String,
+            generator_square: i32,
+        },
+        Blade {
+            name: String,
+            generator_names: Vec<String>,
+        },
+    }
+
+    fn identifier(s: &mut &str) -> ModalResult<String> {
+        take_while(1.., |c: char| c.is_alphanumeric() || c == '_')
+            .verify(|s: &str| s.chars().next().unwrap_or_default().is_alphabetic())
+            .map(ToOwned::to_owned)
+            .parse_next(s)
+    }
+
+    fn rules(s: &mut &str) -> ModalResult<Vec<Rule>> {
+        separated(
+            0..,
+            opt(alt((
+                separated_pair(
+                    identifier,
+                    (space0, '^', space0, '2', space0, '=', space0),
+                    dec_int,
+                )
+                .map(|(name, generator_square)| Rule::Generator {
+                    name,
+                    generator_square,
+                }),
+                separated_pair(
+                    identifier,
+                    (space0, ":=", space0),
+                    alt((
+                        '1'.map(|_| vec![]),
+                        separated(1.., identifier, (space0, '*', space0)),
+                    )),
+                )
+                .map(|(name, generator_names)| Rule::Blade {
+                    name,
+                    generator_names,
+                }),
+            ))),
+            line_ending,
+        )
+        .map(|rules: Vec<Option<Rule>>| rules.into_iter().flatten().collect())
+        .parse_next(s)
+    }
+
+    impl std::str::FromStr for NamedGeometricAlgebra {
+        type Err = ParseError;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let mut generators = indexmap::IndexMap::new();
+            let mut blades = indexmap::IndexMap::new();
+            for rule in rules
+                .parse(s)
+                .map_err(|error| ParseError::Winnow(error.to_string()))?
+            {
+                match rule {
+                    Rule::Generator {
+                        name,
+                        generator_square,
+                    } => {
+                        if generators.contains_key(&name) {
+                            Err(ParseError::RedundantGenerator(name))?
+                        } else {
+                            generators.insert(name, generator_square);
+                        }
+                    }
+                    Rule::Blade {
+                        name,
+                        generator_names,
+                    } => {
+                        if blades.contains_key(&name) {
+                            Err(ParseError::RedundantBlade(name))?
+                        } else {
+                            blades.insert(name, generator_names);
+                        }
+                    }
+                }
+            }
+            for generator_subset in generators.keys().powerset() {
+                let blade_names = blades
+                    .iter()
+                    .filter_map(|(blade_name, generator_names)| {
+                        (generator_names
+                            .iter()
+                            .sorted_by_key(|&generator_name| {
+                                generators.get_index_of(generator_name)
+                            })
+                            .collect_vec()
+                            == generator_subset)
+                            .then_some(blade_name)
+                    })
+                    .collect_vec();
+                if blade_names.is_empty() {
+                    Err(ParseError::UncoveredBlade(
+                        generator_subset.into_iter().cloned().collect(),
+                    ))?
+                } else if blade_names.len() > 1 {
+                    Err(ParseError::CollidedBlade(
+                        generator_subset.into_iter().cloned().collect(),
+                        blade_names.into_iter().cloned().collect(),
+                    ))?
+                }
+            }
+            let alg = GeometricAlgebra {
+                dim: generators.len(),
+                generator_squares: generators
+                    .values()
+                    .enumerate()
+                    .map(|(generator, generator_square)| {
+                        (Generator { generator }, *generator_square)
+                    })
+                    .collect(),
+                blade_intrinsic_signs: blades
+                    .values()
+                    .map(|generator_names| {
+                        let indices = generator_names
+                            .iter()
+                            .map(|generator_name| generators.get_index_of(generator_name).unwrap())
+                            .collect_vec();
+                        let blade = Blade {
+                            generator_bits: indices
+                                .iter()
+                                .map(|index| 1 << index)
+                                .fold(0, std::ops::BitXor::bitxor),
+                        };
+                        let sign = Sign::from_count(
+                            indices
+                                .iter()
+                                .tuple_combinations()
+                                .filter(|(index_0, index_1)| index_0 > index_1)
+                                .count(),
+                        );
+                        (blade, sign)
+                    })
+                    .collect(),
+            };
+            let blade_names = alg
+                .blade_intrinsic_signs
+                .keys()
+                .cloned()
+                .zip(blades.into_keys())
+                .collect();
+            Ok(Self { alg, blade_names })
+        }
     }
 }
