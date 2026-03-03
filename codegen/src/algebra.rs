@@ -16,11 +16,7 @@ enum Sign {
 
 impl Sign {
     fn from_count(count: usize) -> Self {
-        if 1 & count == 0 {
-            Self::Pos
-        } else {
-            Self::Neg
-        }
+        if 1 & count == 0 { Self::Pos } else { Self::Neg }
     }
 }
 

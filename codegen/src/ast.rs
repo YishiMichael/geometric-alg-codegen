@@ -141,13 +141,13 @@ pub struct OperationSignature<
 }
 
 impl<
-        A: Ast,
-        const GENERICS: usize,
-        const ASSOCIATES: usize,
-        const SELF: usize,
-        const PARAMS: usize,
-        const RETURN: usize,
-    > OperationSignature<A, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
+    A: Ast,
+    const GENERICS: usize,
+    const ASSOCIATES: usize,
+    const SELF: usize,
+    const PARAMS: usize,
+    const RETURN: usize,
+> OperationSignature<A, GENERICS, ASSOCIATES, SELF, PARAMS, RETURN>
 {
     fn implementation<Body>(
         &self,

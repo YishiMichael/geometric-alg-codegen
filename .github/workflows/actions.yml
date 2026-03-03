@@ -24,7 +24,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: chmod +x scripts/generate.sh
-    - run: ./generate.sh
+    - run: ./scripts/generate.sh
   lib-rust:
     runs-on: ubuntu-latest
     needs: codegen
