@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 
-mod generated;
+mod rust;
 mod traits;
 
-pub use generated::*;
+pub use rust::*;
 pub use traits::*;

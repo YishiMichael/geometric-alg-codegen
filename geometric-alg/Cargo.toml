@@ -11,5 +11,5 @@ repository = "https://github.com/YishiMichael/geometric-alg-codegen"
 keywords = ["geometric-algebra", "mathematics", "graphics", "codegen"]
 categories = ["mathematics", "graphics"]
 include = [
-    "src/generated/*/",
+    "src/*/",
 ]
