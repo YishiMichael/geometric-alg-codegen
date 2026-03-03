@@ -1,22 +1,14 @@
 [package]
 name = "geometric-alg-codegen"
-description = "Generate geometric algebra library code"
-version.workspace = true
-edition.workspace = true
-authors.workspace = true
-license.workspace = true
-readme.workspace = true
-homepage.workspace = true
-repository.workspace = true
-keywords.workspace = true
-categories.workspace = true
-
-[dependencies]
-clap-stdin = "0.8.1"
+publish = false
+edition = "2024"
 
 [dependencies.clap]
 version = "4.5.60"
 features = ["derive"]
+
+[dependencies.clap-stdin]
+version = "0.8.1"
 
 [dependencies.indexmap]
 version = "2.13.0"

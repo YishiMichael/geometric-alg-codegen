@@ -1,3 +1,2 @@
-# /generate.ps1
-/src/generated/*/*
+/geometric-alg/src/generated/*/*
 /target

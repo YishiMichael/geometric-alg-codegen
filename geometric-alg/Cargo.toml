@@ -1,0 +1,15 @@
+[package]
+name = "geometric-alg"
+description = "Generated geometric algebra library"
+version = "0.1.0"
+edition = "2024"
+authors = ["YishiMichael (GitHub)"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/YishiMichael/geometric-alg-codegen"
+repository = "https://github.com/YishiMichael/geometric-alg-codegen"
+keywords = ["geometric-algebra", "mathematics", "graphics", "codegen"]
+categories = ["mathematics", "graphics"]
+include = [
+    "src/generated/*/*",
+]
