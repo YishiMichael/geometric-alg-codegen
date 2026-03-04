@@ -21,12 +21,12 @@ jobs:
     - name: Check wgsl lib
       run: |
         cargo install naga-cli
-        for f in $(find ./geometric-alg/src/generated/wgsl -name "*.wgsl"); do
+        for f in $(find ./geometric-alg/src/wgsl -name "*.wgsl"); do
           naga "$f"
         done
     - name: Check glsl lib
       run: |
         sudo apt-get install -y glslang-tools
-        for f in $(find ./geometric-alg/src/generated/glsl -name "*.glsl"); do
+        for f in $(find ./geometric-alg/src/glsl -name "*.glsl"); do
           glslangValidator -S vert "$f"
         done
